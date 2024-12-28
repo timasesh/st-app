@@ -1,0 +1,10 @@
+<!-- courses/templates/courses/delete_module.html -->
+
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Вы уверены, что хотите удалить модуль "{{ module.title }}"?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% load static %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'styles.css' %}">
+<h2>Список тестов</h2>
+<ul>
+    {% for quiz in quizzes %}
+    <li>{{ quiz.text }} - <a href="{% url 'edit_quiz' quiz.pk %}">Редактировать</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'create_quiz' %}">Создать новый тест</a>

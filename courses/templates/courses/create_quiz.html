@@ -1,0 +1,150 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Создать квиз</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Общие стили для body */
+        body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #d7e1ff;
+        margin: 0;
+        padding: 0;
+        color: #ggg;
+        overflow: hidden; /* Убираем прокрутку */
+
+
+        }
+
+
+        /* .background {*/
+        /* position: absolute;*/
+        /* width: 100%;*/
+        /* height: 100%;*/
+        /* background-color: rgba(11, 44, 91, 0.9)*/
+        /* animation: shine 5s ease-in-out infinite; *//* Анимация блика */
+        /* z-index: -1; *//* За всеми элементами */
+        /* filter: blur(30px); *//* Размытие для мягкого эффекта */
+        /* }*/
+
+        @keyframes shine {
+        0% {
+        background-position: -100% 0;
+        }
+        50% {
+        background-position: 100% 0;
+        }
+        100% {
+        background-position: -100% 0;
+        }
+        }
+
+        /* Стили заголовков */
+        .zagolovok {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 2.8rem;
+        font-family: 'Montserrat', sans-serif; /* Модный шрифт для заголовка */
+
+        }
+
+        /* Стили для формы */
+        form {
+        background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 15px 30px rgba(255, 253, 253, 0.3);
+        max-width: 600px;
+        margin: 20px auto;
+        backdrop-filter: blur(10px); /* Размытие фона за формой */
+        transition: transform 0.3s; /* Плавная анимация */
+        }
+
+        form button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.2rem;
+        <!--            transition: background-color 0.3s, transform 0.3s; /* Анимация при наведении */-->
+        }
+
+        form button:hover {
+        background-color: #00aaff; /* Цвет кнопки при наведении */
+        <!--            transform: scale(1.05); /* Увеличение при наведении */-->
+        }
+
+        /* Стили для навигации */
+        .navbar {
+        background-color: #0b2c5b; /* Полупрозрачный темно-синий фон для навигации */
+        font-family: 'Montserrat', sans-serif;
+        }
+
+        .navbar .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 15px;
+        font-family: 'Montserrat', sans-serif;
+        }
+
+        .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn {
+        font-size: 1rem;
+        }
+
+        /* Убираем отступы для кнопок */
+        #logout-btn {
+        margin-left: 10px;
+        }
+
+
+        .btn-primary {
+        background-color: #0b2c5b;
+        border: none;
+        }
+
+        .btn-primary:hover {
+        background-color: #6495ED;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="background"></div> <!-- Фоновая анимация -->
+
+    <header class="navbar navbar-dark">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">ADMIN</span>
+            <div>
+                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
+            </div>
+        </div>
+    </header>
+
+    <h2 class="zagolovok">Создать новый квиз</h2>
+
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            {{ quiz_form.as_p }}
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        header {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #343a40;
+        }
+
+        .card {
+            background-color: #fff;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.7);
+        }
+
+        .card img {
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 5px solid #007bff;
+        }
+
+        .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .card-text {
+            color: #666;
+            text-align: center;
+            height: 60px;
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(0, 123, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(to right, #00c6ff, #007bff);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5);
+            transition: width 0.6s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00c6ff, #007bff);
+            border: none;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">STUDENT</span>
+        <div>
+            <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
+        </div>
+    </div>
+</header>
+
+<main class="container mt-5">
+    <h1>Добро пожаловать, {{ user.username }}</h1>
+    <h2>Ваши курсы</h2>
+    {% csrf_token %}
+    <div class="row">
+        {% if courses %}
+            {% for course in courses %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{% static 'images/course_animation.gif' %}" class="card-img-top" alt="Анимация курса">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ course.title }}</h5>
+                        <p class="card-text">{{ course.description }}</p>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress_data.course.id }}%;" aria-valuenow="{{ progress_data.course.id }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ progress_data|default_if_none:0 }}%
+                            </div>
+                        </div>
+                        <a href="{% url 'course_detail' course.id %}" class="btn btn-primary btn-block">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас нет записанных курсов.</p>
+        {% endif %}
+    </div>
+</main>
+
+</body>
+</html>

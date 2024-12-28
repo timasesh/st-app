@@ -1,0 +1,130 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Создать модуль</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Общие стили для body */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #d7e1ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Стили заголовков */
+        .zagolovok {
+            color: #ggg; /* Синий цвет для заголовка */
+            text-align: center;
+            margin-top: 50px;
+            font-size: 2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+
+        }
+
+        /* Стили для формы */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        form button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Контейнер для центровки контента */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+           }
+
+        /* Стили для навигации */
+        .navbar {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white; /* Цвет текста в навигации */
+            padding: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+
+        }
+
+        .btn {
+            font-size: 1rem;
+        }
+
+        /* Убираем отступы для кнопок */
+        #logout-btn {
+            margin-left: 10px;
+        }
+
+
+        .btn-primary {
+        background-color: #0b2c5b;
+        border: none;
+        }
+
+        .btn-primary:hover {
+        background-color: #6495ED;
+        border: none;
+        }
+
+
+    </style>
+</head>
+<body>
+     <header class="navbar navbar-dark" style="background-color: #0b2c5b;">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">ADMIN</span>
+            <div>
+                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
+            </div>
+        </div>
+    </header>
+
+    <h2 class="zagolovok">Создать новый модуль</h2>
+
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            {{ module_form.as_p }}
+            <button type="submit" class="btn btn-primary" name="add_module">Создать модуль</button>
+        </form>
+    </div>
+</body>
+</html>

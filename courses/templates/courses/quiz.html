@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прохождение квиза: {{ quiz.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s;
+            border: 2px solid #007bff;
+            transition: border-color 0.3s;
+        }
+        .quiz-container:hover {
+            border-color: #0056b3;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        h1 {
+            color: #333;
+            font-weight: bold;
+        }
+        .question-container {
+            margin-bottom: 20px;
+        }
+        .answer-btn {
+            margin: 10px 0;
+            width: 100%;
+            transition: all 0.3s;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .answer-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .answer-btn.selected {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        #result {
+            display: none;
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+        .result-message {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #28a745;
+        }
+        .finish-btn {
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="questionsContainer">
+            {% for question in questions %}
+            <div class="question-container {% if forloop.first %}active{% endif %}">
+                <h5>{{ forloop.counter }}: {{ question.text }}</h5>
+                {% for answer in question.answers.all %}
+                <button class="btn btn-outline-primary answer-btn" data-is-correct="{{ answer.is_correct }}">
+                    {{ answer.text }}
+                </button>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button id="finishBtn" class="btn btn-success finish-btn">Завершить квиз</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+    const questions = document.querySelectorAll('.question-container');
+    const resultDiv = document.getElementById('result');
+    const finishBtn = document.getElementById('finishBtn');
+    let answeredQuestions = new Set();
+
+    function showQuestion(index) {
+        questions.forEach((question, i) => {
+            question.classList.toggle('active', i === index);
+        });
+    }
+
+    document.querySelectorAll('.answer-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const currentButtons = this.parentElement.querySelectorAll('.answer-btn');
+
+            // Убираем выделение у всех кнопок в текущем вопросе
+            currentButtons.forEach(btn => btn.classList.remove('selected'));
+
+            // Добавляем выделение на выбранную кнопку
+            this.classList.add('selected');
+
+            // Добавляем индекс вопроса в set, чтобы отслеживать, на какие вопросы дан ответ
+            const questionIndex = Array.from(questions).indexOf(this.parentElement);
+            answeredQuestions.add(questionIndex);
+
+            // Если все вопросы имеют выбранный ответ, показать кнопку завершения
+            if (answeredQuestions.size === questions.length) {
+                finishBtn.style.display = 'block';
+            }
+        });
+    });
+
+    finishBtn.addEventListener('click', function() {
+        let correctAnswersCount = 0;
+
+        // Проходим по всем вопросам и проверяем правильность ответов
+        document.querySelectorAll('.question-container').forEach(question => {
+            const selectedAnswer = question.querySelector('.answer-btn.selected');
+            if (selectedAnswer && selectedAnswer.getAttribute('data-is-correct') === 'True') {
+                correctAnswersCount++;
+            }
+        });
+
+        resultDiv.textContent = `Вы ответили правильно на ${correctAnswersCount} из ${questions.length} вопросов.`;
+        resultDiv.style.display = 'block';
+        finishBtn.style.display = 'none';
+
+        // Показываем правильные ответы
+        document.querySelectorAll('.answer-btn').forEach(button => {
+            if (button.getAttribute('data-is-correct') === 'True') {
+                button.classList.add('btn-success');  // Подсветка правильных ответов
+            } else {
+                button.classList.add('btn-danger');   // Подсветка неправильных ответов
+            }
+        });
+    });
+finishBtn.addEventListener('click', function() {
+    let correctAnswersCount = 0;
+
+    // Проходим по всем вопросам и проверяем правильность ответов
+    document.querySelectorAll('.question-container').forEach(question => {
+        const selectedAnswer = question.querySelector('.answer-btn.selected');
+        if (selectedAnswer && selectedAnswer.getAttribute('data-is-correct') === 'True') {
+            correctAnswersCount++;
+        }
+    });
+
+    // Отправляем результат на сервер
+    fetch(`/submit_quiz/${quiz.id}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // Если используешь CSRF защиту
+        },
+        body: JSON.stringify({ score: correctAnswersCount })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Перенаправляем на страницу результатов
+            window.location.href = `/quiz/${quiz.id}/result/`;
+        } else {
+            // Обработка ошибки
+            alert(data.message);
+        }
+    });
+});
+    </script>
+</body>
+</html>

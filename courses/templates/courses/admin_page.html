@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+
+<header class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">ADMIN</span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
+    </div>
+</header>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-students-tab" data-toggle="pill" href="#v-pills-students" role="tab" aria-controls="v-pills-students" aria-selected="true">Студенты</a>
+                <a class="nav-link" id="v-pills-edit-course-tab" data-toggle="pill" href="#v-pills-edit-course" role="tab" aria-controls="v-pills-edit-course" aria-selected="false">Создать уроки/модуль</a>
+                <a class="nav-link" id="v-pills-manage-course-tab" data-toggle="pill" href="#v-pills-manage-course" role="tab" aria-controls="v-pills-manage-course" aria-selected="false">Создать/удалить курс</a>
+                <a class="nav-link" id="v-pills-create-quiz-tab" data-toggle="pill" href="#v-pills-create-quiz" role="tab" aria-controls="v-pills-create-quiz" aria-selected="false">Create quiz</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-students" role="tabpanel" aria-labelledby="v-pills-students-tab">
+                    <h2>Студенты</h2>
+                    <div class="student-list">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Имя студента</th>
+                                    <th>Название курса</th>
+                                    <th>Процент прохождения курса</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.course }}</td>
+                                    <td>{{ student.progress }}%</td>
+                                    <td>
+                                        <form method="post" action="{% url 'delete_student' student.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены?')">Удалить</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h2>Добавить студента</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ student_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_student">Добавить студента</button>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="v-pills-edit-course" role="tabpanel" aria-labelledby="v-pills-edit-course-tab">
+                    <h2>Создать урок</h2>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ lesson_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_lesson">Создать урок</button>
+                    </form>
+                    <h2>Создать модуль</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ module_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_module">Создать модуль</button>
+                    </form>
+
+                </div>
+                <div class="tab-pane fade" id="v-pills-manage-course" role="tabpanel" aria-labelledby="v-pills-manage-course-tab">
+                    <h2>Создать курс</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ course_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_course">Создать курс</button>
+                    </form>
+                    <h2>Удалить курс</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="course_id">Выберите курс:</label>
+                            <select id="course_id" name="course_id" class="form-control">
+                                {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger" name="delete_course">Удалить курс</button>
+                    </form>
+                </div>
+                  <div class="tab-pane fade" id="v-pills-create-quiz" role="tabpanel" aria-labelledby="v-pills-create-quiz-tab">
+    <div class="container mt-5">
+        <!-- Добавляем список квизов -->
+       <h2>Список квизов</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for quiz in quizzes %}
+        <tr>
+            <td>{{ quiz.title }}</td> <!-- Исправлено с {{ quiz.text }} на {{ quiz.title }} -->
+            <td>
+                <a href="{% url 'edit_quiz' quiz.pk %}" class="btn btn-primary">Редактировать</a>
+                <a href="{% url 'bind_quiz_to_module' quiz.pk %}" class="btn btn-secondary btn-sm">Привязать к модулю/Удалить с модуля</a>
+                <a href="#" class="btn btn-danger btn-sm delete-quiz-btn" data-quiz-id="{{ quiz.pk }}">Удалить квиз</a>
+            </td>
+        </tr>
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Подтверждение удаления</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Вы уверены, что хотите удалить этот квиз?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    </tbody>    
+
+</table>
+<a href="{% url 'create_quiz' %}" class="btn btn-success">Создать новый тест</a>
+
+</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<!-- Скрипты для добавления вопросов и ответов -->
+<script>
+let questionCount = 1;
+
+function addQuestion() {
+    let questionCount = document.querySelectorAll('.question-group').length + 1;
+    let container = document.getElementById('qa-container');
+
+    let newQuestionGroup = `
+        <div class="question-group">
+            <div class="form-group">
+                <label><strong>${questionCount} Вопрос</strong></label>
+                <input type="text" class="form-control" name="question[]" required>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Ответ 1" name="answer[]" required>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Ответ 2" name="answer[]" required>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Ответ 3" name="answer[]" required>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', newQuestionGroup);
+}
+    // Когда пользователь нажимает кнопку удаления
+    $('.delete-quiz-btn').on('click', function(event) {
+        event.preventDefault();
+
+        // Сохраняем ID квиза, который нужно удалить
+        let quizId = $(this).data('quiz-id');
+        console.log('Квиз ID для удаления: ', quizId);
+
+        // Открываем модальное окно подтверждения
+        $('#confirmDeleteModal').modal('show');
+
+        // При подтверждении удаления
+        $('#confirmDeleteBtn').off('click').on('click', function() {
+            console.log('Удаление подтверждено для квиза с ID: ', quizId);
+
+            // Отправляем AJAX запрос на удаление
+            $.ajax({
+                url: `/delete/quiz/${quizId}/`,  // URL на удаление
+                type: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'  // Добавляем CSRF токен
+                },
+                success: function(response) {
+                    console.log('Квиз успешно удален', response);
+
+                    // Закрываем модальное окно
+                    $('#confirmDeleteModal').modal('hide');
+
+                    // Убираем строку квиза из таблицы
+                    $(`a[data-quiz-id="${quizId}"]`).closest('tr').remove();
+
+                    // Можно вывести сообщение об успехе
+                    alert('Квиз успешно удален');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка удаления квиза:', error);
+                }
+            });
+        });
+    });
+$(document).ready(function() {
+    let courseId;
+
+    // Когда пользователь нажимает кнопку удаления
+    $('.delete-course-btn').on('click', function() {
+        courseId = $(this).data('course-id'); // Сохраняем ID курса, который нужно удалить
+    });
+
+    // При подтверждении удаления
+    $('#confirmDeleteBtn').on('click', function() {
+        $.ajax({
+            url: `/delete/course/${courseId}/`,  // URL на удаление
+            type: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'  // Добавляем CSRF токен
+            },
+            success: function(response) {
+                // Закрываем модальное окно
+                $('#confirmDeleteModal').modal('hide');
+
+                // Убираем строку курса из таблицы
+                $(`a[data-course-id="${courseId}"]`).closest('tr').remove();
+
+                // Можно вывести сообщение об успехе
+                alert('Курс успешно удален');
+            },
+            error: function(xhr, status, error) {
+                console.error('Ошибка удаления курса:', error);
+            }
+        });
+    });
+});
+
+</script>
+
+</body>
+</html>
