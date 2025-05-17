@@ -1,179 +1,199 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прохождение квиза: {{ quiz.title }}</title>
+    <title>{{ quiz.title }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #ffffff;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f9faff;
+            color: #2d3748;
         }
+
+        .navbar {
+            background-color: #22347a;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
         .quiz-container {
-            max-width: 600px;
-            margin: 100px auto;
+            max-width: 800px;
+            margin: 40px auto;
             padding: 30px;
-            background: white;
+            background: #ffffff;
             border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.5s;
-            border: 2px solid #007bff;
-            transition: border-color 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
-        .quiz-container:hover {
-            border-color: #0056b3;
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        .quiz-title {
+            color: #22347a;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
-        h1 {
-            color: #333;
-            font-weight: bold;
-        }
-        .question-container {
-            margin-bottom: 20px;
-        }
-        .answer-btn {
-            margin: 10px 0;
-            width: 100%;
-            transition: all 0.3s;
-            border-radius: 10px;
+
+        .quiz-description {
+            color: #4a5568;
             font-size: 16px;
         }
-        .answer-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+        .question-container {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
-        .answer-btn.selected {
-            background-color: #007bff !important;
-            color: white !important;
+
+        .question-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
         }
-        #result {
-            display: none;
-            text-align: center;
-            font-size: 24px;
-            color: #333;
+
+        .question-number {
+            color: #22347a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
-        .result-message {
-            margin-top: 20px;
-            font-size: 20px;
-            color: #28a745;
+
+        .form-check {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
         }
-        .finish-btn {
-            margin-top: 20px;
-            display: none;
+
+        .form-check:hover {
+            background: #f1f5f9;
+            border-color: #22347a;
+        }
+
+        .form-check-input {
+            margin-top: 6px;
+        }
+
+        .form-check-label {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #4a5568;
+        }
+
+        .btn-success {
+            background-color: #22347a;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #1a2a5e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 52, 122, 0.2);
+        }
+
+        .btn-outline-primary {
+            color: #22347a;
+            border-color: #22347a;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #22347a;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 52, 122, 0.2);
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .timer {
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: #0b2c5b;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
+    <header class="navbar navbar-dark">
+        <div class="container">
+            <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left mr-2"></i>Вернуться к курсу
+            </a>
+        </div>
+    </header>
+
     <div class="quiz-container">
-        <div id="questionsContainer">
+        <div class="quiz-header">
+            <h1 class="quiz-title">{{ quiz.title }}</h1>
+            <p class="quiz-description">Внимательно прочитайте каждый вопрос и выберите правильный ответ.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
             {% for question in questions %}
-            <div class="question-container {% if forloop.first %}active{% endif %}">
-                <h5>{{ forloop.counter }}: {{ question.text }}</h5>
+            <div class="question-container">
+                <div class="question-number">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    Вопрос {{ forloop.counter }}: {{ question.text }}
+                </div>
                 {% for answer in question.answers.all %}
-                <button class="btn btn-outline-primary answer-btn" data-is-correct="{{ answer.is_correct }}">
-                    {{ answer.text }}
-                </button>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" 
+                           name="question_{{ question.id }}" 
+                           id="answer_{{ answer.id }}" 
+                           value="{{ answer.text }}"
+                           required>
+                    <label class="form-check-label" for="answer_{{ answer.id }}">
+                        {{ answer.text }}
+                    </label>
+                </div>
                 {% endfor %}
             </div>
             {% endfor %}
-        </div>
 
-        <button id="finishBtn" class="btn btn-success finish-btn">Завершить квиз</button>
-        <div id="result"></div>
+            <div class="quiz-footer">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check-circle mr-2"></i>Завершить тест
+                </button>
+                <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" 
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-times-circle mr-2"></i>Отменить
+                </a>
+            </div>
+        </form>
     </div>
-
-    <script>
-    const questions = document.querySelectorAll('.question-container');
-    const resultDiv = document.getElementById('result');
-    const finishBtn = document.getElementById('finishBtn');
-    let answeredQuestions = new Set();
-
-    function showQuestion(index) {
-        questions.forEach((question, i) => {
-            question.classList.toggle('active', i === index);
-        });
-    }
-
-    document.querySelectorAll('.answer-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const currentButtons = this.parentElement.querySelectorAll('.answer-btn');
-
-            // Убираем выделение у всех кнопок в текущем вопросе
-            currentButtons.forEach(btn => btn.classList.remove('selected'));
-
-            // Добавляем выделение на выбранную кнопку
-            this.classList.add('selected');
-
-            // Добавляем индекс вопроса в set, чтобы отслеживать, на какие вопросы дан ответ
-            const questionIndex = Array.from(questions).indexOf(this.parentElement);
-            answeredQuestions.add(questionIndex);
-
-            // Если все вопросы имеют выбранный ответ, показать кнопку завершения
-            if (answeredQuestions.size === questions.length) {
-                finishBtn.style.display = 'block';
-            }
-        });
-    });
-
-    finishBtn.addEventListener('click', function() {
-        let correctAnswersCount = 0;
-
-        // Проходим по всем вопросам и проверяем правильность ответов
-        document.querySelectorAll('.question-container').forEach(question => {
-            const selectedAnswer = question.querySelector('.answer-btn.selected');
-            if (selectedAnswer && selectedAnswer.getAttribute('data-is-correct') === 'True') {
-                correctAnswersCount++;
-            }
-        });
-
-        resultDiv.textContent = `Вы ответили правильно на ${correctAnswersCount} из ${questions.length} вопросов.`;
-        resultDiv.style.display = 'block';
-        finishBtn.style.display = 'none';
-
-        // Показываем правильные ответы
-        document.querySelectorAll('.answer-btn').forEach(button => {
-            if (button.getAttribute('data-is-correct') === 'True') {
-                button.classList.add('btn-success');  // Подсветка правильных ответов
-            } else {
-                button.classList.add('btn-danger');   // Подсветка неправильных ответов
-            }
-        });
-    });
-finishBtn.addEventListener('click', function() {
-    let correctAnswersCount = 0;
-
-    // Проходим по всем вопросам и проверяем правильность ответов
-    document.querySelectorAll('.question-container').forEach(question => {
-        const selectedAnswer = question.querySelector('.answer-btn.selected');
-        if (selectedAnswer && selectedAnswer.getAttribute('data-is-correct') === 'True') {
-            correctAnswersCount++;
-        }
-    });
-
-    // Отправляем результат на сервер
-    fetch(`/submit_quiz/${quiz.id}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')  // Если используешь CSRF защиту
-        },
-        body: JSON.stringify({ score: correctAnswersCount })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Перенаправляем на страницу результатов
-            window.location.href = `/quiz/${quiz.id}/result/`;
-        } else {
-            // Обработка ошибки
-            alert(data.message);
-        }
-    });
-});
-    </script>
 </body>
 </html>

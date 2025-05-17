@@ -1,0 +1,21 @@
+<form method="post" class="answers-form">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for aform in formset %}
+        <div class="form-row mb-2">
+            {{ aform.text.label_tag }} {{ aform.text }}
+            {{ aform.is_correct }} <span style="font-size:0.9em;">Правильный</span>
+            {{ aform.DELETE }} <span style="font-size:0.9em;">Удалить</span>
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-sm btn-success">Сохранить варианты</button>
+</form>
+<script>
+$('.answers-form').off('submit').on('submit', function(e){
+    e.preventDefault();
+    var $form = $(this);
+    $.post(window.location.href, $form.serialize(), function(data){
+        $form.parent().html(data);
+    });
+});
+</script> 

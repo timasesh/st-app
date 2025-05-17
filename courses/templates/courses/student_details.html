@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -6,260 +5,207 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Информация о студенте</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Основной фон страницы */
         body {
-            background: #d7e1ff;
             font-family: 'Montserrat', sans-serif;
-            color: #333;
-
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            min-height: 100vh;
         }
-
-         .navbar {
-            background-color: #0b2c5b;
-            color: white;
-            padding: 10px 50px;
-            margin-bottom: 50px;
-        }
-
-        .navbar .container1 {
+        .admin-header {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            margin-bottom: 2rem;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
         }
-
-        .navbar-brand {
-            font-weight: bold;
+        .admin-title {
             font-size: 1.5rem;
-            color: #ffffff;
-            margin: 0;
-        }
-
-        .navbar .btn {
-            font-size: 0.9rem;
-            margin-left: 10px;
-        }
-
-
-        /* Основной контейнер */
-        .container {
-            max-width: 900px;
-            margin-top: 40px;
-        }
-
-        /* Заголовок страницы */
-        h2 {
-            font-size: 32px;
             font-weight: 600;
-            color: #002a6e;
-            margin-bottom: 30px;
-            text-align: center;
+            color: #22347a;
         }
-
-        /* Стиль таблицы */
-        table {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            margin-bottom: 30px;
-            padding: 20px;
-        }
-
-        table th {
-            background-color:  #0b2c5b;
-            color: #fff;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        table td {
-            padding: 12px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        table tr:nth-child(even) {
-            background-color: #f4f7fc;
-        }
-
-        table tr:nth-child(odd) {
-            background-color: #fff;
-        }
-
-        /* Стиль кнопки "Назад" */
-        .btn-primary {
-            background-color:  #0b2c5b;
-            color: #fff;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 600;
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 0.5rem 1rem;
             border-radius: 10px;
-            display: block;
-            margin: 0 auto;
-            width: 50%;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
-
+        .logout-btn:hover {
+            background-color: #c82333;
+            color: white;
+            text-decoration: none;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            margin-bottom: 2rem;
+            border: none;
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            padding: 1rem 1.5rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .table th {
+            background-color: #22347a;
+            color: white;
+            font-weight: 500;
+            border: none;
+        }
+        .table td {
+            vertical-align: middle;
+            border-color: rgba(0,0,0,0.05);
+        }
+        .badge {
+            padding: 0.5em 0.8em;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.05);
+        }
+        .progress-bar {
+            background-color: #22347a;
+        }
+        .btn-primary {
+            background-color: #22347a;
+            border-color: #22347a;
+        }
         .btn-primary:hover {
-            background-color: #001e4d;
+            background-color: #1a2a61;
+            border-color: #1a2a61;
         }
-
-        /* Ссылка "Назад к списку студентов" */
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
         .back-link {
             margin-top: 20px;
             display: inline-block;
-            color: #002a6e;
+            color: #22347a;
             font-size: 16px;
             font-weight: 500;
             text-align: center;
             width: 100%;
         }
-
         .back-link:hover {
             text-decoration: underline;
-            color: #001e4d;
+            color: #1a2a61;
         }
     </style>
 </head>
 <body>
-
- <header class="navbar navbar-dark">
-        <div class="container1">
-            <span class="navbar-brand">ADMIN</span>
-            <div>
-                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
-            </div>
+    <header class="admin-header">
+        <h1 class="admin-title">Информация о студенте</h1>
+        <div>
+            <a href="{% url 'admin_page' %}" class="btn btn-primary mr-2"><i class="fas fa-arrow-left"></i> Назад</a>
+            <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </header>
-
-<!--<div class="container">-->
-<!--    <h2>Информация о студенте</h2>-->
-<!--    <table class="table">-->
-<!--        <tbody>-->
-<!--            <tr>-->
-<!--                <th>Имя пользователя:</th>-->
-<!--                <td>{{ student.user.username }}</td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <th>Номер телефона:</th>-->
-<!--                <td>{{ student.phone_number|default:"Не указан" }}</td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <th>Email:</th>-->
-<!--                <td>{{ student.email|default:"Не указан" }}</td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <th>Курсы:</th>-->
-<!--                <td>-->
-<!--                    {% for course in student.courses.all %}-->
-<!--                        {{ course.title }}<br>-->
-<!--                    {% empty %}-->
-<!--                        Нет курсов-->
-<!--                    {% endfor %}-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            <tr>-->
-<!--                <th>Процент прохождения:</th>-->
-<!--                <td>-->
-<!--                    {% for progress in student.studentprogress_set.all %}-->
-<!--                        {{ progress.progress }}%<br>-->
-<!--                    {% empty %}-->
-<!--                        Нет данных о прогрессе-->
-<!--                    {% endfor %}-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--        </tbody>-->
-<!--    </table>-->
-
-
-
-
-
-
- <div class="container">
-    <h2>Информация о студенте</h2>
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Имя пользователя:</th>
-                <td>{{ student.user.username }}</td>
-            </tr>
-            <tr>
-                <th>Номер телефона:</th>
-                <td>{{ student.phone_number|default:"Не указан" }}</td>
-            </tr>
-            <tr>
-                <th>Email:</th>
-                <td>{{ student.email|default:"Не указан" }}</td>
-            </tr>
-            <tr>
-                <th>Курсы:</th>
-                <td>
-                    {% for course in student.courses.all %}
-                        {{ course.title }}<br>
-                    {% empty %}
-                        Нет курсов
-                    {% endfor %}
-                </td>
-            </tr>
-            <tr>
-                <th>Процент прохождения:</th>
-                <td>
-                    {% for progress in student.studentprogress_set.all %}
-                        {{ progress.progress }}%<br>
-                    {% empty %}
-                        Нет данных о прогрессе
-                    {% endfor %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
- <h2>Прогресс студентов</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Курс</th>
-            <th>Прогресс</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for progress in progress_data %}
-        <tr>
-            <td>{{ progress.course.title }}</td>
-            <td>{{ progress.progress }}%</td>
-        </tr>
-        {% empty %}
-       <tr>
-            <th>Прогресс курса:</th>
-            <td>
-                {% for progress in progress_data %}
-                    {{ progress.course }}: {{ progress.progress }}%<br>
-                {% empty %}
-                    Нет данных о курсе
-                {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-
-    </table>
-</div>
-
-<!--    <a href="{% url 'admin_page' %}" class="btn btn-primary">Назад к списку студентов</a>-->
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Основная информация</h3>
+            </div>
+            <div class="card-body">
+                <table class="table mb-0">
+                    <tbody>
+                        <tr>
+                            <th>Имя пользователя:</th>
+                            <td>{{ student.user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Номер телефона:</th>
+                            <td>{{ student.phone_number|default:"Не указан" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ student.email|default:"Не указан" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Курсы:</th>
+                            <td>
+                                {% for course in student.courses.all %}
+                                    <span class="badge bg-info text-dark mb-1">{{ course.title }}</span><br>
+                                {% empty %}
+                                    Нет курсов
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Процент прохождения:</th>
+                            <td>
+                                {% for progress in student.studentprogress_set.all %}
+                                    <span class="badge bg-primary">{{ progress.progress }}%</span><br>
+                                {% empty %}
+                                    Нет данных о прогрессе
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Прогресс по курсам</h3>
+            </div>
+            <div class="card-body">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Курс</th>
+                            <th>Прогресс</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for progress in progress_data %}
+                        <tr>
+                            <td>{{ progress.course.title }}</td>
+                            <td>
+                                <div class="progress" style="max-width:200px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ progress.progress }}%;" aria-valuenow="{{ progress.progress }}" aria-valuemin="0" aria-valuemax="100">{{ progress.progress }}%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2">Нет данных о курсе</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

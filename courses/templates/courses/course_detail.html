@@ -1,4 +1,5 @@
 {% load static %}
+{% load course_extras %}
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -130,18 +131,36 @@
             overflow: hidden;
             margin-top: 10px;
         }
+
+        .quiz-result {
+            background-color: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #0b2c5b;
+            margin-left: 10px;
+        }
+
+        .quiz-link {
+            color: #2d3748;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .quiz-link:hover {
+            color: #22347a;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
 <header class="navbar navbar-dark">
     <div class="container">
-        <button class="btn btn-outline-light" onclick="window.history.back();">Назад</button>
+        <a href="{% url 'student_page' %}" class="btn btn-outline-light">Назад</a>
         <a href="{% url 'logout' %}" class="btn btn-outline-light">Выйти</a>
     </div>
 </header>
 <main class="course-page">
-
-
     <div class="module-panel">
     {% for module in course.modules.all %}
     <div class="module-title">
@@ -150,20 +169,57 @@
             Уроков: {{ module.lessons.count }} | Квизов: {{ module.quizzes.count }}
         </span>
     </div>
+    <div class="progress mb-2">
+        <div class="progress-bar progress-bar-striped bg-success" style="width: {{ module_progress|get_item:module.id }}%;"
+             aria-valuenow="{{ module_progress|get_item:module.id }}" aria-valuemin="0" aria-valuemax="100">
+            {{ module_progress|get_item:module.id }}%
+        </div>
+    </div>
     <ul class="lessons-list">
         {% for lesson in module.lessons.all %}
-        <li class="lesson-link" data-lesson-id="{{ lesson.id }}" data-video-url="{{ lesson.video.url }}">
-            {{ lesson.title }}
-            {% if lesson in student_progress.completed_lessons.all %}
-            <span class="text-success">✔</span>
+        <li class="lesson-link {% if lesson.id != next_lesson_id_by_module|get_item:module.id and lesson.id not in completed_lessons %}disabled{% endif %}"
+            data-lesson-id="{{ lesson.id }}" data-video-url="{{ lesson.video.url }}" data-pdf-url="{{ lesson.pdf.url }}"
+            {% if lesson.id != next_lesson_id_by_module|get_item:module.id and lesson.id not in completed_lessons %}style="pointer-events:none;opacity:0.5;"{% endif %}>
+            {% if lesson.id in completed_lessons %}
+                <i class="fas fa-check-circle text-success" style="margin-right:7px;"></i>
             {% endif %}
+            {{ lesson.title }}
         </li>
         {% endfor %}
     </ul>
     <ul class="quiz-list">
         {% for quiz in module.quizzes.all %}
         <li>
-            <a href="{% url 'quiz_detail' quiz.id %}" class="quiz-link">{{ quiz.title }}</a>
+            {% with module_lessons=module.lessons.all %}
+            {% with completed_count=student_progress.completed_lessons.all|intersection:module_lessons|length %}
+            {% with total_lessons=module_lessons|length %}
+            {% if completed_count == total_lessons %}
+                {% if quiz_results|get_item:quiz.id %}
+                    <a href="{% url 'quiz_result' quiz.id %}" class="quiz-link">
+                        <i class="fas fa-check-circle text-success mr-2"></i>
+                        {{ quiz.title }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'start_quiz' quiz.id %}" class="quiz-link">
+                        <i class="fas fa-play-circle text-primary mr-2"></i>
+                        {{ quiz.title }}
+                    </a>
+                {% endif %}
+            {% else %}
+                <span class="quiz-link text-muted" style="cursor: not-allowed;" data-bs-toggle="tooltip" 
+                      title="Для доступа к квизу необходимо пройти все уроки модуля '{{ module.title }}'. Осталось пройти {{ total_lessons|sub:completed_count }} уроков">
+                    <i class="fas fa-lock mr-2"></i>
+                    {{ quiz.title }}
+                </span>
+            {% endif %}
+            {% if quiz_results|get_item:quiz.id %}
+            <span class="quiz-result">
+                Результат: {{ quiz_results|get_item:quiz.id }}%
+            </span>
+            {% endif %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
         </li>
         {% endfor %}
     </ul>
@@ -200,7 +256,17 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
 $(document).ready(function () {
-    $('.lesson-link').click(function () {
+    // Переключение вкладок
+    $('.tab-btn').click(function () {
+        var tab = $(this).data('tab');
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-content').removeClass('active');
+        $('#' + tab).addClass('active');
+    });
+
+    // Только активный или завершённый урок можно выбрать
+    $('.lesson-link').not('.disabled').click(function () {
         const videoUrl = $(this).data('video-url');
         const pdfUrl = $(this).data('pdf-url');
         $('.lesson-link').removeClass('active');
@@ -229,6 +295,7 @@ $(document).ready(function () {
                 if (response.success) {
                     $('#lesson-progress-bar').css('width', response.progress + '%').text(response.progress + '%');
                     alert('Урок завершен! Прогресс обновлен.');
+                    location.reload();
                 } else {
                     alert('Ошибка обновления прогресса.');
                 }

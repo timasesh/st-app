@@ -201,6 +201,20 @@
 <div class="container">
     <h1>Детали урока: {{ lesson.title }}</h1>
 
+    <!-- Форма для изменения названия урока -->
+    <div class="card mb-3">
+        <div class="card-header">Изменить название урока:</div>
+        <div class="card-body">
+            <form method="post" class="form-inline">
+                {% csrf_token %}
+                <div class="form-group mb-2 mr-2">
+                    <input type="text" name="title" class="form-control" value="{{ lesson.title }}" required>
+                </div>
+                <button type="submit" name="update_title" class="btn btn-success mb-2">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Видео урока -->
     <div class="card">
         <div class="card-header">Видео:</div>
@@ -257,6 +271,8 @@
             </form>
         </div>
     </div>
+
+    
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

@@ -80,7 +80,7 @@ from .models import Quiz, Question, Answer
 class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title']
+        fields = ['title', 'stars']
 
 
 class QuestionForm(forms.ModelForm):

@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -11,7 +10,6 @@
 
     <style>
         body {
-
             font-family: 'Nunito', sans-serif;
             color: #495057;
             text-align: center;
@@ -61,29 +59,19 @@
             transform: scale(0.8);
             max-height: 500px; /* Ограничиваем максимальную высоту карточки */
             height: auto; /* Чтобы карточка адаптировалась под содержимое */
-}
-
-
-
-
-
+        }
 
         .card:hover {
             transform: scale(0.95);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-<!--        .card img {-->
-<!--          height: 200px;-->
-<!--          object-fit: cover;-->
-<!--        }-->
         .card-img-top {
             height: 250px; /* Установите нужную высоту */
             object-fit: cover; /* Обеспечивает заполнение и обрезку изображения */
         }
 
-
-       .card-body .badge {
+        .card-body .badge {
             font-size: 0.75rem;
             background-color: #e0eaff;
             color: #0062ff;
@@ -92,43 +80,36 @@
             border-radius: 12px;
             display: inline-block;
             margin-bottom: 0.3rem; /* Уменьшено значение margin-bottom */
-
-       }
+        }
         .row {
-        margin-left: -15px;
-        margin-right: -15px;
-    }
-
-
-
-
+            margin-left: -15px;
+            margin-right: -15px;
+        }
 
         .card-title {
-           font-size: 1.2rem;
-           margin-bottom: -1rem;
-           line-height: 1.4;
+            font-size: 1.2rem;
+            margin-bottom: -1rem;
+            line-height: 1.4;
         }
 
         .card-text {
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
             line-height: 0.5;
-
         }
 
-/* Уменьшение отступов для текста под описанием */
+        /* Уменьшение отступов для текста под описанием */
         .card-body .text-muted {
-             line-height: 1.3; /* Уменьшаем расстояние между строками */
-             padding: 1rem;
-             margin-bottom: -2rem;
+            line-height: 1.3; /* Уменьшаем расстояние между строками */
+            padding: 1rem;
+            margin-bottom: -2rem;
         }
-
 
         .progress {
             height: 8px;
             background-color:  #002a6e;
             border-radius: 5px;
-             margin-top: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .progress-bar {
@@ -154,91 +135,348 @@
             color: #fff;
         }
 
-
         .btn-primary {
             background-color: #0b2c5b;
             border: none;
         }
 
-
         .btn-primary:hover {
-           background-color: #4169E1;
+            background-color: #4169E1;
             border-radius: none;
         }
-
 
         .welcome-message {
             margin-top: 2rem;
             font-size: 2.0rem;
             font-weight: 700;
             color: #002a6e;
-             font-family: 'Raleway', sans-serif;
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .student-header {
+            background-color:#0b2c5b;
+            padding: 1rem 0;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .header-btns {
+            display: flex;
+            gap: 15px;
+        }
+        .btn-logout {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 8px 18px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-logout:hover {
+            background: #b52a37;
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-profile {
+            background: #fff;
+            color: #0b2c5b;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 8px 18px;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(11,44,91,0.08);
+        }
+        .btn-profile:hover {
+            background: #0b2c5b;
+            color: #fff;
+            text-decoration: none;
+        }
+        .connect-course-form {
+            max-width: 400px;
+            margin: 60px auto 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px 30px 20px 30px;
+        }
+        .btn-connect {
+            background: #0b2c5b;
+            color: #fff;
+            border-radius: 30px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .btn-connect:hover {
+            background: #4169E1;
+            color: #fff;
+        }
+        .student-tabs .nav-link {
+            color: #0b2c5b;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            border-bottom: 3px solid transparent;
+            background: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .student-tabs .nav-link.active {
+            color: #4169E1;
+            border-bottom: 3px solid #4169E1;
+            background: none;
+        }
+        .student-tabs {
+            border-bottom: 1px solid #e0eaff;
+            margin-bottom: 2rem;
+        }
+        .student-top-block {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            margin-bottom: 2.5rem;
+            margin-top: 0;
+            position: relative;
+            z-index: 2;
+        }
+        .student-stars {
+            font-size: 1.5rem;
+            color: #FFD700;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
     </style>
 </head>
 <body>
 
-<header class="navbar navbar-dark">
-    <div class="container">
+<header class="navbar navbar-dark student-header">
+    <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand mb-0 h1">STUDENT</span>
-        <br>
-        <br>
-
-        <a href="{% url 'logout' %}" class="btn btn-outline-light">Выйти</a>
-        <a href="{% url 'student_profile' %}" class="btn btn-outline-light">Профиль</a>
+        <div class="header-btns">
+            <button id="notif-btn" class="btn btn-info position-relative mr-2" style="border-radius: 8px;">
+                <i class="fas fa-bell"></i>
+                <span id="notif-count" class="badge badge-danger position-absolute" style="top:0;right:0;">{{ notifications|length }}</span>
+            </button>
+            <a href="{% url 'student_profile' %}" class="btn btn-profile"><i class="fas fa-user"></i> Профиль</a>
+            <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </div>
     </div>
 </header>
 
 <main class="container mt-5">
-    <div class="welcome-message">Добро пожаловать, {{ user.username }}</div>
-    <h2>Мои курсы</h2>
-
-
-            <form method="POST" class="mb-4">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="course_code">Введите код курса:</label>
-            <input type="text" class="form-control" id="course_code" name="course_code" required>
+    <div class="student-top-block bg-white p-4 rounded shadow-sm mb-4 position-relative">
+        <div class="welcome-message">Добро пожаловать, {{ user.username }}
+            <span class="student-stars" style="position:absolute;top:24px;right:32px;font-size:1.5rem;color:#FFD700;display:flex;align-items:center;gap:6px;"
+                  data-toggle="tooltip" data-placement="left" title="Звездочки — это ваши ачивки за квизы, получаете только за 100% результат. Соревнуйтесь с другими студентами во вкладке 'Рейтинг'!">
+                <i class="fas fa-star"></i> <span id="star-count">{{ student.stars|default:0 }}</span>
+            </span>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Добавить курс</button>
-    </form>
-
-    <div class="row justify-content-center g-4">
-        {% if courses %}
-            {% for course in courses %}
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    {% if course.image %}
-                        <img src="{{ course.image.url }}" class="card-img-top" alt="Изображение курса">
-                    {% else %}
-                        <div class="card-img-top text-center p-5 bg-light text-muted">Нет изображения</div>
-                    {% endif %}
-                    <div class="card-body text-center">
-                        <span class="badge">{{ course.category }}</span>
-                        <h5 class="card-title font-weight-bold">{{ course.title }}</h5>
-                        <p class="card-text text-muted">{{ course.description }}</p>
-
-
-
-                        <div class="text-muted">
-                            <i class="far fa-clock"></i> {{ course.duration }} прогресс
+        <ul class="nav nav-tabs student-tabs mb-4 justify-content-center" id="studentTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="my-courses-tab" data-toggle="tab" href="#my-courses" role="tab" aria-controls="my-courses" aria-selected="true">Мои курсы</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="all-courses-tab" data-toggle="tab" href="#all-courses" role="tab" aria-controls="all-courses" aria-selected="false">Все курсы</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="rating-tab" data-toggle="tab" href="#rating" role="tab" aria-controls="rating" aria-selected="false">Рейтинг</a>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-content" id="studentTabContent">
+        <div class="tab-pane fade show active" id="my-courses" role="tabpanel" aria-labelledby="my-courses-tab">
+            <h2>Мои курсы</h2>
+            <div class="row justify-content-center g-4">
+                {% if courses %}
+                    {% for course in courses %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card position-relative">
+                            <form method="POST" action="{% url 'remove_course_from_student' course.id %}" style="position: absolute; top: 10px; right: 10px; z-index: 1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот курс?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% if course.image %}
+                                <img src="{{ course.image.url }}" class="card-img-top" alt="Изображение курса">
+                            {% else %}
+                                <div class="card-img-top text-center p-5 bg-light text-muted">Нет изображения</div>
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <span class="badge">{{ course.category }}</span>
+                                <h5 class="card-title font-weight-bold">{{ course.title }}</h5>
+                                <p class="card-text text-muted">{{ course.description }}</p>
+                                <div class="text-muted">
+                                    <i class="far fa-clock"></i> {{ course.duration }} прогресс
+                                </div>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <a href="{% url 'course_detail' course.id %}" class="btn continue-btn mt-4">Продолжить</a>
+                            </div>
                         </div>
-
-                        <div class="progress mt-3">
-                            <div class="progress-bar" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-
-                        <a href="{% url 'course_detail' course.id %}" class="btn continue-btn mt-4">Продолжить</a>
                     </div>
-                </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center">У вас нет записанных курсов.</p>
+                {% endif %}
             </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-center">У вас нет записанных курсов.</p>
-        {% endif %}
+            <!-- Форма подключения курса внизу -->
+            <form method="POST" class="mb-4 connect-course-form">
+                {% csrf_token %}
+                <div class="form-group mb-2">
+                    <label for="course_code">Введите код курса:</label>
+                    <input type="text" class="form-control" id="course_code" name="course_code" required>
+                </div>
+                <button type="submit" class="btn btn-connect">Добавить курс</button>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="all-courses" role="tabpanel" aria-labelledby="all-courses-tab">
+            <h2>Все курсы</h2>
+            <form method="POST" class="mb-4 connect-course-form">
+                {% csrf_token %}
+                <div class="form-group mb-2">
+                    <label for="course_id">Выберите курс для запроса:</label>
+                    <select class="form-control" id="course_id" name="course_id" required>
+                        <option value="">Выберите курс...</option>
+                        {% for course in all_courses %}
+                            <option value="{{ course.id }}">{{ course.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="comment">Комментарий:</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="2" placeholder="Комментарий (необязательно)"></textarea>
+                </div>
+                <button type="submit" name="add_course_request" class="btn btn-connect">Запросить добавление курса</button>
+            </form>
+            <h5 class="mt-4">Ваши запросы на добавление курса:</h5>
+            <div>
+                {% if add_course_requests %}
+                    <ul class="list-group">
+                        {% for req in add_course_requests %}
+                        <li class="list-group-item">
+                            <strong>{{ req.course.title }}</strong> —
+                            <span class="badge badge-secondary">{{ req.get_status_display }}</span>
+                            {% if req.admin_response %}<br><span class="text-muted">Комментарий администратора: {{ req.admin_response }}</span>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-muted">Нет отправленных запросов.</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="rating" role="tabpanel" aria-labelledby="rating-tab">
+            <h2>Рейтинг</h2>
+            {% if groups %}
+                <h5 class="mt-4">Ваши группы:</h5>
+                <div class="row">
+                {% for group in groups %}
+                    <div class="col-12 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <strong>{{ group.name }}</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                {% for s in group.students.all|dictsortreversed:'stars' %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100 {% if forloop.first %}border-warning{% endif %} {% if s.id == student.id %}border-info{% endif %}">
+                                            <div class="card-body text-center">
+                                                {% if s.avatar %}
+                                                    <img src="{{ s.avatar.url }}" class="rounded-circle mb-2" width="60" height="60" alt="avatar">
+                                                {% else %}
+                                                    <img src="https://via.placeholder.com/60" class="rounded-circle mb-2" alt="avatar">
+                                                {% endif %}
+                                                <h5 class="card-title mb-1">{{ s.user.username }} {% if s.id == student.id %}<span class="badge badge-info">Вы</span>{% endif %}</h5>
+                                                <div class="mb-2 text-warning"><i class="fas fa-star"></i> {{ s.stars }}</div>
+                                                <a href="{% url 'student_public_profile' s.id %}" class="btn btn-outline-primary btn-sm">Профиль</a>
+                                                {% if forloop.first %}<div class="mt-2 badge badge-warning">Лидер</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-muted">Вы не состоите ни в одной группе.</div>
+            {% endif %}
+        </div>
     </div>
 </main>
 
+{% if show_course_notification %}
+<div class="alert alert-success alert-dismissible fade show student-alert" role="alert" style="position:fixed;top:30px;right:30px;z-index:9999;min-width:300px;">
+    Курс успешно добавлен!
+</div>
+{% endif %}
+
+<!-- Модальное окно уведомлений -->
+<div id="notif-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-bell"></i> Уведомления</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if notifications %}
+          <ul class="list-group">
+            {% for n in notifications %}
+              <li class="list-group-item d-flex align-items-center {% if not n.is_read %}font-weight-bold{% endif %}">
+                {% if n.type == 'course_approved' %}<i class="fas fa-check-circle text-success mr-2"></i>{% endif %}
+                {% if n.type == 'course_rejected' %}<i class="fas fa-times-circle text-danger mr-2"></i>{% endif %}
+                {% if n.type == 'stars_awarded' %}<i class="fas fa-star text-warning mr-2"></i>{% endif %}
+                {% if n.type == 'profile_edit' %}<i class="fas fa-user-edit text-primary mr-2"></i>{% endif %}
+                <div>
+                  <div>{{ n.message }}</div>
+                  <small class="text-muted">{{ n.created_at|date:'d.m.Y H:i' }}</small>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Нет уведомлений.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+$(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+    // Всплывающее уведомление
+    setTimeout(function(){
+        $(".student-alert").alert('close');
+    }, 3000);
+    // Открытие/закрытие модального окна уведомлений
+    $('#notif-btn').on('click', function(){
+        $('#notif-modal').modal('toggle');
+    });
+});
+</script>
 </body>
 </html>

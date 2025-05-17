@@ -1,119 +1,141 @@
-<!doctype html>
-<html lang="en">
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Создать урок</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать новый урок</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-
-</head>
-<body>
-    <header class="navbar navbar-dark " style="background-color: #0b2c5b;">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">ADMIN</span>
-            <div>
-                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
-            </div>
-        </div>
-    </header>
-
-    <h2 class="zagolovok">Создать новый урок</h2>
-
-    <div class="container">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ lesson_form.as_p }}
-            <button type="submit" class="btn btn-primary" name="add_lesson">Создать урок</button>
-        </form>
-    </div>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Общие стили для body */
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #d7e1ff;
-            color: #002a6e;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(120deg, #f8f9fa 60%, #e3eaff 100%);
+            color: #2c3e50;
+            min-height: 100vh;
         }
-
-        /* Стили заголовков */
-        .zagolovok {
-            color: #002a6e;
-            text-align: center;
-            margin-top: 50px;
-            font-size: 2rem;
-        }
-
-        /* Стили для формы */
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 20px auto;
-        }
-
-        form button {
-            width: 100%;
-            padding: 10px;
-            font-size: 1.2rem;
-        }
-
-        /* Контейнер для центровки контента */
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        /* Стили для навигации */
-        .navbar {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-
-        .navbar .container {
+        .admin-header {
+            background-color: white;
+            padding: 1.5rem 2rem 1rem 2rem;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.07);
+            margin-bottom: 2rem;
+            border-radius: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            padding: 0 15px;
+            animation: fadeIn 0.7s;
         }
-
-        .navbar-brand {
-            font-weight: bold;
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .admin-title i {
+            color: #4CAF50;
+            font-size: 2.2rem;
+        }
+        .btn-back {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: background 0.2s;
+        }
+        .btn-back:hover {
+            background: #e3eaff;
+            color: #1a2a61;
+        }
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(34,52,122,0.10);
+            margin: 0 auto 2rem auto;
+            border: none;
+            max-width: 500px;
+            animation: fadeIn 0.7s;
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            padding: 1.2rem 1.5rem 0.7rem 1.5rem;
+        }
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-header i {
+            color: #4CAF50;
             font-size: 1.5rem;
         }
-
-        .btn {
-            font-size: 1rem;
+        .card-body {
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
         }
-
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e3eaff;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f8f9fa;
+        }
+        .form-control:focus {
+            border-color: #22347a;
+            box-shadow: 0 0 0 0.15rem rgba(34, 52, 122, 0.10);
+            background: #fff;
+        }
         .btn-primary {
-        background-color: #0b2c5b;
-        border: none;
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(34,52,122,0.07);
+            transition: background 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
         }
-
         .btn-primary:hover {
-        background-color: #6495ED;
-        border: none;
+            background: linear-gradient(90deg, #1a2a61 60%, #388e3c 100%);
+            box-shadow: 0 4px 16px rgba(34,52,122,0.13);
         }
-
-        /* Убираем отступы для кнопок */
-        #logout-btn {
-            margin-left: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
+</head>
+<body>
+    <header class="admin-header">
+        <span class="admin-title"><i class="fas fa-book-open"></i>Создать новый урок</span>
+        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+    </header>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Создание урока</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ lesson_form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-check"></i> Создать урок</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

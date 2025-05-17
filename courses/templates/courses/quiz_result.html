@@ -1,12 +1,199 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Результаты квиза</title>
+    <title>Результаты квиза: {{ quiz.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f9faff;
+            color: #2d3748;
+        }
+
+        .navbar {
+            background-color: #22347a;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .result-title {
+            color: #22347a;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .score-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 600;
+            color: #ffffff;
+            position: relative;
+            background: conic-gradient(#22347a 0% var(--percent), #e2e8f0 var(--percent) 100%);
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .score-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stars-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 12px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .star-icon {
+            color: #ffc107;
+            font-size: 24px;
+            margin: 0 5px;
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .btn-primary {
+            background-color: #22347a;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a2a5e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 52, 122, 0.2);
+        }
+
+        .result-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Ваш результат: {{ score }}</h1>
-    <a href="{% url 'quiz_list' %}">Вернуться к квизам</a>
+    <header class="navbar navbar-dark">
+        <div class="container">
+            <a href="{% url 'course_detail' course.id %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left mr-2"></i>Вернуться к курсу
+            </a>
+        </div>
+    </header>
+
+    <div class="result-container">
+        <div class="result-header">
+            <h1 class="result-title">{{ quiz.title }}</h1>
+            <p class="text-muted">Результаты теста</p>
+        </div>
+
+        <div class="score-container">
+            <div class="score-circle" style="--percent: {{ percent }}%">
+                <div class="score-text">{{ percent }}%</div>
+            </div>
+            <h3>Правильных ответов: {{ result.score }} из {{ result.total_questions }}</h3>
+            <p class="text-muted">Дата прохождения: {{ result.date_taken|date:"d.m.Y H:i" }}</p>
+        </div>
+
+        {% if show_stars_notification %}
+        <div class="stars-container">
+            <h4 class="mb-3">Поздравляем!</h4>
+            <div>
+                {% for i in "x"|ljust:stars_awarded %}
+                <i class="fas fa-star star-icon" style="animation-delay: {{ forloop.counter0|multiply:0.2 }}s"></i>
+                {% endfor %}
+            </div>
+            <p class="mt-3 mb-0">Вы получили {{ stars_awarded }} звёзд за отличный результат!</p>
+        </div>
+        {% endif %}
+
+        <div class="result-footer">
+            <a href="{% url 'course_detail' course.id %}" class="btn btn-primary">
+                <i class="fas fa-book mr-2"></i>Продолжить обучение
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Анимация для звёзд
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-icon');
+            stars.forEach((star, index) => {
+                star.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
 </body>
 </html>

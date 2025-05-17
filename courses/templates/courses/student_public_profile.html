@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль студента</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .profile-header {
+            background: #0b2c5b;
+            color: #fff;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem 1rem 1rem 1rem;
+            text-align: center;
+        }
+        .profile-main {
+            background: #fff;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 2rem;
+        }
+        .profile-info {
+            font-size: 1.1rem;
+        }
+        .star {
+            color: #FFD700;
+            font-size: 1.3rem;
+        }
+        .group-badge {
+            background: #4169E1;
+            color: #fff;
+            border-radius: 12px;
+            padding: 0.2em 0.8em;
+            margin-right: 0.5em;
+            font-size: 1rem;
+        }
+        .course-progress {
+            height: 10px;
+            background: #e0eaff;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #00c6ff, #007bff);
+        }
+    </style>
+</head>
+<body style="background:#d7e1ff;">
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="profile-header">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" class="profile-avatar mb-3" alt="avatar">
+                {% else %}
+                    <img src="https://via.placeholder.com/120" class="profile-avatar mb-3" alt="avatar">
+                {% endif %}
+                <h2 class="mb-1">{{ student.user.username }}</h2>
+                <div class="mb-2">
+                    <span class="star"><i class="fas fa-star"></i> {{ stars }}</span>
+                </div>
+                <div class="profile-info mb-2">
+                    <span class="mr-3"><i class="fas fa-envelope"></i> {{ student.email|default:'-' }}</span>
+                    <span><i class="fas fa-phone"></i> {{ student.phone_number|default:'-' }}</span>
+                </div>
+                <a href="javascript:history.back()" class="btn btn-light btn-sm">Назад</a>
+            </div>
+            <div class="profile-main">
+                <h4>Группы</h4>
+                {% if groups %}
+                    <div class="mb-3">
+                        {% for group in groups %}
+                            <span class="group-badge">{{ group.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <ul class="list-group mb-4">
+                        {% for gr in group_ratings %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><b>{{ gr.group.name }}</b> — место в группе: <span class="badge badge-primary">{{ gr.place }}/{{ gr.total }}</span></span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-muted mb-3">Нет групп</div>
+                {% endif %}
+                <h4>Курсы</h4>
+                {% if courses %}
+                    <ul class="list-group mb-4">
+                        {% for course in courses %}
+                        <li class="list-group-item">
+                            <b>{{ course.title }}</b>
+                            <div class="course-progress mt-2 mb-1">
+                                {% with progress=course.studentprogress_set.first.progress %}
+                                <div class="progress-bar" role="progressbar" style="width: {{ progress|default:0 }}%;" aria-valuenow="{{ progress|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                {% endwith %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-muted mb-3">Нет курсов</div>
+                {% endif %}
+                <h4>Пройденные квизы</h4>
+                {% if quizzes %}
+                    <ul class="list-group mb-4">
+                        {% for quiz in quizzes %}
+                        <li class="list-group-item">
+                            <b>{{ quiz.quiz.title }}</b> — <span class="text-success">{{ quiz.score }}/{{ quiz.total_questions }}</span>
+                            <span class="ml-2 text-muted">{{ quiz.date_taken|date:'d.m.Y H:i' }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-muted mb-3">Нет пройденных квизов</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html> 

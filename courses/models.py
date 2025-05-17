@@ -43,6 +43,7 @@ class Lesson(models.Model):
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
+    stars = models.IntegerField(default=1, verbose_name='Звездочки за квиз')
 
     def __str__(self):
         return self.title
@@ -124,12 +125,14 @@ class QuizResult(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     score = models.IntegerField()
     date_taken = models.DateTimeField(auto_now_add=True)
+    total_questions = models.IntegerField(default=0)
+    stars_given = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('user', 'quiz')  # Один пользователь может пройти квиз только один раз
+        unique_together = ('user', 'quiz')
 
     def __str__(self):
-        return f"{self.user.username} - {self.quiz.title} - {self.score}"
+        return f"{self.user} - {self.quiz}"
 
 
 class Student(models.Model):
@@ -138,10 +141,54 @@ class Student(models.Model):
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     courses = models.ManyToManyField('Course', related_name='students_set')
+    stars = models.IntegerField(default=0)
+    profile_edited_once = models.BooleanField(default=False)
 
     @property
     def username(self):
-        return self.user.name
+        return self.user.username
+
+
+class ProfileEditRequest(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=[('pending', 'В ожидании'), ('approved', 'Подтверждено'), ('rejected', 'Отклонено')], default='pending')
+    admin_response = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+
+
+class CourseAddRequest(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    comment = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'В ожидании'), ('approved', 'Подтверждено'), ('rejected', 'Отклонено')], default='pending')
+    admin_response = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+
+
+class Notification(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=30, choices=[
+        ('course_approved', 'Курс добавлен'),
+        ('course_rejected', 'Курс отклонён'),
+        ('stars_awarded', 'Получены звёзды'),
+        ('profile_edit', 'Редактирование профиля'),
+    ])
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class Group(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    students = models.ManyToManyField('Student', related_name='groups')
+
+    def __str__(self):
+        return self.name
 
 
 
