@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load math_filters %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Student Info Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+                    {{ student.user.username|first|upper }}
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">{{ student.user.username }}</h2>
+                    <p class="text-gray-600">Level {{ student.level }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-600">Experience</span>
+                    <span class="text-sm font-medium text-gray-800">{{ student.experience }}/{{ student.level|multiply:1000 }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: {{ student.experience|multiply:100|div:student.level|div:1000 }}%"></div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <span class="text-gray-800 font-medium">{{ student.stars }} Stars</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Progress -->
+        <div class="md:col-span-2">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Your Courses</h3>
+            <div class="space-y-4">
+                {% for enrollment in enrollments %}
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">{{ enrollment.course.name }}</h4>
+                            <p class="text-gray-600">{{ enrollment.course.description|truncatewords:20 }}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium {% if enrollment.progress == 100 %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {{ enrollment.progress }}% Complete
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: {{ enrollment.progress }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'course_detail' enrollment.course.id %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                            <i class="fas fa-book-open mr-2"></i>
+                            Continue Learning
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                    <p class="text-gray-600">You haven't enrolled in any courses yet.</p>
+                    <a href="{% url 'course_list' %}" class="inline-flex items-center px-4 py-2 mt-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                        <i class="fas fa-search mr-2"></i>
+                        Browse Courses
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Quiz Attempts -->
+    <div class="mt-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Quiz Attempts</h3>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempt</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penalty</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for attempt in student.quizattempt_set.all|slice:":5" %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ attempt.quiz.title }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ attempt.score|floatformat:1 }}%
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                #{{ attempt.attempt_number }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if attempt.passed %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ attempt.passed|yesno:"Passed,Failed" }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if attempt.stars_penalty > 0 %}
+                                <span class="text-red-600">-{{ attempt.stars_penalty }} ⭐</span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ attempt.created_at|date:"M d, Y" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                No quiz attempts yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

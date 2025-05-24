@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import json
 import logging
 from django.db.models import Count
@@ -17,7 +18,7 @@ from .forms import (
 )
 from .models import (
     User, Lesson, Module, Course, StudentProgress, Student,
-    Question, Answer, Quiz, QuizResult, ProfileEditRequest, CourseAddRequest, Notification, Group
+    Question, Answer, Quiz, QuizResult, ProfileEditRequest, CourseAddRequest, Notification, Group, QuizAttempt
 )
 
 logger = logging.getLogger(__name__)
@@ -239,18 +240,20 @@ def student_page(request):
                 result.stars_given = True
                 result.save()
                 student.save()
-    progress_data = []
+    
+    # Convert progress_data to a dictionary with course IDs as keys
+    progress_data = {}
     for course in courses:
         progress = StudentProgress.objects.filter(user=request.user, course=course).first()
-        progress_data.append({
-            'course': course,
-            'progress': progress.progress if progress else 0,
-        })
+        progress_data[course.id] = progress.progress if progress else 0
+
     show_course_notification = False
     all_courses = Course.objects.all()
     add_course_requests = CourseAddRequest.objects.filter(student=student).order_by('-created_at')
     notifications = Notification.objects.filter(student=student).order_by('-created_at')[:20]
     groups = student.groups.all().prefetch_related('students__user')
+    unread_count = Notification.objects.filter(student=student, is_read=False).count()
+    
     if request.method == 'POST':
         if 'course_code' in request.POST:
             course_code = request.POST.get('course_code')
@@ -272,6 +275,7 @@ def student_page(request):
                     'add_course_requests': add_course_requests,
                     'notifications': notifications,
                     'groups': groups,
+                    'unread_count': unread_count,
                 })
             except Course.DoesNotExist:
                 error_message = "Курс с данным кодом не найден."
@@ -284,6 +288,7 @@ def student_page(request):
                     'add_course_requests': add_course_requests,
                     'notifications': notifications,
                     'groups': groups,
+                    'unread_count': unread_count,
                 })
         elif 'add_course_request' in request.POST:
             course_id = request.POST.get('course_id')
@@ -297,6 +302,7 @@ def student_page(request):
             )
             messages.success(request, 'Запрос на добавление курса отправлен!')
             return redirect('student_page')
+    
     return render(request, 'courses/student_page.html', {
         'courses': courses,
         'progress_data': progress_data,
@@ -306,6 +312,7 @@ def student_page(request):
         'add_course_requests': add_course_requests,
         'notifications': notifications,
         'groups': groups,
+        'unread_count': unread_count,
     })
 
 @login_required
@@ -378,10 +385,13 @@ def course_detail(request, course_id):
     quiz_results = {}
     for module in course.modules.all():
         for quiz in module.quizzes.all():
-            result = QuizResult.objects.filter(user=request.user, quiz=quiz).first()
-            if result and result.total_questions:
-                percent = int((result.score / result.total_questions) * 100)
-                quiz_results[quiz.id] = percent
+            result = QuizAttempt.objects.filter(student__user=request.user, quiz=quiz).order_by('-attempt_number').first()
+            if result:
+                quiz_results[quiz.id] = {
+                    'score': result.score,
+                    'passed': result.passed,
+                    'percent': result.score
+                }
     student_progress = StudentProgress.objects.filter(user=request.user, course=course).first()
     completed_lessons = set()
     if student_progress:
@@ -613,48 +623,38 @@ def quiz_list(request):
 @login_required
 def start_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    result = QuizResult.objects.filter(user=request.user, quiz=quiz).first()
-    if result:
-        return redirect('quiz_result', quiz_id=quiz.id)
-
-    # Получаем модуль, к которому привязан квиз
+    student = get_object_or_404(Student, user=request.user)
     module = quiz.module_set.first()
     if not module:
-        messages.error(request, 'Квиз не привязан ни к одному модулю.')
+        messages.error(request, 'Квиз не привязан ни к одному модулю. Обратитесь к администратору.')
+        # Попробуем найти курс через quiz.course_set.first(), если есть связь
+        course = None
+        if hasattr(quiz, 'course_set') and quiz.course_set.exists():
+            course = quiz.course_set.first()
+            return redirect('course_detail', course_id=course.id)
         return redirect('student_page')
-
-    # Получаем курс, к которому привязан модуль
     course = module.course_set.first()
     if not course:
         messages.error(request, 'Модуль не привязан ни к одному курсу.')
         return redirect('student_page')
-
-    # Проверяем, записан ли студент на курс
-    student = get_object_or_404(Student, user=request.user)
     if course not in student.courses.all():
         messages.error(request, 'Вы не записаны на этот курс.')
         return redirect('student_page')
-
-    # Проверяем прогресс по курсу
     student_progress = StudentProgress.objects.filter(user=request.user, course=course).first()
     if not student_progress:
         messages.error(request, 'У вас нет прогресса по этому курсу.')
         return redirect('student_page')
-
-    # Получаем все уроки модуля
     module_lessons = module.lessons.all()
-    if not module_lessons:
-        messages.error(request, 'В модуле нет уроков.')
-        return redirect('student_page')
-
-    # Проверяем, все ли уроки модуля пройдены
     completed_lessons = student_progress.completed_lessons.all()
     uncompleted_lessons = [lesson for lesson in module_lessons if lesson not in completed_lessons]
-    
     if uncompleted_lessons:
         messages.error(request, f'Для доступа к квизу необходимо пройти все уроки модуля "{module.title}". Осталось пройти {len(uncompleted_lessons)} уроков.')
         return redirect('course_detail', course_id=course.id)
-
+    # Проверяем, сдан ли квиз на 70+
+    from .models import QuizAttempt
+    last_attempt = QuizAttempt.objects.filter(student=student, quiz=quiz).order_by('-attempt_number').first()
+    if last_attempt and last_attempt.passed:
+        return redirect('quiz_result', quiz_id=quiz.id)
     if request.method == 'POST':
         correct = 0
         total = quiz.questions.count()
@@ -663,14 +663,31 @@ def start_quiz(request, quiz_id):
             correct_answer = question.answers.filter(is_correct=True).first()
             if user_answer and correct_answer and user_answer == correct_answer.text:
                 correct += 1
-        QuizResult.objects.create(
-            user=request.user,
+        percent = int((correct / total) * 100) if total else 0
+        passed = percent >= 70
+        # Определяем номер попытки
+        attempt_number = 1
+        if last_attempt:
+            attempt_number = last_attempt.attempt_number + 1
+        # Штраф за неудачу
+        stars_penalty = 0
+        if not passed:
+            stars_penalty = attempt_number * 5
+            student.stars = max(0, student.stars - stars_penalty)
+            student.save()
+        QuizAttempt.objects.create(
+            student=student,
             quiz=quiz,
-            score=correct,
-            total_questions=total
+            score=percent,
+            passed=passed,
+            attempt_number=attempt_number,
+            stars_penalty=stars_penalty
         )
+        if passed:
+            messages.success(request, f'Квиз сдан! Ваш результат: {percent}%.')
+        else:
+            messages.error(request, f'Квиз не сдан (результат: {percent}%). Штраф: -{stars_penalty} звёзд. Попробуйте ещё раз.')
         return redirect('quiz_result', quiz_id=quiz.id)
-
     return render(request, 'courses/quiz.html', {
         'quiz': quiz,
         'questions': quiz.questions.all()
@@ -679,31 +696,38 @@ def start_quiz(request, quiz_id):
 @login_required
 def quiz_result(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    result = get_object_or_404(QuizResult, user=request.user, quiz=quiz)
+    student = get_object_or_404(Student, user=request.user)
     module = quiz.module_set.first()
-    course = module.course_set.first() if module else None
-    percent = int((result.score / result.total_questions) * 100) if hasattr(result, 'total_questions') and result.total_questions else 0
-
-    # --- Начисление звездочек за квиз, если ещё не начислены и результат 100% ---
-    student = Student.objects.get(user=request.user)
-    stars_awarded = 0
+    course = None
+    if module:
+        course = module.course_set.first()
+    from .models import QuizAttempt
+    last_attempt = QuizAttempt.objects.filter(student=student, quiz=quiz).order_by('-attempt_number').first()
+    percent = int(last_attempt.score) if last_attempt else 0
     show_stars_notification = False
-    if percent == 100 and quiz.stars > 0 and not result.stars_given:
-        student.stars += quiz.stars
-        result.stars_given = True
-        result.save()
-        student.save()
-        stars_awarded = quiz.stars
-        show_stars_notification = True
-        Notification.objects.create(
-            student=student,
-            type='stars_awarded',
-            message=f'Поздравляем! Вы получили {quiz.stars} звёзд за квиз "{quiz.title}".'
-        )
-
+    stars_awarded = 0
+    if last_attempt and last_attempt.passed and last_attempt.attempt_number == 1:
+        # Можно начислить звёзды только за первую успешную сдачу
+        if quiz.stars > 0:
+            student.stars += quiz.stars
+            student.save()
+            stars_awarded = quiz.stars
+            show_stars_notification = True
+            Notification.objects.create(
+                student=student,
+                type='stars_awarded',
+                message=f'Поздравляем! Вы получили {quiz.stars} звёзд за квиз "{quiz.title}".'
+            )
+    # Обновляем прогресс
+    if course:
+        progress = student.calculate_progress(course)
+        sp = StudentProgress.objects.filter(user=student.user, course=course).first()
+        if sp:
+            sp.progress = progress
+            sp.save()
     return render(request, 'courses/quiz_result.html', {
         'quiz': quiz,
-        'result': result,
+        'result': last_attempt,
         'course': course,
         'percent': percent,
         'show_stars_notification': show_stars_notification,
@@ -738,22 +762,76 @@ def bind_quiz_to_module(request, quiz_id):
 @login_required
 def edit_quiz(request, pk):
     quiz = get_object_or_404(Quiz, pk=pk)
-    QuestionFormSet = modelformset_factory(Question, fields=('text',), extra=0, can_delete=True)
+    
     if request.method == 'POST':
         form = QuizForm(request.POST, instance=quiz)
-        formset = QuestionFormSet(request.POST, queryset=quiz.questions.all())
-        if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-            messages.success(request, 'Квиз и вопросы успешно обновлены.')
+        
+        if form.is_valid():
+            # Сохраняем основную информацию о квизе
+            quiz = form.save()
+            
+            # Получаем все существующие вопросы
+            existing_questions = quiz.questions.all()
+            
+            # Обрабатываем каждый вопрос
+            question_ids = request.POST.getlist('question_id[]')
+            question_texts = request.POST.getlist('question_text[]')
+            
+            # Создаем множество ID вопросов, которые нужно сохранить
+            questions_to_keep = set()
+            
+            # Обновляем или создаем вопросы
+            for i, (question_id, question_text) in enumerate(zip(question_ids, question_texts)):
+                if question_text.strip():  # Проверяем, что текст не пустой
+                    if question_id:  # Обновляем существующий вопрос
+                        question = Question.objects.get(id=question_id)
+                        question.text = question_text
+                        question.save()
+                    else:  # Создаем новый вопрос
+                        question = Question.objects.create(quiz=quiz, text=question_text)
+                    
+                    questions_to_keep.add(question.id)
+                    
+                    # Обрабатываем ответы для вопроса
+                    answer_texts = request.POST.getlist(f'answer_text_{question.id}')
+                    correct_answer = request.POST.get(f'answer_{question.id}')
+                    
+                    # Удаляем старые ответы
+                    question.answers.all().delete()
+                    
+                    # Создаем новые ответы
+                    for j, text in enumerate(answer_texts):
+                        if text.strip():  # Проверяем, что текст не пустой
+                            Answer.objects.create(
+                                question=question,
+                                text=text,
+                                is_correct=(str(j) == correct_answer)
+                            )
+            
+            # Удаляем вопросы, которых нет в списке для сохранения
+            for question in existing_questions:
+                if question.id not in questions_to_keep:
+                    question.delete()
+            
+            messages.success(request, 'Квиз успешно обновлен!')
             return redirect('admin_page')
     else:
         form = QuizForm(instance=quiz)
-        formset = QuestionFormSet(queryset=quiz.questions.all())
+    
+    # Подготавливаем данные для шаблона
+    questions_data = []
+    for question in quiz.questions.all():
+        questions_data.append({
+            'id': question.id,
+            'text': question.text,
+            'answers': question.answers.all(),
+            'correct_answer_index': next((i for i, a in enumerate(question.answers.all()) if a.is_correct), 0)
+        })
+    
     return render(request, 'courses/edit_quiz.html', {
         'form': form,
-        'formset': formset,
-        'quiz': quiz
+        'quiz': quiz,
+        'questions_data': questions_data
     })
 
 @login_required
@@ -961,3 +1039,30 @@ def delete_group(request, group_id):
         group.delete()
         return redirect('admin_page')
     return JsonResponse({'error': 'Метод не разрешен'}, status=405)
+
+@login_required
+@require_POST
+def mark_notifications_read(request):
+    Notification.objects.filter(student__user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'success': True})
+
+@login_required
+def student_dashboard(request):
+    student = get_object_or_404(Student, user=request.user)
+    enrollments = []
+    for course in student.courses.all():
+        progress = student.calculate_progress(course)
+        # Обновим прогресс в StudentProgress
+        sp = StudentProgress.objects.filter(user=student.user, course=course).first()
+        if sp:
+            sp.progress = progress
+            sp.save()
+        enrollments.append({
+            'course': course,
+            'progress': progress
+        })
+    context = {
+        'student': student,
+        'enrollments': enrollments,
+    }
+    return render(request, 'student_dashboard.html', context)

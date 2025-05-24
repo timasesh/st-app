@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Привязать модуль к курсу</title>
+    <title>Привязать квиз к модулю</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -66,13 +66,16 @@
             color: white;
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
         }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
         .card {
             background-color: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(34,52,122,0.10);
             margin: 0 auto 2rem auto;
             border: none;
-            max-width: 600px;
             animation: fadeIn 0.7s;
         }
         .card-header {
@@ -94,6 +97,12 @@
         }
         .card-body {
             padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #22347a;
+            margin-bottom: 0.5rem;
+            display: block;
         }
         .form-control {
             border-radius: 10px;
@@ -128,12 +137,6 @@
             background: linear-gradient(90deg, #1a2a61 60%, #388e3c 100%);
             box-shadow: 0 4px 16px rgba(34,52,122,0.13);
         }
-        .form-group label {
-            font-weight: 600;
-            color: #22347a;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -142,35 +145,34 @@
 </head>
 <body>
     <header class="admin-header">
-        <span class="admin-title"><i class="fas fa-link"></i>Привязать модуль к курсу</span>
+        <span class="admin-title"><i class="fas fa-link"></i>Привязать квиз к модулю</span>
         <div>
             <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
             <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </header>
-
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-plus-circle"></i> Привязка модуля к курсу: {{ course.title }}</h3>
+                <h3><i class="fas fa-plus-circle"></i> Привязка квиза к модулю: {{ module.title }}</h3>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="module_id">Выберите модуль:</label>
-                        <select name="module_id" id="module_id" class="form-control">
-                            {% for module in modules %}
-                                <option value="{{ module.id }}">{{ module.title }}</option>
+                        <label for="quiz_id">Выберите квиз:</label>
+                        <select name="quiz_id" id="quiz_id" class="form-control">
+                            {% for quiz in quizzes %}
+                                <option value="{{ quiz.id }}">{{ quiz.title }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-link"></i> Привязать модуль
+                        <i class="fas fa-link"></i> Привязать квиз
                     </button>
                 </form>
             </div>
         </div>
     </div>
 </body>
-</html>
+</html> 

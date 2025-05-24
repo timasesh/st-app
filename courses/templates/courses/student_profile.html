@@ -1,237 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Profile</title>
+    <title>Профиль студента</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&family=Raleway:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-yellow: #FFEB3B;
+            --accent-yellow: #FFD600;
+            --light-yellow: #FFFDE7;
+            --profile-bg: #fff;
+            --profile-shadow: 0 8px 24px rgba(255, 184, 0, 0.13);
+            --text-main: #222;
+            --text-muted: #bfa600;
+        }
         body {
             font-family: 'Nunito', sans-serif;
-            background-color: #d7e1ff;
-            color: #002a6e;
+            background: var(--light-yellow);
+            color: var(--text-main);
             margin: 0;
+            min-height: 100vh;
+        }
+        .profile-header {
+            background: var(--primary-yellow);
+            padding: 2.2rem 0 1.2rem 0;
+            box-shadow: 0 4px 16px rgba(255, 184, 0, 0.13);
+            margin-bottom: 2.5rem;
+        }
+        .profile-header .container {
             display: flex;
-            flex-direction: column;
-            height: 100vh;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
-
-        header {
-            background-color: #002a6e;
-            padding: 10px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            z-index: 1;
-            position: fixed;
-            top: 0;
-        }
-
-        header .navbar-brand {
+        .profile-title {
             font-family: 'Raleway', sans-serif;
-            font-size: 1.5rem;
+            font-size: 2.1rem;
             font-weight: 700;
-            color: #d7e1ff;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
         }
-
-        header a.btn {
-            color: #d7e1ff;
-            border-color: #d7e1ff;
-        }
-
-        main {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 30px;
-            width: 500px;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            margin-top: 80px; /* Отступ для учета фиксированного хедера */
-        }
-
-        h1, h3 {
-            font-family: 'Raleway', sans-serif;
-        }
-
-        .btn-primary, .btn-secondary {
-            transition: transform 0.2s;
-            background-color: #002a6e;
-            border: none;
-        }
-
-        .btn-primary:hover, .btn-secondary:hover {
-            transform: scale(1.05);
-        }
-
-        .form-control {
+        .profile-header .header-btns a {
+            margin-left: 0.7rem;
+            font-weight: 600;
             border-radius: 30px;
-            padding: 15px;
+            padding: 0.6rem 1.3rem;
+            background: #fff;
+            color: var(--text-muted);
+            border: 2px solid var(--accent-yellow);
+            transition: all 0.2s;
         }
-
-        .avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        .profile-header .header-btns a:hover {
+            background: var(--accent-yellow);
+            color: #222;
+            border-color: #fffde7;
         }
-
-        .hidden {
-            display: none;
-        }
-
-        .avatar-container {
-            margin-bottom: 20px;
-        }
-
-        .avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-info-box {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 200px;
+        .profile-card {
+            background: var(--profile-bg);
+            border-radius: 22px;
+            box-shadow: var(--profile-shadow);
+            padding: 2.5rem 2.2rem 2rem 2.2rem;
+            max-width: 520px;
+            margin: 0 auto 2.5rem auto;
             text-align: center;
-            margin: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
+        .avatar-container {
+            margin-bottom: 1.5rem;
+        }
+        .avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--accent-yellow);
+            box-shadow: 0 4px 16px rgba(255, 184, 0, 0.13);
+            background: #fff;
+        }
+        .profile-info-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .profile-info-box {
+            background: var(--light-yellow);
+            border-radius: 12px;
+            min-width: 140px;
+            padding: 1.1rem 1rem 0.7rem 1rem;
+            box-shadow: 0 2px 8px rgba(255, 184, 0, 0.07);
+        }
+        .profile-info-box strong {
+            color: var(--text-muted);
+            font-size: 1.01rem;
+        }
         .profile-info-box p {
-            margin: 0;
-            color: #555;
+            margin: 0.2rem 0 0 0;
+            color: var(--text-main);
+            font-size: 1.08rem;
+            font-weight: 600;
         }
-
-        #profile-edit .form-group {
-            width: 100%;
-            margin-bottom: 20px;
+        .btn-primary, .btn-warning, .btn-secondary {
+            border-radius: 30px;
+            font-weight: 700;
+            border: none;
+            background: var(--accent-yellow);
+            color: #222;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(255, 184, 0, 0.07);
         }
-
-        #profile-edit .form-control {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1rem;
+        .btn-primary:hover, .btn-warning:hover, .btn-secondary:hover {
+            background: #fffbe6;
+            color: var(--text-muted);
         }
-
-        #profile-edit .form-control[type="file"] {
-            padding: 5px;
+        .form-control {
+            border-radius: 18px;
+            padding: 13px 18px;
+            border: 2px solid var(--accent-yellow);
+            background: #fffde7;
+            color: var(--text-main);
+            font-size: 1.05rem;
         }
-
-        #profile-edit .d-flex {
-            margin-top: 20px;
+        .form-control:focus {
+            border-color: var(--primary-yellow);
+            background: #fff;
+            box-shadow: 0 0 0 0.15rem rgba(255, 235, 59, 0.15);
         }
-
-        #profile-edit .btn {
-            width: 48%;
+        .alert {
+            border-radius: 12px;
+            font-size: 1.01rem;
+        }
+        @media (max-width: 600px) {
+            .profile-header .container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .profile-card {
+                padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+            }
+            .profile-info-row {
+                flex-direction: column;
+                gap: 0.7rem;
+            }
+        }
+        .profile-nav-btn {
+            background: var(--accent-yellow) !important;
+            color: #222 !important;
+            border-radius: 30px !important;
+            font-weight: 700;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            font-size: 1.08rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(255, 184, 0, 0.07);
+        }
+        .profile-nav-btn:hover {
+            background: #fffbe6 !important;
+            color: var(--text-muted) !important;
+        }
+        .profile-edit-btn {
+            background: var(--accent-yellow);
+            color: #222;
+            border-radius: 30px;
+            font-weight: 700;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            font-size: 1.08rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(255, 184, 0, 0.07);
+        }
+        .profile-edit-btn:hover {
+            background: #fffbe6;
+            color: var(--text-muted);
+        }
+        .achievements-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .achievement-box {
+            background: var(--light-yellow);
+            border-radius: 14px;
+            min-width: 110px;
+            padding: 1rem 0.7rem 0.7rem 0.7rem;
+            box-shadow: 0 2px 8px rgba(255, 184, 0, 0.07);
+            text-align: center;
+        }
+        .achievement-icon {
+            font-size: 1.7rem;
+            color: var(--accent-yellow);
+            margin-bottom: 0.2rem;
+        }
+        .achievement-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #222;
+        }
+        .achievement-label {
+            color: var(--text-muted);
+            font-size: 0.98rem;
         }
     </style>
 </head>
 <body>
-
-<header class="navbar navbar-dark">
-    <div class="container d-flex justify-content-between align-items-center">
-        <span class="navbar-brand">STUDENT PROFILE</span>
+<header class="profile-header">
+    <div class="container">
         <div>
-            <a href="{% url 'student_page' %}" class="btn btn-outline-light btn-sm mr-2">Назад</a>
-            <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Выйти</a>
+            <div class="profile-title">Профиль студента</div>
+        </div>
+        <div class="header-btns">
+            <a href="{% url 'student_page' %}" class="profile-nav-btn mr-2"><i class="fas fa-arrow-left mr-1"></i>Назад</a>
+            <a href="{% url 'logout' %}" class="profile-nav-btn"><i class="fas fa-sign-out-alt mr-1"></i>Выйти</a>
         </div>
     </div>
 </header>
-
-<main class="container d-flex flex-column align-items-center">
-    <h1 class="text-center mb-4">Профиль</h1>
-
-    <div id="profile-view" class="d-flex flex-column align-items-center">
-        <div class="avatar-container text-center mb-4">
-            {% if student.avatar %}
-                <img src="{{ student.avatar.url }}" alt="Avatar" class="avatar">
-            {% else %}
-                <img src="https://via.placeholder.com/150" alt="Avatar" class="avatar">
-            {% endif %}
-        </div>
-
-        <div class="container d-flex justify-content-between mb-3">
-            <div class="profile-info-box p-3">
-                <strong>Username:</strong>
-                <p>{{ student.user.username }}</p>
+<main>
+    <div class="profile-card">
+        <h1 class="mb-4" style="font-size:1.7rem; font-weight:700; color:#bfa600;">Профиль</h1>
+        <div id="profile-view">
+            <div class="avatar-container text-center mb-4">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="Avatar" class="avatar">
+                {% else %}
+                    <img src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/user.svg" alt="Avatar" class="avatar" style="background:#f0f0f0; padding:18px;">
+                {% endif %}
             </div>
-            <div class="profile-info-box p-3">
-                <strong>Phone Number:</strong>
-                <p>{{ student.phone_number }}</p>
+            <div class="profile-info-row">
+                <div class="profile-info-box">
+                    <strong>Username:</strong>
+                    <p>{{ student.user.username }}</p>
+                </div>
+                <div class="profile-info-box">
+                    <strong>Телефон:</strong>
+                    <p>{{ student.phone_number }}</p>
+                </div>
+                <div class="profile-info-box">
+                    <strong>Email:</strong>
+                    <p>{{ student.email }}</p>
+                </div>
             </div>
-            <div class="profile-info-box p-3">
-                <strong>Email:</strong>
-                <p>{{ student.email }}</p>
+            <div class="achievements-row mb-3">
+                <div class="achievement-box">
+                    <div class="achievement-icon"><i class="fas fa-star"></i></div>
+                    <div class="achievement-value">{{ student.stars }}</div>
+                    <div class="achievement-label">Звёзд</div>
+                </div>
+                <div class="achievement-box">
+                    <div class="achievement-icon"><i class="fas fa-book"></i></div>
+                    <div class="achievement-value">{{ student.courses.count }}</div>
+                    <div class="achievement-label">Курсов</div>
+                </div>
+                <div class="achievement-box">
+                    <div class="achievement-icon"><i class="fas fa-users"></i></div>
+                    <div class="achievement-value">{{ student.groups.count }}</div>
+                    <div class="achievement-label">Групп</div>
+                </div>
             </div>
-        </div>
-
-        {# Кнопки управления редактированием профиля #}
-        {% if not student.profile_edited_once %}
-            <button id="edit-button" class="btn btn-primary mt-3">Редактировать</button>
-        {% else %}
-            {% if active_request %}
-                <div class="alert alert-info mt-3">Запрос на редактирование отправлен. Ожидайте ответа администратора.</div>
-            {% elif admin_status == 'approved' %}
-                <div class="alert alert-success mt-3">Ваш запрос на редактирование подтверждён. <br>{{ admin_response }}</div>
-            {% elif admin_status == 'rejected' %}
-                <div class="alert alert-danger mt-3">Ваш запрос на редактирование отклонён. <br>{{ admin_response }}</div>
-            {% else %}
-                <form method="post" class="mt-3">
+            {% if not student.profile_edited_once %}
+                <button id="edit-button" class="btn profile-edit-btn mt-3"><i class="fas fa-edit mr-1"></i>Редактировать</button>
+                <form id="profile-edit" class="hidden mt-3" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <button type="submit" name="request_edit" class="btn btn-warning">Запросить редактирование аккаунта</button>
+                    <div class="form-group text-left">
+                        <label for="avatar">Аватар</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*" value="{{ form.avatar.value }}">
+                    </div>
+                    <div class="form-group text-left">
+                        <label for="phone_number">Номер телефона</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ form.phone_number.value }}">
+                    </div>
+                    <div class="form-group text-left">
+                        <label for="email">Электронная почта</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value }}">
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button type="submit" class="btn profile-edit-btn btn-block">Сохранить изменения</button>
+                        <button type="button" id="cancel-button" class="btn btn-secondary btn-block">Отмена</button>
+                    </div>
                 </form>
+            {% else %}
+                {% if active_request %}
+                    <div class="alert alert-info mt-3">Запрос на редактирование отправлен. Ожидайте ответа администратора.</div>
+                {% elif admin_status == 'approved' %}
+                    <div class="alert alert-success mt-3">Ваш запрос на редактирование подтверждён. <br>{{ admin_response }}</div>
+                {% elif admin_status == 'rejected' %}
+                    <div class="alert alert-danger mt-3">Ваш запрос на редактирование отклонён. <br>{{ admin_response }}</div>
+                {% else %}
+                    <form method="post" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit" name="request_edit" class="btn btn-warning">Запросить редактирование аккаунта</button>
+                    </form>
+                {% endif %}
             {% endif %}
-        {% endif %}
+        </div>
     </div>
-
-    <form id="profile-edit" class="hidden mt-3" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="avatar">Аватар</label>
-            <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*" value="{{ form.avatar.value }}">
-        </div>
-
-        <div class="form-group">
-            <label for="phone_number">Номер телефона</label>
-            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ form.phone_number.value }}">
-        </div>
-        <div class="form-group">
-            <label for="email">Электронная почта</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value }}">
-        </div>
-
-        <div class="d-flex justify-content-between mt-3">
-            <button type="submit" class="btn btn-primary btn-block">Сохранить изменения</button>
-            <button type="button" id="cancel-button" class="btn btn-secondary btn-block">Отмена</button>
-        </div>
-    </form>
 </main>
-
 <script>
     const editButton = document.getElementById('edit-button');
     const profileView = document.getElementById('profile-view');
     const profileEdit = document.getElementById('profile-edit');
     const cancelButton = document.getElementById('cancel-button');
-
-    editButton.addEventListener('click', () => {
-        profileView.classList.add('hidden');
-        profileEdit.classList.remove('hidden');
-    });
-
-    cancelButton.addEventListener('click', () => {
-        profileView.classList.remove('hidden');
-        profileEdit.classList.add('hidden');
-    });
+    if (editButton && profileEdit) {
+        editButton.addEventListener('click', () => {
+            profileView.classList.add('hidden');
+            profileEdit.classList.remove('hidden');
+        });
+    }
+    if (cancelButton && profileEdit) {
+        cancelButton.addEventListener('click', () => {
+            profileView.classList.remove('hidden');
+            profileEdit.classList.add('hidden');
+        });
+    }
 </script>
-
 </body>
 </html>

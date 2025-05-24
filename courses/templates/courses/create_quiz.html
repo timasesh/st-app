@@ -1,150 +1,141 @@
-
-<!doctype html>
-<html lang="en">
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Создать квиз</title>
+    <title>Создать новый квиз</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Общие стили для body */
         body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #d7e1ff;
-        margin: 0;
-        padding: 0;
-        color: #ggg;
-        overflow: hidden; /* Убираем прокрутку */
-
-
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #f8f9fa 60%, #e3eaff 100%);
+            color: #2c3e50;
+            min-height: 100vh;
         }
-
-
-        /* .background {*/
-        /* position: absolute;*/
-        /* width: 100%;*/
-        /* height: 100%;*/
-        /* background-color: rgba(11, 44, 91, 0.9)*/
-        /* animation: shine 5s ease-in-out infinite; *//* Анимация блика */
-        /* z-index: -1; *//* За всеми элементами */
-        /* filter: blur(30px); *//* Размытие для мягкого эффекта */
-        /* }*/
-
-        @keyframes shine {
-        0% {
-        background-position: -100% 0;
+        .admin-header {
+            background-color: white;
+            padding: 1.5rem 2rem 1rem 2rem;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.07);
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.7s;
         }
-        50% {
-        background-position: 100% 0;
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
         }
-        100% {
-        background-position: -100% 0;
+        .admin-title i {
+            color: #4CAF50;
+            font-size: 2.2rem;
         }
+        .btn-back {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: background 0.2s;
         }
-
-        /* Стили заголовков */
-        .zagolovok {
-        text-align: center;
-        margin-top: 50px;
-        font-size: 2.8rem;
-        font-family: 'Montserrat', sans-serif; /* Модный шрифт для заголовка */
-
+        .btn-back:hover {
+            background: #e3eaff;
+            color: #1a2a61;
         }
-
-        /* Стили для формы */
-        form {
-        background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый фон */
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 15px 30px rgba(255, 253, 253, 0.3);
-        max-width: 600px;
-        margin: 20px auto;
-        backdrop-filter: blur(10px); /* Размытие фона за формой */
-        transition: transform 0.3s; /* Плавная анимация */
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(34,52,122,0.10);
+            margin: 0 auto 2rem auto;
+            border: none;
+            max-width: 500px;
+            animation: fadeIn 0.7s;
         }
-
-        form button {
-        width: 100%;
-        padding: 12px;
-        font-size: 1.2rem;
-        <!--            transition: background-color 0.3s, transform 0.3s; /* Анимация при наведении */-->
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            padding: 1.2rem 1.5rem 0.7rem 1.5rem;
         }
-
-        form button:hover {
-        background-color: #00aaff; /* Цвет кнопки при наведении */
-        <!--            transform: scale(1.05); /* Увеличение при наведении */-->
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        /* Стили для навигации */
-        .navbar {
-        background-color: #0b2c5b; /* Полупрозрачный темно-синий фон для навигации */
-        font-family: 'Montserrat', sans-serif;
+        .card-header i {
+            color: #4CAF50;
+            font-size: 1.5rem;
         }
-
-        .navbar .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        padding: 0 15px;
-        font-family: 'Montserrat', sans-serif;
+        .card-body {
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
         }
-
-        .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        font-family: 'Montserrat', sans-serif;
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e3eaff;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f8f9fa;
         }
-
-        .btn {
-        font-size: 1rem;
+        .form-control:focus {
+            border-color: #22347a;
+            box-shadow: 0 0 0 0.15rem rgba(34, 52, 122, 0.10);
+            background: #fff;
         }
-
-        /* Убираем отступы для кнопок */
-        #logout-btn {
-        margin-left: 10px;
-        }
-
-
         .btn-primary {
-        background-color: #0b2c5b;
-        border: none;
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(34,52,122,0.07);
+            transition: background 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
         }
-
         .btn-primary:hover {
-        background-color: #6495ED;
+            background: linear-gradient(90deg, #1a2a61 60%, #388e3c 100%);
+            box-shadow: 0 4px 16px rgba(34,52,122,0.13);
         }
-
-
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <div class="background"></div> <!-- Фоновая анимация -->
-
-    <header class="navbar navbar-dark">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">ADMIN</span>
-            <div>
-                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
+    <header class="admin-header">
+        <span class="admin-title"><i class="fas fa-question-circle"></i>Создать новый квиз</span>
+        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+    </header>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Создание квиза</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ quiz_form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-check"></i> Создать квиз</button>
+                </form>
             </div>
         </div>
-    </header>
-
-    <h2 class="zagolovok">Создать новый квиз</h2>
-
-    <div class="container">
-        <form method="post">
-            {% csrf_token %}
-            {{ quiz_form.as_p }}
-            <button type="submit" class="btn btn-primary">Сохранить</button>
-        </form>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

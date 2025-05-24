@@ -1,4 +1,5 @@
 {% load static %}
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,62 +7,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавить вопрос</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            margin: 20px;
-            background-color: #f8f9fa;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #f8f9fa 60%, #e3eaff 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+        .admin-header {
+            background-color: white;
+            padding: 1.5rem 2rem 1rem 2rem;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.07);
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.7s;
+        }
+        .admin-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .admin-title i {
+            color: #4CAF50;
+            font-size: 2.2rem;
+        }
+        .btn-back {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: background 0.2s;
+            margin-right: 1rem;
+        }
+        .btn-back:hover {
+            background: #e3eaff;
+            color: #1a2a61;
         }
         .container {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
-        h2, h3 {
-            color: #007bff;
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(34,52,122,0.10);
+            margin: 0 auto 2rem auto;
+            border: none;
+            animation: fadeIn 0.7s;
         }
-        .btn {
-            margin-top: 15px;
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            padding: 1.2rem 1.5rem 0.7rem 1.5rem;
+        }
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-header i {
+            color: #4CAF50;
+            font-size: 1.5rem;
+        }
+        .card-body {
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #22347a;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e3eaff;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #f8f9fa;
+        }
+        .form-control:focus {
+            border-color: #22347a;
+            box-shadow: 0 0 0 0.15rem rgba(34, 52, 122, 0.10);
+            background: #fff;
         }
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(34,52,122,0.07);
+            transition: background 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
         }
-        .btn-secondary {
-            margin-top: 15px;
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1a2a61 60%, #388e3c 100%);
+            box-shadow: 0 4px 16px rgba(34,52,122,0.13);
+        }
+        .answers-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #22347a;
+            margin: 1.5rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .answers-title i {
+            color: #4CAF50;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
+    <header class="admin-header">
+        <span class="admin-title"><i class="fas fa-question-circle"></i>Добавить вопрос к квизу: {{ quiz.title }}</span>
+        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+    </header>
     <div class="container">
-        <h2>Добавить вопрос к квизу: {{ quiz.title }}</h2>
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                {{ question_form.as_p }}
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Новый вопрос</h3>
             </div>
-
-            <h3>Ответы</h3>
-            {{ formset.management_form }}
-            {% for form in formset %}
-                <div class="form-group">
-                    {{ form.as_p }}
-                </div>
-            {% endfor %}
-
-            <button type="submit" class="btn btn-primary">Сохранить вопрос</button>
-        </form>
-
-        <a href="{% url 'admin_page' %}" class="btn btn-secondary">Завершить добавление вопросов</a>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_text">Текст вопроса</label>
+                        {{ question_form.text|add_class:'form-control' }}
+                        {% for error in question_form.text.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="answers-title"><i class="fas fa-list"></i> Ответы</div>
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <div class="form-row align-items-center mb-2">
+                            <div class="col-md-8">
+                                <label for="{{ form.prefix }}-text">Текст ответа</label>
+                                {{ form.text|add_class:'form-control' }}
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center">
+                                <label class="mb-0 ml-2 mr-2" for="{{ form.prefix }}-is_correct">Верный?</label>
+                                {{ form.is_correct }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="fas fa-save"></i> Сохранить вопрос
+                    </button>
+                </form>
+                <a href="{% url 'admin_page' %}" class="btn btn-back mt-3"><i class="fas fa-check"></i> Завершить добавление вопросов</a>
+            </div>
+        </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

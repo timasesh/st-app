@@ -11,127 +11,145 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(120deg, #f8f9fa 60%, #e3eaff 100%);
             color: #2c3e50;
             min-height: 100vh;
         }
         .admin-header {
             background-color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            padding: 1.5rem 2rem 1rem 2rem;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.07);
             margin-bottom: 2rem;
-            border-radius: 10px;
+            border-radius: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            animation: fadeIn 0.7s;
         }
         .admin-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
         }
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .admin-title i {
+            color: #4CAF50;
+            font-size: 2.2rem;
         }
-        .logout-btn:hover {
-            background-color: #c82333;
+        .btn-back {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: background 0.2s;
+            margin-right: 1rem;
+        }
+        .btn-back:hover {
+            background: #e3eaff;
+            color: #1a2a61;
+        }
+        .btn-logout {
+            background: #dc3545;
             color: white;
-            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: #c82333;
+            color: white;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
         }
         .card {
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(34,52,122,0.10);
+            margin: 0 auto 2rem auto;
             border: none;
+            max-width: 800px;
+            animation: fadeIn 0.7s;
         }
         .card-header {
             background-color: white;
             border-bottom: 1px solid rgba(0,0,0,0.07);
-            padding: 1rem 1.5rem;
+            padding: 1.2rem 1.5rem 0.7rem 1.5rem;
+        }
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-header i {
+            color: #4CAF50;
+            font-size: 1.5rem;
         }
         .card-body {
-            padding: 1.5rem;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
         }
         .table th {
-            background-color: #22347a;
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
             color: white;
             font-weight: 500;
             border: none;
+            padding: 1rem;
         }
         .table td {
             vertical-align: middle;
             border-color: rgba(0,0,0,0.05);
+            padding: 1rem;
         }
         .badge {
             padding: 0.5em 0.8em;
             border-radius: 20px;
             font-weight: 500;
+            margin: 0.2rem;
+            display: inline-block;
+        }
+        .badge-info {
+            background: linear-gradient(90deg, #17a2b8 60%, #4CAF50 100%);
+            color: white;
+        }
+        .badge-primary {
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
+            color: white;
         }
         .progress {
             height: 8px;
             border-radius: 4px;
             background-color: rgba(0,0,0,0.05);
+            overflow: hidden;
         }
         .progress-bar {
-            background-color: #22347a;
+            background: linear-gradient(90deg, #22347a 60%, #4CAF50 100%);
+            transition: width 0.6s ease;
         }
-        .btn-primary {
-            background-color: #22347a;
-            border-color: #22347a;
-        }
-        .btn-primary:hover {
-            background-color: #1a2a61;
-            border-color: #1a2a61;
-        }
-        .btn-info {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
-        }
-        .btn-info:hover {
-            background-color: #138496;
-            border-color: #138496;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #c82333;
-        }
-        .back-link {
-            margin-top: 20px;
-            display: inline-block;
-            color: #22347a;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-            width: 100%;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-            color: #1a2a61;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <header class="admin-header">
-        <h1 class="admin-title">Информация о студенте</h1>
+        <span class="admin-title"><i class="fas fa-user-graduate"></i>Информация о студенте</span>
         <div>
-            <a href="{% url 'admin_page' %}" class="btn btn-primary mr-2"><i class="fas fa-arrow-left"></i> Назад</a>
-            <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+            <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+            <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </header>
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h3 class="mb-0">Основная информация</h3>
+                <h3><i class="fas fa-info-circle"></i> Основная информация</h3>
             </div>
             <div class="card-body">
                 <table class="table mb-0">
@@ -152,7 +170,7 @@
                             <th>Курсы:</th>
                             <td>
                                 {% for course in student.courses.all %}
-                                    <span class="badge bg-info text-dark mb-1">{{ course.title }}</span><br>
+                                    <span class="badge badge-info">{{ course.title }}</span>
                                 {% empty %}
                                     Нет курсов
                                 {% endfor %}
@@ -162,7 +180,7 @@
                             <th>Процент прохождения:</th>
                             <td>
                                 {% for progress in student.studentprogress_set.all %}
-                                    <span class="badge bg-primary">{{ progress.progress }}%</span><br>
+                                    <span class="badge badge-primary">{{ progress.progress }}%</span>
                                 {% empty %}
                                     Нет данных о прогрессе
                                 {% endfor %}
@@ -174,7 +192,7 @@
         </div>
         <div class="card">
             <div class="card-header">
-                <h3 class="mb-0">Прогресс по курсам</h3>
+                <h3><i class="fas fa-chart-line"></i> Прогресс по курсам</h3>
             </div>
             <div class="card-body">
                 <table class="table mb-0">

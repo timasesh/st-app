@@ -68,6 +68,9 @@ urlpatterns = [
 
     # New URL for deleting a group
     path('delete_group/<int:group_id>/', views.delete_group, name='delete_group'),
+
+    # New URL for marking notifications as read
+    path('notifications/mark_read/', views.mark_notifications_read, name='mark_notifications_read'),
 ]
 
 from django.conf import settings

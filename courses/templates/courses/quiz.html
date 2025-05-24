@@ -9,14 +9,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #22347a;
+            --secondary-color: #4CAF50;
+            --background-color: #f9faff;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+            --hover-color: #1a2a5e;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f9faff;
-            color: #2d3748;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .navbar {
-            background-color: #22347a;
+            background-color: var(--primary-color);
             padding: 15px 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
@@ -28,34 +42,40 @@
             background: #ffffff;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            flex: 1;
         }
 
         .quiz-header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid var(--border-color);
+            animation: fadeInDown 0.5s ease-out;
         }
 
         .quiz-title {
-            color: #22347a;
-            font-size: 24px;
+            color: var(--primary-color);
+            font-size: 28px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .quiz-description {
             color: #4a5568;
             font-size: 16px;
+            line-height: 1.6;
         }
 
         .question-container {
             background: #f8fafc;
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
 
         .question-container:hover {
@@ -64,68 +84,121 @@
         }
 
         .question-number {
-            color: #22347a;
+            color: var(--primary-color);
             font-weight: 600;
             margin-bottom: 15px;
             font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-number i {
+            color: var(--secondary-color);
         }
 
         .form-check {
-            padding: 12px 15px;
-            margin: 8px 0;
+            padding: 15px 20px;
+            margin: 10px 0;
             background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
             transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
         }
 
         .form-check:hover {
             background: #f1f5f9;
-            border-color: #22347a;
+            border-color: var(--primary-color);
+            transform: translateX(5px);
         }
 
         .form-check-input {
-            margin-top: 6px;
+            margin-top: 0;
+            cursor: pointer;
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 1;
         }
 
         .form-check-label {
             margin-left: 10px;
             cursor: pointer;
             font-size: 16px;
-            color: #4a5568;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+            flex: 1;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .form-check-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .form-check:hover .form-check-label::before {
+            border-color: var(--primary-color);
+        }
+
+        .form-check-input:checked + .form-check-label::before {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            box-shadow: inset 0 0 0 4px white;
+        }
+
+        .form-check:hover .form-check-label {
+            color: var(--primary-color);
         }
 
         .btn-success {
-            background-color: #22347a;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border: none;
-            padding: 12px 30px;
+            padding: 15px 35px;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 52, 122, 0.2);
         }
 
         .btn-success:hover {
-            background-color: #1a2a5e;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 52, 122, 0.2);
+            box-shadow: 0 6px 20px rgba(34, 52, 122, 0.3);
+            background: linear-gradient(135deg, var(--hover-color), var(--secondary-color));
         }
 
         .btn-outline-primary {
-            color: #22347a;
-            border-color: #22347a;
-            padding: 12px 30px;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 15px 35px;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
 
         .btn-outline-primary:hover {
-            background-color: #22347a;
+            background-color: var(--primary-color);
             color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 52, 122, 0.2);
+            box-shadow: 0 4px 15px rgba(34, 52, 122, 0.2);
         }
 
         .quiz-footer {
@@ -134,15 +207,69 @@
             align-items: center;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .timer {
             background: #e3f2fd;
-            padding: 8px 15px;
-            border-radius: 20px;
-            color: #0b2c5b;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: var(--primary-color);
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .timer i {
+            color: var(--primary-color);
+        }
+
+        .selected {
+            border-color: var(--primary-color);
+            background-color: #f1f5f9;
+        }
+
+        .selected .form-check-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .selected .form-check-label::before {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            box-shadow: inset 0 0 0 4px white;
         }
     </style>
 </head>
@@ -161,12 +288,22 @@
             <p class="quiz-description">Внимательно прочитайте каждый вопрос и выберите правильный ответ.</p>
         </div>
 
-        <form method="post">
+        <div class="progress-container">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Прогресс</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <form method="post" id="quiz-form">
             {% csrf_token %}
             {% for question in questions %}
-            <div class="question-container">
+            <div class="question-container" data-question="{{ forloop.counter }}">
                 <div class="question-number">
-                    <i class="fas fa-question-circle mr-2"></i>
+                    <i class="fas fa-question-circle"></i>
                     Вопрос {{ forloop.counter }}: {{ question.text }}
                 </div>
                 {% for answer in question.answers.all %}
@@ -195,5 +332,70 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('quiz-form');
+            const questions = document.querySelectorAll('.question-container');
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const totalQuestions = questions.length;
+            let answeredQuestions = 0;
+
+            // Update progress when an answer is selected
+            questions.forEach(question => {
+                const radioButtons = question.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const questionContainer = this.closest('.question-container');
+                        const formChecks = questionContainer.querySelectorAll('.form-check');
+                        
+                        // Remove selected class from all options
+                        formChecks.forEach(check => check.classList.remove('selected'));
+                        
+                        // Add selected class to the chosen option
+                        this.closest('.form-check').classList.add('selected');
+                        
+                        // Update progress
+                        answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+                        const progress = (answeredQuestions / totalQuestions) * 100;
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.setAttribute('aria-valuenow', progress);
+                        progressText.textContent = `${Math.round(progress)}%`;
+                    });
+                });
+
+                // Make the entire form-check clickable
+                const formChecks = question.querySelectorAll('.form-check');
+                formChecks.forEach(check => {
+                    check.addEventListener('click', function(e) {
+                        // Don't trigger if clicking the radio input directly
+                        if (e.target.type === 'radio') return;
+                        
+                        const radio = this.querySelector('input[type="radio"]');
+                        if (radio) {
+                            radio.checked = true;
+                            // Trigger the change event
+                            radio.dispatchEvent(new Event('change'));
+                        }
+                    });
+                });
+            });
+
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                const allQuestionsAnswered = document.querySelectorAll('input[type="radio"]:checked').length === totalQuestions;
+                if (!allQuestionsAnswered) {
+                    e.preventDefault();
+                    alert('Пожалуйста, ответьте на все вопросы перед отправкой.');
+                }
+            });
+
+            // Add animation to questions
+            questions.forEach((question, index) => {
+                question.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
 </body>
 </html>

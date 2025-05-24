@@ -140,13 +140,46 @@ class Student(models.Model):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
-    courses = models.ManyToManyField('Course', related_name='students_set')
+    courses = models.ManyToManyField('Course', related_name='students_set', blank=True)
     stars = models.IntegerField(default=0)
+    level = models.IntegerField(default=1)
+    experience = models.IntegerField(default=0)
+    completed_quizzes = models.ManyToManyField(Quiz, through='QuizAttempt', related_name='completed_by')
+    blocked_modules = models.ManyToManyField('Module', related_name='blocked_for_students', blank=True)
     profile_edited_once = models.BooleanField(default=False)
+
+    def calculate_level(self):
+        return max(1, self.experience // 1000)
+
+    def calculate_progress(self, course):
+        # Собираем все уроки и все квизы курса
+        all_lessons = set()
+        all_quizzes = set()
+        for module in course.modules.all():
+            all_lessons.update(module.lessons.values_list('id', flat=True))
+            all_quizzes.update(module.quizzes.values_list('id', flat=True))
+        total_parts = len(all_lessons) + len(all_quizzes)
+        if total_parts == 0:
+            return 0
+        # Завершённые уроки
+        completed_lessons = set()
+        sp = StudentProgress.objects.filter(user=self.user, course=course).first()
+        if sp:
+            completed_lessons = set(sp.completed_lessons.values_list('id', flat=True))
+        # Завершённые квизы (сданные на 70+)
+        from .models import QuizAttempt
+        passed_quiz_ids = set(
+            QuizAttempt.objects.filter(student=self, quiz__in=all_quizzes, passed=True).values_list('quiz_id', flat=True)
+        )
+        completed_parts = len(completed_lessons) + len(passed_quiz_ids)
+        return int((completed_parts / total_parts) * 100)
 
     @property
     def username(self):
         return self.user.username
+
+    def __str__(self):
+        return self.username
 
 
 class ProfileEditRequest(models.Model):
@@ -189,6 +222,22 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class QuizAttempt(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    score = models.FloatField()
+    passed = models.BooleanField(default=False)
+    attempt_number = models.IntegerField(default=1)
+    stars_penalty = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.title} - Attempt {self.attempt_number}"
 
 
 

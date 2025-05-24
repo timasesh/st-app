@@ -5,8 +5,8 @@ register = template.Library()
 
 @register.filter
 def get_item(dictionary, key):
-    """Получить значение из словаря по ключу"""
-    return dictionary.get(key)
+    """Get an item from a dictionary using the key."""
+    return dictionary.get(key, 0)
 
 @register.filter
 def intersection(queryset1, queryset2):

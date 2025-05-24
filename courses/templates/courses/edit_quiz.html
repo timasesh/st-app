@@ -1,170 +1,132 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактировать квиз</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
 
-        .navbar {
-            background-color: #0b2c5b;
-        }
-
-        .navbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-            font-family: 'Montserrat', sans-serif;
-            color: white;
-        }
-
-        .navbar div {
-            display: flex;
-        }
-
-        .navbar .btn {
-            margin-left: 10px;
-        }
-
-        .container-content {
-            background-color: #fff;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 700px;
-            margin: 50px auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            font-family: 'Montserrat', sans-serif;
-        }
-
-         .form-group label {
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #0b2c5b;
-            box-shadow: 0 0 5px rgba(11, 44, 91, 0.3);
-        }
-
-
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 700;
-            text-align: center;
-        }
-
-        button {
-            background-color: #0b2c5b;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: background-color 0.3s;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        button:hover {
-            background-color: #1E90FF;
-        }
-
-        .block-title { font-size: 1.2rem; font-weight: 600; margin-top: 30px; margin-bottom: 15px; color: #0b2c5b; }
-        .question-block { background: #f4f7ff; border-radius: 10px; padding: 15px 20px; margin-bottom: 15px; }
-        .question-actions { float: right; }
-        .btn { margin-left: 8px; }
-        .add-question-btn { margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <header class="navbar navbar-dark">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">ADMIN</span>
-            <div>
-                <a href="{% url 'admin_page' %}" class="btn btn-outline-light" id="back-btn">Назад</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
-            </div>
-        </div>
-    </header>
-
-    <div class="container-content">
-        <h2>Редактировать квиз: {{ quiz.title }}</h2>
-        <form method="post">
-            {% csrf_token %}
-            <div class="block-title">Параметры квиза</div>
-            {{ form.as_p }}
-
-            <div class="block-title">Вопросы</div>
-            {{ formset.management_form }}
-            {% for qform in formset %}
-                <div class="question-block" data-question-id="{{ qform.instance.id }}">
-                    {{ qform.text.label_tag }} {{ qform.text }}
-                    {% if formset.can_delete %}
-                        <div class="question-actions">
-                            {{ qform.DELETE }} <span style="font-size:0.9em;">Удалить</span>
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    <h2>Редактирование квиза</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Основная информация о квизе -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Основная информация</h5>
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Название квиза</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.title.errors }}
                         </div>
                     {% endif %}
-                    <div class="answers-edit" id="answers-edit-{{ qform.instance.id }}" style="display:none; margin-top:15px;"></div>
                 </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-success btn-block">Сохранить изменения</button>
-            <a href="{% url 'admin_page' %}" class="btn btn-secondary btn-block">Отмена</a>
-        </form>
-        <a href="{% url 'add_question' quiz.id %}" class="btn btn-primary add-question-btn">Добавить вопрос</a>
-    </div>
+                <div class="mb-3">
+                    <label for="id_stars" class="form-label">Количество звёзд</label>
+                    {{ form.stars }}
+                    {% if form.stars.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.stars.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script>
-    $(function(){
-        $('.question-block').on('click', function(e){
-            // Не раскрывать по клику на чекбокс удаления или на input вопроса
-            if ($(e.target).is('input[type=checkbox]') || $(e.target).is('input[type=text]')) return;
-            var qid = $(this).data('question-id');
-            var $answers = $('#answers-edit-' + qid);
-            if ($answers.is(':visible')) {
-                $answers.slideUp();
+        <!-- Вопросы -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Вопросы</h5>
+                <div id="questions-container">
+                    {% for question_data in questions_data %}
+                        <div class="question-container mb-4 p-3 border rounded">
+                            <input type="hidden" name="question_id[]" value="{{ question_data.id }}">
+                            <div class="mb-3">
+                                <label for="question_{{ forloop.counter0 }}" class="form-label">Вопрос</label>
+                                <input type="text" id="question_{{ forloop.counter0 }}" name="question_text[]" 
+                                       value="{{ question_data.text }}" class="form-control">
+                            </div>
+                            
+                            <!-- Ответы -->
+                            <div class="answers-container ms-4">
+                                <h6 class="mb-3">Ответы</h6>
+                                <div class="row">
+                                    {% for answer in question_data.answers %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="input-group">
+                                                <div class="input-group-text">
+                                                    <input type="radio" name="answer_{{ question_data.id }}"
+                                                           value="{{ forloop.counter0 }}"
+                                                           {% if forloop.counter0 == question_data.correct_answer_index %}checked{% endif %}>
+                                                </div>
+                                                <input type="text" name="answer_text_{{ question_data.id }}"
+                                                       value="{{ answer.text }}" class="form-control">
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <a href="{% url 'admin_page' %}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.question-container {
+    transition: all 0.3s ease;
+}
+
+.question-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-control {
+    border-radius: 8px;
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+}
+
+.card {
+    border-radius: 12px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем стили для форм
+    const formControls = document.querySelectorAll('input[type="text"], textarea');
+    formControls.forEach(control => {
+        control.classList.add('form-control');
+    });
+
+    // Обработка удаления вопросов
+    const deleteCheckboxes = document.querySelectorAll('input[type="checkbox"][name*="DELETE"]');
+    deleteCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const questionCard = this.closest('.question-card');
+            if (this.checked) {
+                questionCard.style.opacity = '0.5';
             } else {
-                if ($answers.html().trim() === '') {
-                    $.get('{% url "edit_answers_ajax" 0 %}'.replace('0', qid), function(data){
-                        $answers.html(data).slideDown();
-                    }).fail(function(xhr){
-                        alert('Ошибка AJAX: ' + xhr.status);
-                    });
-                } else {
-                    $answers.slideDown();
-                }
+                questionCard.style.opacity = '1';
             }
         });
     });
-    </script>
-</body>
-</html>
+});
+</script>
+{% endblock %}
