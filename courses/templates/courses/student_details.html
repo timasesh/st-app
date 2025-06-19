@@ -159,12 +159,24 @@
                             <td>{{ student.user.username }}</td>
                         </tr>
                         <tr>
+                            <th>Имя:</th>
+                            <td>{{ student.first_name|default:'-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Фамилия:</th>
+                            <td>{{ student.last_name|default:'-' }}</td>
+                        </tr>
+                        <tr>
                             <th>Номер телефона:</th>
                             <td>{{ student.phone_number|default:"Не указан" }}</td>
                         </tr>
                         <tr>
                             <th>Email:</th>
                             <td>{{ student.email|default:"Не указан" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Временный пароль (dev):</th>
+                            <td>{{ student.temporary_password|default:'-' }}</td>
                         </tr>
                         <tr>
                             <th>Курсы:</th>

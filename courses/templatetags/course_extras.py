@@ -1,5 +1,6 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+import re
 
 register = template.Library()
 
@@ -18,4 +19,27 @@ def sub(value, arg):
     try:
         return int(value) - int(arg)
     except (ValueError, TypeError):
-        return '' 
+        return ''
+
+@register.filter
+def embed_url(url):
+    if not url:
+        return ''
+    
+    # YouTube URL patterns
+    youtube_regex = r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})'
+    youtube_match = re.match(youtube_regex, url)
+    
+    if youtube_match:
+        video_id = youtube_match.group(1)
+        return f'https://www.youtube.com/embed/{video_id}'
+    
+    # Vimeo URL pattern
+    vimeo_regex = r'vimeo\.com\/([0-9]+)'
+    vimeo_match = re.match(vimeo_regex, url)
+    
+    if vimeo_match:
+        video_id = vimeo_match.group(1)
+        return f'https://player.vimeo.com/video/{video_id}'
+    
+    return url 

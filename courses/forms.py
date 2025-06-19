@@ -5,6 +5,9 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Lesson, Module, Course, Student
 from .models import Question, Answer
 from django.db import transaction
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+import re
 
 
 class StudentRegistrationForm(UserCreationForm):
@@ -39,7 +42,67 @@ class StudentRegistrationForm(UserCreationForm):
 class LessonCreationForm(forms.ModelForm):
     class Meta:
         model = Lesson
-        fields = ['title', 'video', 'pdf']
+        fields = ['title', 'video', 'video_url', 'pdf', 'convert_pdf_to_slides']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название урока'}),
+            'video': forms.FileInput(attrs={'class': 'form-control'}),
+            'video_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Ссылка на видео (YouTube, Vimeo, Google Drive, Dropbox, OneDrive)'}),
+            'pdf': forms.FileInput(attrs={'class': 'form-control'}),
+            'convert_pdf_to_slides': forms.CheckboxInput(attrs={'class': 'form-check-input mt-0 ms-2'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        video = cleaned_data.get('video')
+        video_url = cleaned_data.get('video_url')
+
+        if not video and not video_url:
+            raise ValidationError('Необходимо указать либо видеофайл, либо URL видео')
+        if video and video_url:
+            raise ValidationError('Нельзя указать одновременно видеофайл и URL видео')
+
+        if video_url:
+            # Проверка формата URL
+            url_validator = URLValidator()
+            try:
+                url_validator(video_url)
+            except ValidationError:
+                raise ValidationError('Некорректный формат URL')
+
+            # Проверка поддерживаемых сервисов
+            supported_services = [
+                'youtube.com', 'youtu.be',  # YouTube
+                'vimeo.com',                # Vimeo
+                'drive.google.com',         # Google Drive
+                'dropbox.com',              # Dropbox
+                '1drv.ms', 'onedrive.live.com'  # OneDrive
+            ]
+            
+            if not any(service in video_url.lower() for service in supported_services):
+                raise ValidationError('Неподдерживаемый сервис. Используйте YouTube, Vimeo, Google Drive, Dropbox или OneDrive')
+
+            # Специфичные проверки для каждого сервиса
+            if 'youtube.com' in video_url or 'youtu.be' in video_url:
+                if 'youtube.com/watch' in video_url:
+                    if not re.search(r'v=[a-zA-Z0-9_-]+', video_url):
+                        raise ValidationError('Некорректная ссылка на YouTube видео')
+                elif 'youtu.be' in video_url:
+                    if not re.search(r'youtu\.be/[a-zA-Z0-9_-]+', video_url):
+                        raise ValidationError('Некорректная ссылка на YouTube видео')
+
+            elif 'drive.google.com' in video_url:
+                if not ('/d/' in video_url or 'id=' in video_url):
+                    raise ValidationError('Некорректная ссылка на Google Drive')
+
+            elif 'dropbox.com' in video_url:
+                if not video_url.endswith(('.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm')):
+                    raise ValidationError('Ссылка должна указывать на видеофайл в Dropbox')
+
+            elif '1drv.ms' in video_url or 'onedrive.live.com' in video_url:
+                if not ('/redir?' in video_url or '/embed?' in video_url):
+                    raise ValidationError('Некорректная ссылка на OneDrive')
+
+        return cleaned_data
 
 
 class ModuleCreationForm(forms.ModelForm):
@@ -117,5 +180,9 @@ class StudentProfileForm(forms.ModelForm):
         widgets = {
             'department': forms.NumberInput(attrs={'min': 1, 'max': 12}),
         }
+
+
+class StudentExcelUploadForm(forms.Form):
+    file = forms.FileField(label='Загрузить Excel-файл', required=True)
 
 

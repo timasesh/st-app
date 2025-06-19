@@ -131,7 +131,33 @@
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ lesson_form.as_p }}
+                    {% for field in lesson_form %}
+                        {% if field.name == 'convert_pdf_to_slides' %}
+                            <div class="form-check mb-3">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                     <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-check"></i> Создать урок</button>
                 </form>
             </div>

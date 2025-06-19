@@ -121,6 +121,8 @@
                 {% else %}
                     <div class="text-muted mb-3">Нет пройденных квизов</div>
                 {% endif %}
+                <p><b>Имя:</b> {{ student.first_name|default:'-' }}</p>
+                <p><b>Фамилия:</b> {{ student.last_name|default:'-' }}</p>
             </div>
         </div>
     </div>

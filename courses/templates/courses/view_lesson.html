@@ -65,6 +65,7 @@
 <!--</body>-->
 <!--</html>-->
 {% load static %}
+{% load course_extras %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -224,6 +225,15 @@
                     <source src="{{ lesson.video.url }}" type="video/mp4">
                     Ваш браузер не поддерживает видео-теги.
                 </video>
+            {% elif lesson.video_url %}
+                <div class="video-container" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin:0 auto;">
+                    <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;" 
+                            src="{{ lesson.video_url|embed_url }}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
             {% else %}
                 <p>Видео не загружено.</p>
             {% endif %}

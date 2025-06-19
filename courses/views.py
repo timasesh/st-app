@@ -10,11 +10,18 @@ from django.views.decorators.http import require_POST
 import json
 import logging
 from django.db.models import Count
+import pandas as pd
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
+import random
+import string
+import traceback
 
 from .forms import (
     StudentRegistrationForm, LessonCreationForm, ModuleCreationForm,
     CourseCreationForm, StudentProfileForm, QuizForm, QuestionForm,
-    AnswerForm, QuizToModuleForm
+    AnswerForm, QuizToModuleForm, StudentExcelUploadForm
 )
 from .models import (
     User, Lesson, Module, Course, StudentProgress, Student,
@@ -26,9 +33,15 @@ logger = logging.getLogger(__name__)
 # Authentication Views
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        user = None
+        try:
+            from .models import User
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
         if user is not None:
             login(request, user)
             if user.is_admin:
@@ -42,9 +55,15 @@ def login_view(request):
 
 def student_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        user = None
+        try:
+            from .models import User
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
         if user is not None and hasattr(user, 'student'):
             login(request, user)
             return redirect('student_page')
@@ -73,6 +92,7 @@ def logout_view(request):
 def admin_page(request):
     from .models import ProfileEditRequest, CourseAddRequest, Notification, Group
     student_form = StudentRegistrationForm()
+    excel_form = StudentExcelUploadForm()
     lesson_form = LessonCreationForm()
     module_form = ModuleCreationForm()
     course_form = CourseCreationForm()
@@ -82,6 +102,70 @@ def admin_page(request):
             student_form = StudentRegistrationForm(request.POST)
             if student_form.is_valid():
                 student_form.save()
+                return redirect('admin_page')
+        elif 'upload_students_excel' in request.POST:
+            excel_form = StudentExcelUploadForm(request.POST, request.FILES)
+            if excel_form.is_valid():
+                excel_file = excel_form.cleaned_data['file']
+                file_path = default_storage.save('tmp/' + excel_file.name, excel_file)
+                abs_path = os.path.join(settings.MEDIA_ROOT, file_path)
+                try:
+                    import datetime
+                    df = pd.read_excel(abs_path)
+                    print(f'Всего строк в файле: {len(df)}')
+                    added_count = 0
+                    new_students = []
+                    for idx, row in df.iterrows():
+                        email = get_col(row, 'Электронная почта', 'Почта', 'email')
+                        first_name = get_col(row, 'Имя', 'first_name')
+                        last_name = get_col(row, 'Фамилия', 'last_name')
+                        print(f"Обрабатываю: {email}, {first_name}, {last_name}")
+                        if not email or '@' not in email:
+                            continue
+                        base_username = email.split('@')[0]
+                        username = base_username
+                        counter = 1
+                        while User.objects.filter(username=username).exists():
+                            username = f"{base_username}{counter}"
+                            counter += 1
+                        try:
+                            temp_password = generate_random_password()
+                            user, created = User.objects.get_or_create(email=email, defaults={
+                                'username': username,
+                                'first_name': first_name,
+                                'last_name': last_name,
+                                'is_student': True
+                            })
+                            user.set_password(temp_password)
+                            user.save()
+                            student, s_created = Student.objects.get_or_create(user=user)
+                            if not student.email:
+                                student.email = email
+                            if not student.first_name:
+                                student.first_name = first_name
+                            if not student.last_name:
+                                student.last_name = last_name
+                            student.temporary_password = temp_password
+                            student.save()
+                            if created or s_created:
+                                added_count += 1
+                            new_students.append(student)
+                        except Exception as e:
+                            print(f'Ошибка при добавлении {email}: {e}')
+                    # Создаём новую группу для этой загрузки
+                    group_name = f'Группа от {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+                    group = Group.objects.create(name=group_name)
+                    group.students.set(new_students)
+                    group.save()
+                    print(f'Создана группа: {group_name} (студентов: {len(new_students)})')
+                    print(f'Обработано строк: {idx+1}')
+                    print(f'Добавлено студентов: {added_count}')
+                    messages.success(request, f'Все студенты из файла успешно добавлены! ({added_count}) Создана группа: {group_name}')
+                except Exception as e:
+                    messages.error(request, f'Ошибка при обработке файла: {e}')
+                finally:
+                    if os.path.exists(abs_path):
+                        os.remove(abs_path)
                 return redirect('admin_page')
         elif 'add_lesson' in request.POST:
             lesson_form = LessonCreationForm(request.POST, request.FILES)
@@ -101,6 +185,15 @@ def admin_page(request):
         elif 'delete_course' in request.POST:
             course_id = request.POST['course_id']
             Course.objects.filter(id=course_id).delete()
+            return redirect('admin_page')
+        elif 'edit_group' in request.POST:
+            group_id = request.POST.get('group_id')
+            group_name = request.POST.get('group_name')
+            if group_id and group_name:
+                group = get_object_or_404(Group, id=group_id)
+                group.name = group_name
+                group.save()
+                messages.success(request, f'Группа успешно переименована в "{group_name}"')
             return redirect('admin_page')
         elif 'approve_edit' in request.POST or 'reject_edit' in request.POST:
             req_id = request.POST.get('request_id')
@@ -155,7 +248,6 @@ def admin_page(request):
                 new_students = Student.objects.filter(id__in=student_ids)
                 old_students = set(group.students.all())
                 group.students.set(new_students)
-                group.save()
                 # Уведомления для новых участников
                 for student in new_students:
                     if student not in old_students:
@@ -173,6 +265,15 @@ def admin_page(request):
                                     message=f'К вам в группу "{group.name}" присоединился {student.user.username}.'
                                 )
                 messages.success(request, f'Группа "{group_name}" создана!')
+            return redirect('admin_page')
+        elif 'attach_group_to_course' in request.POST:
+            group_id = request.POST.get('group_id')
+            course_id = request.POST.get('course_id')
+            group = Group.objects.get(id=group_id)
+            course = Course.objects.get(id=course_id)
+            for student in group.students.all():
+                student.courses.add(course)
+            messages.success(request, f'Все студенты из группы "{group.name}" прикреплены к курсу "{course.title}"!')
             return redirect('admin_page')
 
     students = Student.objects.all()
@@ -208,6 +309,7 @@ def admin_page(request):
 
     context = {
         'student_form': student_form,
+        'excel_form': excel_form,
         'lesson_form': lesson_form,
         'module_form': module_form,
         'course_form': course_form,
@@ -413,13 +515,24 @@ def course_detail(request, course_id):
             if lesson.id not in completed_lessons:
                 next_lesson_id_by_module[module.id] = lesson.id
                 break
+
+    # Подготавливаем данные о слайдах для передачи через json_script
+    all_lesson_slides_data = {}
+    for module in course.modules.all():
+        for lesson in module.lessons.all():
+            if lesson.convert_pdf_to_slides and lesson.slides.all():
+                # Собираем URL-адреса слайдов
+                slides_urls = [slide.image.url for slide in lesson.slides.all().order_by('order')]
+                all_lesson_slides_data[lesson.id] = slides_urls
+
     return render(request, 'courses/course_detail.html', {
         'course': course,
         'quiz_results': quiz_results,
         'student_progress': student_progress,
         'completed_lessons': completed_lessons,
         'module_progress': module_progress,
-        'next_lesson_id_by_module': next_lesson_id_by_module
+        'next_lesson_id_by_module': next_lesson_id_by_module,
+        'all_lesson_slides_data': all_lesson_slides_data, # Передаем данные о слайдах
     })
 
 @login_required
@@ -942,24 +1055,11 @@ def add_lesson_to_module(request, module_id):
     if request.method == 'POST':
         module = get_object_or_404(Module, id=module_id)
         lesson_id = request.POST.get('lesson_id')
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-        
-        # Проверяем, не добавлен ли уже этот урок в модуль
-        if lesson in module.lessons.all():
-            return JsonResponse({
-                'success': False,
-                'error': 'Этот урок уже добавлен в модуль'
-            })
-        
-        module.lessons.add(lesson)
-        return JsonResponse({
-            'success': True,
-            'lesson': {
-                'id': lesson.id,
-                'title': lesson.title
-            }
-        })
-    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+        if lesson_id:
+            lesson = get_object_or_404(Lesson, id=lesson_id)
+            module.lessons.add(lesson)
+            return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Ошибка при добавлении урока'}, status=400)
 
 @login_required
 def edit_answers_ajax(request, question_id):
@@ -1066,3 +1166,174 @@ def student_dashboard(request):
         'enrollments': enrollments,
     }
     return render(request, 'student_dashboard.html', context)
+
+def get_col(row, *names):
+    for name in names:
+        for col in row.index:
+            if col.strip().lower() == name.strip().lower():
+                return str(row[col]).strip()
+    return ''
+
+def generate_random_password(length=8):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for i in range(length))
+
+@login_required
+def group_management_page(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    all_students = Student.objects.all().order_by('user__username')
+    students_in_group = group.students.all().order_by('user__username')
+    students_not_in_group = Student.objects.exclude(id__in=students_in_group.values_list('id', flat=True)).order_by('user__username')
+
+    courses = Course.objects.all().order_by('title')
+
+    if request.method == 'POST':
+        if 'edit_group_name' in request.POST:
+            new_group_name = request.POST.get('group_name')
+            if new_group_name:
+                group.name = new_group_name
+                group.save()
+                messages.success(request, f'Название группы успешно изменено на "{new_group_name}".')
+            else:
+                messages.error(request, 'Название группы не может быть пустым.')
+        elif 'remove_students_from_group' in request.POST:
+            student_ids = request.POST.getlist('students_to_remove')
+            print(f"DEBUG: Received student_ids for removal: {student_ids}") # Отладочный вывод
+            students_to_remove = Student.objects.filter(id__in=student_ids)
+            for student in students_to_remove:
+                group.students.remove(student)
+            group.refresh_from_db() # Обновляем объект группы из базы данных
+            messages.success(request, 'Выбранные студенты успешно удалены из группы.')
+            print(f"DEBUG: Students in group after removal: {group.students.count()}") # Отладочный вывод
+        elif 'add_students_to_group' in request.POST:
+            student_ids = request.POST.getlist('students_to_add')
+            students_to_add = Student.objects.filter(id__in=student_ids)
+            for student in students_to_add:
+                group.students.add(student)
+            messages.success(request, 'Выбранные студенты успешно добавлены в группу.')
+        elif 'attach_course_to_student' in request.POST:
+            student_id = request.POST.get('student_id')
+            course_id = request.POST.get('course_id')
+            student = get_object_or_404(Student, id=student_id)
+            course = get_object_or_404(Course, id=course_id)
+            if course not in student.courses.all():
+                student.courses.add(course)
+                messages.success(request, f'Курс "{course.title}" успешно прикреплен к студенту {student.user.username}.')
+            else:
+                messages.info(request, f'Курс "{course.title}" уже прикреплен к студенту {student.user.username}.')
+        
+        # После обработки POST-запроса, повторно получаем актуальные данные
+        group = get_object_or_404(Group, id=group_id)
+        all_students = Student.objects.all().order_by('user__username')
+        students_in_group = group.students.all().order_by('user__username')
+        students_not_in_group = Student.objects.exclude(id__in=students_in_group.values_list('id', flat=True)).order_by('user__username')
+        courses = Course.objects.all().order_by('title')
+
+        context = {
+            'group': group,
+            'students_in_group': students_in_group,
+            'students_not_in_group': students_not_in_group,
+            'courses': courses,
+        }
+        return render(request, 'courses/group_management.html', context)
+
+    # Начальный GET-запрос
+    students_in_group = group.students.all().order_by('user__username')
+    students_not_in_group = Student.objects.exclude(id__in=students_in_group.values_list('id', flat=True)).order_by('user__username')
+    courses = Course.objects.all().order_by('title')
+
+    context = {
+        'group': group,
+        'students_in_group': students_in_group,
+        'students_not_in_group': students_not_in_group,
+        'courses': courses,
+    }
+    return render(request, 'courses/group_management.html', context)
+
+@login_required
+@require_POST
+@csrf_exempt # Возможно, это временно, для простоты отладки AJAX. В продакшене лучше использовать CSRF токен
+def mark_lesson_complete(request):
+    print(f"DEBUG: mark_lesson_complete called. User: {request.user.username}, is_student: {request.user.is_student}")
+
+    if not request.user.is_student:
+        print("DEBUG: User is not a student, returning 403.")
+        return JsonResponse({'status': 'error', 'message': 'Только студенты могут отмечать уроки как завершенные.'}, status=403)
+
+    lesson_id = request.POST.get('lesson_id')
+    course_id = request.POST.get('course_id')
+
+    print(f"DEBUG: Received lesson_id: {lesson_id}, course_id: {course_id}")
+
+    if not lesson_id or not course_id:
+        print("DEBUG: Missing lesson_id or course_id.")
+        return JsonResponse({'status': 'error', 'message': 'Отсутствуют данные урока или курса.'}, status=400)
+
+    try:
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        course = get_object_or_404(Course, id=course_id)
+        student = get_object_or_404(Student, user=request.user)
+
+        print(f"DEBUG: Found lesson: {lesson.title}, course: {course.title}, student: {student.user.username}")
+
+        student_progress, created = StudentProgress.objects.get_or_create(user=request.user, course=course)
+
+        if lesson not in student_progress.completed_lessons.all():
+            student_progress.completed_lessons.add(lesson)
+            print(f"DEBUG: Lesson {lesson.title} added to completed lessons.")
+            
+            # Пересчитываем прогресс после добавления урока
+            total_lessons_in_course = 0
+            for module in course.modules.all():
+                total_lessons_in_course += module.lessons.count()
+            
+            if total_lessons_in_course > 0:
+                # Получаем ID всех уроков, относящихся к модулям текущего курса
+                course_lessons_ids = set()
+                for module in course.modules.all():
+                    course_lessons_ids.update(module.lessons.values_list('id', flat=True))
+
+                # Фильтруем завершенные уроки студента по этим ID
+                completed_count = student_progress.completed_lessons.filter(
+                    id__in=list(course_lessons_ids)
+                ).count()
+
+                student_progress.progress = int((completed_count / total_lessons_in_course) * 100)
+            else:
+                student_progress.progress = 0 # Если нет уроков, прогресс 0
+            
+            student_progress.save()
+            print(f"DEBUG: Student progress updated to {student_progress.progress}%.")
+
+            # Определяем следующий урок для разблокировки
+            next_lesson_id = None
+            all_lessons_ordered = []
+            for module in course.modules.all().order_by('id'): # Предполагаем, что модули имеют порядок
+                for l in module.lessons.all().order_by('id'): # Предполагаем, что уроки имеют порядок
+                    all_lessons_ordered.append(l.id)
+            
+            try:
+                current_lesson_index = all_lessons_ordered.index(lesson.id)
+                if current_lesson_index < len(all_lessons_ordered) - 1:
+                    next_lesson_id = all_lessons_ordered[current_lesson_index + 1]
+                print(f"DEBUG: Next lesson ID: {next_lesson_id}")
+            except ValueError:
+                print(f"DEBUG: Current lesson {lesson.id} not found in ordered list, which is unexpected.")
+                pass # Урок не найден в упорядоченном списке (не должен случиться, если lesson_id валиден)
+
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Урок успешно завершен!',
+                'new_progress': student_progress.progress,
+                'completed_lesson_id': lesson.id,
+                'next_lesson_id': next_lesson_id
+            })
+        else:
+            print(f"DEBUG: Lesson {lesson.title} already completed.")
+            return JsonResponse({'status': 'info', 'message': 'Урок уже был завершен.'})
+
+    except Exception as e:
+        print(f"DEBUG: An unexpected error occurred: {e}")
+        traceback.print_exc() # Печатаем полный traceback для отладки
+        return JsonResponse({'status': 'error', 'message': 'Произошла ошибка при завершении урока.'}, status=500)

@@ -3,6 +3,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from .validators import validate_video_url
+import os
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -34,11 +37,103 @@ class User(AbstractUser):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
-    video = models.FileField(upload_to='videos/')
+    video = models.FileField(upload_to='videos/', blank=True, null=True)
+    video_url = models.URLField(
+        max_length=500, 
+        blank=True, 
+        null=True, 
+        help_text='URL видео (YouTube, Vimeo, Google Drive, Dropbox, OneDrive)',
+        validators=[validate_video_url]
+    )
     pdf = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    convert_pdf_to_slides = models.BooleanField(
+        default=False, 
+        help_text='Конвертировать PDF/PPTX в слайды для просмотра на странице'
+    )
+    converted_slides_status = models.CharField(
+        max_length=20, 
+        choices=[('pending', 'В ожидании'), ('completed', 'Завершено'), ('failed', 'Ошибка'), ('not_applicable', 'Неприменимо')], 
+        default='not_applicable',
+        help_text='Статус конвертации PDF/PPTX в слайды'
+    )
+    slide_count = models.IntegerField(default=0, help_text='Количество сгенерированных слайдов')
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        if not self.video and not self.video_url and not self.pdf:
+            raise ValidationError('Необходимо указать либо видеофайл, либо URL видео, либо PDF/PPTX файл')
+        if self.video and self.video_url:
+            raise ValidationError('Нельзя указать одновременно видеофайл и URL видео')
+        
+        if self.convert_pdf_to_slides and not self.pdf:
+            raise ValidationError('Для конвертации в слайды необходимо прикрепить PDF/PPTX файл.')
+
+
+class LessonSlide(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='slides')
+    image = models.ImageField(upload_to='slides/')
+    order = models.IntegerField()
+
+    class Meta:
+        ordering = ['order']
+        unique_together = ('lesson', 'order')
+
+    def __str__(self):
+        return f'{self.lesson.title} - Slide {self.order}'
+
+
+@receiver(post_save, sender=Lesson)
+def convert_pdf_to_slides_on_save(sender, instance, created, **kwargs):
+    # Проверяем флаг, чтобы избежать рекурсии
+    if hasattr(instance, '_skip_conversion_signal') and instance._skip_conversion_signal:
+        return
+    if kwargs.get('raw'): # If model is loading from fixtures, skip conversion
+        return
+
+    from .services import handle_lesson_file_conversion
+    from .models import LessonSlide # Import here to avoid circular dependency
+
+    if instance.convert_pdf_to_slides and instance.pdf:
+        # Устанавливаем временный флаг, чтобы избежать рекурсии при вызове save()
+        instance._skip_conversion_signal = True
+
+        # Удаляем существующие слайды, если они есть и урок обновляется
+        if not created: 
+            instance.slides.all().delete()
+
+        # Обновляем статус и количество слайдов
+        instance.converted_slides_status = 'pending'
+        instance.slide_count = 0
+        instance.save(update_fields=['converted_slides_status', 'slide_count'])
+        
+        image_paths = handle_lesson_file_conversion(instance)
+        
+        if image_paths:
+            for order, img_path in enumerate(image_paths):
+                # Путь должен быть относительным к MEDIA_ROOT
+                relative_path = os.path.relpath(img_path, settings.MEDIA_ROOT).replace('\\', '/')
+                print(f"DEBUG: img_path = {img_path}")
+                print(f"DEBUG: settings.MEDIA_ROOT = {settings.MEDIA_ROOT}")
+                print(f"DEBUG: relative_path to save = {relative_path}")
+                LessonSlide.objects.create(
+                    lesson=instance,
+                    image=relative_path,
+                    order=order + 1
+                )
+            instance.converted_slides_status = 'completed'
+            instance.slide_count = len(image_paths)
+        else:
+            instance.converted_slides_status = 'failed'
+            instance.slide_count = 0
+        
+        # Сохраняем окончательный статус. Важно: после этого вызова флаг должен быть удален
+        # или обработка флага должна быть завершена, чтобы не мешать будущим сохранениям.
+        instance.save(update_fields=['converted_slides_status', 'slide_count'])
+
+        # Удаляем флаг после завершения обработки
+        del instance._skip_conversion_signal
 
 
 class Quiz(models.Model):
@@ -147,6 +242,9 @@ class Student(models.Model):
     completed_quizzes = models.ManyToManyField(Quiz, through='QuizAttempt', related_name='completed_by')
     blocked_modules = models.ManyToManyField('Module', related_name='blocked_for_students', blank=True)
     profile_edited_once = models.BooleanField(default=False)
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    temporary_password = models.CharField(max_length=100, null=True, blank=True)
 
     def calculate_level(self):
         return max(1, self.experience // 1000)

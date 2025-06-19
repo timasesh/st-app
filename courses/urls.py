@@ -56,6 +56,7 @@ urlpatterns = [
 
     # Progress Tracking
     path('update_progress/', views.update_progress, name='update_progress'),
+    path('mark_lesson_complete/', views.mark_lesson_complete, name='mark_lesson_complete'),
 
     # New URL for adding a lesson to a module
     path('add-lesson-to-module/<int:module_id>/', views.add_lesson_to_module, name='add_lesson_to_module'),
@@ -71,6 +72,9 @@ urlpatterns = [
 
     # New URL for marking notifications as read
     path('notifications/mark_read/', views.mark_notifications_read, name='mark_notifications_read'),
+
+    # New URL for group management
+    path('group/<int:group_id>/manage/', views.group_management_page, name='group_management'),
 ]
 
 from django.conf import settings
