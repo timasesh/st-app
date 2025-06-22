@@ -12,57 +12,79 @@
     <link rel="stylesheet" href="{% static 'student_styles.css' %}">
 </head>
 <body>
+    <style>
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-right: 4px;
+            margin-left: 30px;
+        }
+        .header-logo-stretch {
+            height: 150px;
+            width: auto;
+            object-fit: contain;
+            background: transparent;
+            align-self: center;
+        }
+        .header-flex-row {
+            display: flex;
+            align-items: stretch;
+        }
+    </style>
+</head>
+<body>
     <header class="student-header">
-        <div class="container header-content">
-            <div class="header-main-row align-items-center">
-                <div class="d-flex align-items-center mb-2 mb-md-0 gap-3">
-                    <div class="student-avatar-container mr-3">
-                        {% if user.student.avatar %}
-                            <img src="{{ user.student.avatar.url }}" alt="Avatar" class="student-avatar" style="width:90px;height:90px;border-radius:50%;object-fit:cover;">
-                        {% else %}
-                            <span class="student-avatar student-avatar-default" style="display:flex;align-items:center;justify-content:center;background:#e3f2fd;padding:7px;width:90px;height:90px;border-radius:50%;">
-                              <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="30" cy="30" r="28" fill="#fff" stroke="#90caf9" stroke-width="3"/>
-                                <circle cx="30" cy="26" r="10" fill="#90caf9"/>
-                                <ellipse cx="30" cy="44" rx="16" ry="8" fill="#e3f2fd"/>
-                              </svg>
-                            </span>
-                        {% endif %}
-                    </div>
-                    <div class="student-name-block">
-                        <span class="student-name" style="font-size:2rem; font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(30,136,229,0.13);">{{ student.user.get_full_name|default:student.user.username }}</span>
-                    </div>
-                </div>
-                <div class="header-btns">
-                    <a href="{% url 'student_profile' %}" class="btn btn-profile">
-                        <i class="fas fa-user"></i> Профиль
-                    </a>
-                    <a href="{% url 'logout' %}" class="btn btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> Выйти
-                    </a>
-                </div>
-                <div class="course-stats d-flex gap-4 ml-md-4">
-                    <div class="stat-card stat-header">
-                        <div class="stat-icon"><i class="fas fa-star text-star-yellow"></i></div>
-                        <div class="stat-value text-star-yellow">{{ student.stars }}</div>
-                        <div class="stat-label">Звёзд</div>
-                    </div>
-                    <div class="stat-card stat-header">
-                        <div class="stat-icon"><i class="fas fa-book"></i></div>
-                        <div class="stat-value">{{ student.courses.count }}</div>
-                        <div class="stat-label">Курсов</div>
-                    </div>
-                    <div class="stat-card stat-header">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-value">{{ student.groups.count }}</div>
-                        <div class="stat-label">Групп</div>
-                    </div>
-                </div>
+        <div class="header-flex-row" style="display:flex;align-items:stretch;">
+            <div class="logo-container mr-3">
+                <img src="/media/logo.png" alt="Logo" class="header-logo-stretch">
             </div>
-            <div class="header-tabs" id="studentTabs">
-                <div class="tab-link active" data-tab="courses"><i class="fas fa-book-open mr-2"></i>Мои курсы</div>
-                <div class="tab-link" data-tab="rating"><i class="fas fa-trophy mr-2"></i>Рейтинг</div>
-                <div class="tab-link" data-tab="requests"><i class="fas fa-clipboard-list mr-2"></i>Запросы</div>
+            <div class="container header-content" style="flex:1;">
+                <div class="header-main-row align-items-center">
+                    <div class="d-flex align-items-center mb-2 mb-md-0 gap-3">
+                        <div class="student-avatar-container mr-3">
+                            {% if student.avatar %}
+                                <img src="{{ student.avatar.url }}" alt="Avatar" class="student-avatar">
+                            {% else %}
+                                <img src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/user.svg" alt="Avatar" class="student-avatar" style="background:#e3f2fd; padding:7px;">
+                            {% endif %}
+                        </div>
+                        <div class="student-name-block">
+                            <span class="student-name" style="font-size:2rem; font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(30,136,229,0.13);">{{ student.user.get_full_name|default:student.user.username }}</span>
+                        </div>
+                    </div>
+                    <div class="header-btns">
+                        <a href="{% url 'student_profile' %}" class="btn btn-profile">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="{% url 'logout' %}" class="btn btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                    <div class="course-stats d-flex gap-4 ml-md-4">
+                        <div class="stat-card stat-header">
+                            <div class="stat-icon"><i class="fas fa-star text-star-yellow"></i></div>
+                            <div class="stat-value text-star-yellow">{{ student.stars }}</div>
+                            <div class="stat-label">Звёзд</div>
+                        </div>
+                        <div class="stat-card stat-header">
+                            <div class="stat-icon"><i class="fas fa-book"></i></div>
+                            <div class="stat-value">{{ student.courses.count }}</div>
+                            <div class="stat-label">Курсов</div>
+                        </div>
+                        <div class="stat-card stat-header">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-value">{{ student.groups.count }}</div>
+                            <div class="stat-label">Групп</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-tabs" id="studentTabs">
+                    <div class="tab-link active" data-tab="courses"><i class="fas fa-book-open mr-2"></i>Мои курсы</div>
+                    <div class="tab-link" data-tab="rating"><i class="fas fa-trophy mr-2"></i>Рейтинг</div>
+                    <div class="tab-link" data-tab="requests"><i class="fas fa-clipboard-list mr-2"></i>Запросы</div>
+                </div>
             </div>
         </div>
     </header>

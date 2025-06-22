@@ -13,41 +13,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <style>
-        .btn-logout.btn-logout-large {
-            background: #e53935;
-            color: #fff;
-            border: none;
-            border-radius: 40px;
-            font-size: 0.5 rem;
-            font-weight: 700;
-            padding: 0.9rem 2.5rem;
-            box-shadow: 0 2px 12px rgba(229,57,53,0.13);
-            transition: all 0.18s;
-            display: inline-flex;
+        
+        .logo-container {
+            display: flex;
             align-items: center;
-            gap: 0.7rem;
+            justify-content: center;
+            height: 100%;
+            padding-right: 4px;
+            margin-left: 30px;
         }
-        .btn-logout.btn-logout-large:hover, .btn-logout.btn-logout-large:focus {
-            background: #c62828;
-            color: #fff;
-            transform: translateY(-2px) scale(1.04);
-            box-shadow: 0 4px 18px rgba(229,57,53,0.18);
+        .header-logo-stretch {
+            height: 150px;
+            width: auto;
+            object-fit: contain;
+            background: transparent;
+            align-self: center;
+        }
+        .header-flex-row {
+            display: flex;
+            align-items: stretch;
         }
     </style>
 </head>
 <body>
-<header class="course-header">
-    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
-        <div class="d-flex flex-column flex-md-row align-items-center gap-3">
-            <div class="course-title">{{ course.title }}</div>
-            
+    <header class="course-header">
+        <div class="header-flex-row">
+            <div class="logo-container">
+                <img src="/media/logo.png" alt="Logo" class="header-logo-stretch">
+            </div>
+            <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+                    <div class="course-title">{{ course.title }}</div>
+                </div>
+                <div class="header-btns">
+                    <a href="{% url 'student_page' %}" class="btn btn-profile"><i class="fas fa-arrow-left mr-1"></i>Назад</a>
+                    <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt mr-1"></i>Выйти</a>
+                </div>
+            </div>
         </div>
-        <div class="header-btns">
-            <a href="{% url 'student_page' %}" class="btn btn-profile"><i class="fas fa-arrow-left mr-1"></i>Назад</a>
-            <a href="{% url 'logout' %}" class="btn btn-logout btn-logout-large"><i class="fas fa-sign-out-alt mr-1"></i>Выйти</a>
-        </div>
-    </div>
-</header>
+    </header>
 <div class="course-progress-block-wide mb-4">
     <div class="d-flex align-items-center justify-content-between flex-wrap">
         <span class="course-progress-label-wide">Общий прогресс по курсу:</span>
