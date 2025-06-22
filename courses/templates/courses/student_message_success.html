@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-success">Ваше сообщение отправлено! Администратор рассмотрит его в ближайшее время.</div>
+    <a href="{% url 'student_page' %}" class="btn btn-secondary">Вернуться на главную</a>
+</div>
+{% endblock %} 

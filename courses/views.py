@@ -21,11 +21,11 @@ import traceback
 from .forms import (
     StudentRegistrationForm, LessonCreationForm, ModuleCreationForm,
     CourseCreationForm, StudentProfileForm, QuizForm, QuestionForm,
-    AnswerForm, QuizToModuleForm, StudentExcelUploadForm
+    AnswerForm, QuizToModuleForm, StudentExcelUploadForm, StudentMessageRequestForm
 )
 from .models import (
     User, Lesson, Module, Course, StudentProgress, Student,
-    Question, Answer, Quiz, QuizResult, ProfileEditRequest, CourseAddRequest, Notification, Group, QuizAttempt
+    Question, Answer, Quiz, QuizResult, ProfileEditRequest, CourseAddRequest, Notification, Group, QuizAttempt, StudentMessageRequest
 )
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def logout_view(request):
 # Admin Views
 @login_required
 def admin_page(request):
-    from .models import ProfileEditRequest, CourseAddRequest, Notification, Group
+    from .models import ProfileEditRequest, CourseAddRequest, Notification, Group, StudentMessageRequest
     student_form = StudentRegistrationForm()
     excel_form = StudentExcelUploadForm()
     lesson_form = LessonCreationForm()
@@ -240,6 +240,27 @@ def admin_page(request):
                 )
             req.save()
             return redirect('admin_page')
+        elif 'approve_message' in request.POST or 'reject_message' in request.POST:
+            req_id = request.POST.get('message_request_id')
+            req = StudentMessageRequest.objects.get(id=req_id)
+            if 'approve_message' in request.POST:
+                req.status = 'approved'
+                req.admin_response = request.POST.get('admin_response', '')
+                Notification.objects.create(
+                    student=req.student,
+                    type='profile_edit',
+                    message=f'Ваш произвольный запрос подтверждён. {req.admin_response or ""}'
+                )
+            else:
+                req.status = 'rejected'
+                req.admin_response = request.POST.get('admin_response', '')
+                Notification.objects.create(
+                    student=req.student,
+                    type='profile_edit',
+                    message=f'Ваш произвольный запрос отклонён. {req.admin_response or ""}'
+                )
+            req.save()
+            return redirect('admin_page')
         elif 'group_create' in request.POST:
             group_name = request.POST.get('group_name')
             student_ids = request.POST.getlist('group_students')
@@ -284,6 +305,7 @@ def admin_page(request):
     available_lessons = Lesson.objects.all()  # Все доступные уроки
     edit_requests = ProfileEditRequest.objects.filter(status='pending').select_related('student__user')
     course_add_requests = CourseAddRequest.objects.filter(status='pending').select_related('student__user', 'course')
+    message_requests = StudentMessageRequest.objects.filter(status='pending').select_related('student__user')
     groups = Group.objects.all().prefetch_related('students')
 
     # Формируем словарь прогресса для быстрого доступа в шаблоне (по факту завершённых уроков)
@@ -323,6 +345,7 @@ def admin_page(request):
         'edit_requests': edit_requests,
         'course_add_requests': course_add_requests,
         'groups': groups,
+        'message_requests': message_requests,
     }
     return render(request, 'courses/admin_page_test.html', context)
 
@@ -331,7 +354,7 @@ def admin_page(request):
 def student_page(request):
     student = get_object_or_404(Student, user=request.user)
     courses = student.courses.all()
-    from .models import QuizResult, Quiz, CourseAddRequest, Course
+    from .models import QuizResult, Quiz, CourseAddRequest, Course, StudentMessageRequest
     quiz_results = QuizResult.objects.filter(user=request.user)
     for result in quiz_results:
         quiz = getattr(result, 'quiz', None)
@@ -352,6 +375,7 @@ def student_page(request):
     show_course_notification = False
     all_courses = Course.objects.all()
     add_course_requests = CourseAddRequest.objects.filter(student=student).order_by('-created_at')
+    message_requests = StudentMessageRequest.objects.filter(student=student).order_by('-created_at')
     notifications = Notification.objects.filter(student=student).order_by('-created_at')[:20]
     groups = student.groups.all().prefetch_related('students__user')
     unread_count = Notification.objects.filter(student=student, is_read=False).count()
@@ -375,6 +399,7 @@ def student_page(request):
                     'show_course_notification': show_course_notification,
                     'all_courses': all_courses,
                     'add_course_requests': add_course_requests,
+                    'message_requests': message_requests,
                     'notifications': notifications,
                     'groups': groups,
                     'unread_count': unread_count,
@@ -388,6 +413,7 @@ def student_page(request):
                     'student': student,
                     'all_courses': all_courses,
                     'add_course_requests': add_course_requests,
+                    'message_requests': message_requests,
                     'notifications': notifications,
                     'groups': groups,
                     'unread_count': unread_count,
@@ -404,6 +430,24 @@ def student_page(request):
             )
             messages.success(request, 'Запрос на добавление курса отправлен!')
             return redirect('student_page')
+        elif 'message_request' in request.POST:
+            message = request.POST.get('message')
+            if message:
+                StudentMessageRequest.objects.create(student=student, message=message)
+                Notification.objects.create(
+                    student=student,
+                    type='profile_edit',
+                    message='Ваш произвольный запрос отправлен администратору.'
+                )
+                messages.success(request, 'Произвольный запрос отправлен!')
+                return redirect('student_page')
+        elif 'delete_message_request' in request.POST:
+            req_id = request.POST.get('delete_message_request')
+            req = StudentMessageRequest.objects.filter(id=req_id, student=student).first()
+            if req:
+                req.delete()
+                messages.success(request, 'Запрос удалён!')
+                return redirect('student_page')
     
     return render(request, 'courses/student_page.html', {
         'courses': courses,
@@ -412,6 +456,7 @@ def student_page(request):
         'show_course_notification': show_course_notification,
         'all_courses': all_courses,
         'add_course_requests': add_course_requests,
+        'message_requests': message_requests,
         'notifications': notifications,
         'groups': groups,
         'unread_count': unread_count,
@@ -525,6 +570,41 @@ def course_detail(request, course_id):
                 slides_urls = [slide.image.url for slide in lesson.slides.all().order_by('order')]
                 all_lesson_slides_data[lesson.id] = slides_urls
 
+    completed_modules_ids = set()
+    if student_progress:
+        completed_modules_ids = set(student_progress.completed_modules.values_list('id', flat=True))
+
+    modules = list(course.modules.all())
+    unlocked_modules_ids = []
+    for idx, module in enumerate(modules):
+        if idx == 0:
+            unlocked_modules_ids.append(module.id)
+        elif modules[idx-1].id in completed_modules_ids:
+            unlocked_modules_ids.append(module.id)
+        elif module.id in completed_modules_ids:
+            unlocked_modules_ids.append(module.id)
+
+    # Для кнопки завершения модуля
+    completed_lessons = set()
+    if student_progress:
+        completed_lessons = set(student_progress.completed_lessons.values_list('id', flat=True))
+    module_can_be_completed = {}
+    for module in modules:
+        all_lessons = list(module.lessons.all())
+        all_quizzes = list(module.quizzes.all())
+        all_lessons_completed = all([lesson.id in completed_lessons for lesson in all_lessons]) if all_lessons else True
+        all_quizzes_passed = True
+        for quiz in all_quizzes:
+            result = quiz_results.get(quiz.id)
+            if not result or not result.get('passed'):
+                all_quizzes_passed = False
+                break
+        module_can_be_completed[module.id] = all_lessons_completed and all_quizzes_passed and (module.id not in completed_modules_ids)
+
+    progress = 0
+    if hasattr(request.user, 'student'):
+        progress = request.user.student.calculate_progress(course)
+
     return render(request, 'courses/course_detail.html', {
         'course': course,
         'quiz_results': quiz_results,
@@ -533,6 +613,10 @@ def course_detail(request, course_id):
         'module_progress': module_progress,
         'next_lesson_id_by_module': next_lesson_id_by_module,
         'all_lesson_slides_data': all_lesson_slides_data, # Передаем данные о слайдах
+        'completed_modules_ids': completed_modules_ids,
+        'unlocked_modules_ids': unlocked_modules_ids,
+        'module_can_be_completed': module_can_be_completed,
+        'course_progress': progress,
     })
 
 @login_required
@@ -814,18 +898,20 @@ def quiz_result(request, quiz_id):
     course = None
     if module:
         course = module.course_set.first()
-    from .models import QuizAttempt
+    from .models import QuizAttempt, QuizResult
     last_attempt = QuizAttempt.objects.filter(student=student, quiz=quiz).order_by('-attempt_number').first()
     percent = int(last_attempt.score) if last_attempt else 0
     show_stars_notification = False
     stars_awarded = 0
-    if last_attempt and last_attempt.passed and last_attempt.attempt_number == 1:
-        # Можно начислить звёзды только за первую успешную сдачу
+    quiz_result = QuizResult.objects.filter(user=request.user, quiz=quiz).first()
+    if last_attempt and last_attempt.passed and last_attempt.attempt_number == 1 and quiz_result and not quiz_result.stars_given:
         if quiz.stars > 0:
             student.stars += quiz.stars
             student.save()
             stars_awarded = quiz.stars
             show_stars_notification = True
+            quiz_result.stars_given = True
+            quiz_result.save()
             Notification.objects.create(
                 student=student,
                 type='stars_awarded',
@@ -1252,88 +1338,101 @@ def group_management_page(request, group_id):
 
 @login_required
 @require_POST
-@csrf_exempt # Возможно, это временно, для простоты отладки AJAX. В продакшене лучше использовать CSRF токен
+@csrf_exempt  # Для простоты тестирования, в продакшене лучше CSRF
+def mark_module_complete(request):
+    try:
+        user = request.user
+        module_id = request.POST.get('module_id')
+        course_id = request.POST.get('course_id')
+        if not module_id or not course_id:
+            return JsonResponse({'success': False, 'error': 'No module_id or course_id provided.'}, status=400)
+        module = Module.objects.get(id=module_id)
+        course = Course.objects.get(id=course_id)
+        sp, created = StudentProgress.objects.get_or_create(user=user, course=course)
+        sp.completed_modules.add(module)
+        sp.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_POST
+@login_required
 def mark_lesson_complete(request):
-    print(f"DEBUG: mark_lesson_complete called. User: {request.user.username}, is_student: {request.user.is_student}")
-
-    if not request.user.is_student:
-        print("DEBUG: User is not a student, returning 403.")
-        return JsonResponse({'status': 'error', 'message': 'Только студенты могут отмечать уроки как завершенные.'}, status=403)
-
+    user = request.user
     lesson_id = request.POST.get('lesson_id')
     course_id = request.POST.get('course_id')
-
-    print(f"DEBUG: Received lesson_id: {lesson_id}, course_id: {course_id}")
-
     if not lesson_id or not course_id:
-        print("DEBUG: Missing lesson_id or course_id.")
         return JsonResponse({'status': 'error', 'message': 'Отсутствуют данные урока или курса.'}, status=400)
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    course = get_object_or_404(Course, id=course_id)
+    student_progress, _ = StudentProgress.objects.get_or_create(user=user, course=course)
+    if lesson not in student_progress.completed_lessons.all():
+        student_progress.completed_lessons.add(lesson)
+        student_progress.save()
+    # Прогресс
+    all_lessons = set()
+    for module in course.modules.all():
+        all_lessons.update(module.lessons.values_list('id', flat=True))
+    completed_lessons = set(student_progress.completed_lessons.values_list('id', flat=True))
+    progress = int((len(completed_lessons & all_lessons) / len(all_lessons)) * 100) if all_lessons else 0
+    # Следующий урок
+    next_lesson_id = None
+    ordered_lessons = []
+    for module in course.modules.all().order_by('id'):
+        ordered_lessons += list(module.lessons.all().order_by('id'))
+    for idx, l in enumerate(ordered_lessons):
+        if l.id == lesson.id and idx + 1 < len(ordered_lessons):
+            next_lesson_id = ordered_lessons[idx + 1].id
+            break
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Урок успешно завершён!',
+        'new_progress': progress,
+        'completed_lesson_id': lesson.id,
+        'next_lesson_id': next_lesson_id
+    })
 
-    try:
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-        course = get_object_or_404(Course, id=course_id)
-        student = get_object_or_404(Student, user=request.user)
+@login_required
+def student_message_request(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('student_page')
+    if request.method == 'POST':
+        form = StudentMessageRequestForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.student = request.user.student
+            msg.status = 'pending'
+            msg.save()
+            return render(request, 'courses/student_message_success.html')
+    else:
+        form = StudentMessageRequestForm()
+    return render(request, 'courses/student_message_request.html', {'form': form})
 
-        print(f"DEBUG: Found lesson: {lesson.title}, course: {course.title}, student: {student.user.username}")
+@login_required
+def admin_message_requests(request):
+    if not request.user.is_staff:
+        return redirect('admin_page')
+    from .models import StudentMessageRequest
+    requests = StudentMessageRequest.objects.all().order_by('-created_at')
+    return render(request, 'courses/admin_message_requests.html', {'requests': requests})
 
-        student_progress, created = StudentProgress.objects.get_or_create(user=request.user, course=course)
-
-        if lesson not in student_progress.completed_lessons.all():
-            student_progress.completed_lessons.add(lesson)
-            print(f"DEBUG: Lesson {lesson.title} added to completed lessons.")
-            
-            # Пересчитываем прогресс после добавления урока
-            total_lessons_in_course = 0
-            for module in course.modules.all():
-                total_lessons_in_course += module.lessons.count()
-            
-            if total_lessons_in_course > 0:
-                # Получаем ID всех уроков, относящихся к модулям текущего курса
-                course_lessons_ids = set()
-                for module in course.modules.all():
-                    course_lessons_ids.update(module.lessons.values_list('id', flat=True))
-
-                # Фильтруем завершенные уроки студента по этим ID
-                completed_count = student_progress.completed_lessons.filter(
-                    id__in=list(course_lessons_ids)
-                ).count()
-
-                student_progress.progress = int((completed_count / total_lessons_in_course) * 100)
-            else:
-                student_progress.progress = 0 # Если нет уроков, прогресс 0
-            
-            student_progress.save()
-            print(f"DEBUG: Student progress updated to {student_progress.progress}%.")
-
-            # Определяем следующий урок для разблокировки
-            next_lesson_id = None
-            all_lessons_ordered = []
-            for module in course.modules.all().order_by('id'): # Предполагаем, что модули имеют порядок
-                for l in module.lessons.all().order_by('id'): # Предполагаем, что уроки имеют порядок
-                    all_lessons_ordered.append(l.id)
-            
-            try:
-                current_lesson_index = all_lessons_ordered.index(lesson.id)
-                if current_lesson_index < len(all_lessons_ordered) - 1:
-                    next_lesson_id = all_lessons_ordered[current_lesson_index + 1]
-                print(f"DEBUG: Next lesson ID: {next_lesson_id}")
-            except ValueError:
-                print(f"DEBUG: Current lesson {lesson.id} not found in ordered list, which is unexpected.")
-                pass # Урок не найден в упорядоченном списке (не должен случиться, если lesson_id валиден)
-
-
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Урок успешно завершен!',
-                'new_progress': student_progress.progress,
-                'completed_lesson_id': lesson.id,
-                'next_lesson_id': next_lesson_id
-            })
-        else:
-            print(f"DEBUG: Lesson {lesson.title} already completed.")
-            return JsonResponse({'status': 'info', 'message': 'Урок уже был завершен.'})
-
-    except Exception as e:
-        print(f"DEBUG: An unexpected error occurred: {e}")
-        traceback.print_exc() # Печатаем полный traceback для отладки
-        return JsonResponse({'status': 'error', 'message': 'Произошла ошибка при завершении урока.'}, status=500)
+@login_required
+def admin_message_request_detail(request, request_id):
+    if not request.user.is_staff:
+        return redirect('admin_page')
+    from .models import StudentMessageRequest
+    msg = StudentMessageRequest.objects.get(id=request_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        response = request.POST.get('admin_response', '')
+        if action == 'approve':
+            msg.status = 'approved'
+        elif action == 'reject':
+            msg.status = 'rejected'
+        msg.admin_response = response
+        from django.utils import timezone
+        msg.reviewed_at = timezone.now()
+        msg.save()
+        return redirect('admin_message_requests')
+    return render(request, 'courses/admin_message_request_detail.html', {'msg': msg})

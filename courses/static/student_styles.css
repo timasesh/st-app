@@ -457,4 +457,91 @@ body {
     .profile-stats-modern {
         gap: 0.7rem;
     }
+}
+
+.btn-modern {
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px rgba(30,136,229,0.08);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    padding: 0.85rem 2.2rem;
+    letter-spacing: 0.02em;
+}
+.btn-profile.btn-modern {
+    background: linear-gradient(90deg, #1e88e5, #1976d2);
+    color: #fff;
+    border: none;
+}
+.btn-profile.btn-modern:hover, .btn-profile.btn-modern:focus {
+    background: linear-gradient(90deg, #1976d2, #1e88e5);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(30,136,229,0.18);
+    transform: translateY(-2px) scale(1.03);
+}
+.btn-secondary.btn-modern {
+    background: #f5f7fa;
+    color: #1976d2;
+    border: 2px solid #bbdefb;
+}
+.btn-secondary.btn-modern:hover, .btn-secondary.btn-modern:focus {
+    background: #e3f2fd;
+    color: #1976d2;
+    border-color: #90caf9;
+    box-shadow: 0 2px 8px #90caf9;
+}
+
+.sidebar-modules {
+    min-width: 270px;
+    max-width: 400px;
+    width: 100%;
+}
+.sidebar-module-title {
+    word-break: break-word;
+    hyphens: auto;
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-bottom: 0.5rem;
+}
+.sidebar-lessons-list .lesson-link span,
+.sidebar-quiz-list .quiz-link {
+    display: inline-block;
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    word-break: break-word;
+}
+@media (max-width: 900px) {
+    .sidebar-modules {
+        min-width: 100%;
+        max-width: 100%;
+    }
+    .sidebar-lessons-list .lesson-link span,
+    .sidebar-quiz-list .quiz-link {
+        max-width: 100%;
+    }
+    .badge, .quiz-result, .sidebar-module .badge {
+        max-width: 120px;
+    }
+}
+
+.badge, .quiz-result, .sidebar-module .badge {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    font-size: 0.98rem;
+    padding: 0.32em 0.7em;
+    vertical-align: middle;
+    display: inline-block;
+}
+@media (max-width: 700px) {
+    .badge, .quiz-result, .sidebar-module .badge {
+        max-width: 80px;
+        font-size: 0.93rem;
+    }
 } 
+
+

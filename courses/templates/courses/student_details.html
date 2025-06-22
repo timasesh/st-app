@@ -138,99 +138,63 @@
         }
     </style>
 </head>
-<body>
-    <header class="admin-header">
-        <span class="admin-title"><i class="fas fa-user-graduate"></i>Информация о студенте</span>
-        <div>
-            <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
-            <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
-        </div>
-    </header>
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-info-circle"></i> Основная информация</h3>
+<body style="background:#f8f9fa;">
+    <div class="main-content" style="max-width:900px;margin:0 auto;">
+        <div class="admin-header mb-4" style="background:#fff;box-shadow:0 2px 8px rgba(34,52,122,0.07);border-radius:16px;padding:1.5rem 2rem 1rem 2rem;display:flex;justify-content:space-between;align-items:center;">
+            <div class="d-flex align-items-center gap-3">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="avatar" style="width:80px;height:80px;border-radius:50%;object-fit:cover;background:#e3f2fd;margin-right:2rem;">
+                {% else %}
+                    <span style="display:flex;align-items:center;justify-content:center;background:#e3f2fd;width:80px;height:80px;border-radius:50%;margin-right:2rem;">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="24" cy="24" r="22" stroke="#222" stroke-width="3" fill="#f4f6fa"/>
+                            <circle cx="24" cy="20" r="7" fill="#222"/>
+                            <ellipse cx="24" cy="34" rx="12" ry="7" fill="#222"/>
+                        </svg>
+                    </span>
+                {% endif %}
+                <div>
+                    <span class="admin-title" style="font-size:2rem;font-weight:700;color:#22347a;font-family:'Montserrat',sans-serif;">{{ student.user.get_full_name|default:student.user.username }}</span>
+                    <div class="text-muted" style="font-size:1.1rem;">ID: {{ student.user.username }}</div>
+                </div>
             </div>
-            <div class="card-body">
-                <table class="table mb-0">
-                    <tbody>
-                        <tr>
-                            <th>Имя пользователя:</th>
-                            <td>{{ student.user.username }}</td>
-                        </tr>
-                        <tr>
-                            <th>Имя:</th>
-                            <td>{{ student.first_name|default:'-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Фамилия:</th>
-                            <td>{{ student.last_name|default:'-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Номер телефона:</th>
-                            <td>{{ student.phone_number|default:"Не указан" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Email:</th>
-                            <td>{{ student.email|default:"Не указан" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Временный пароль (dev):</th>
-                            <td>{{ student.temporary_password|default:'-' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Курсы:</th>
-                            <td>
-                                {% for course in student.courses.all %}
-                                    <span class="badge badge-info">{{ course.title }}</span>
-                                {% empty %}
-                                    Нет курсов
-                                {% endfor %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Процент прохождения:</th>
-                            <td>
-                                {% for progress in student.studentprogress_set.all %}
-                                    <span class="badge badge-primary">{{ progress.progress }}%</span>
-                                {% empty %}
-                                    Нет данных о прогрессе
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div>
+                <a href="{% url 'admin_page' %}" class="btn btn-primary mr-2" style="background:#1a2a61;border:none;"><i class="fas fa-arrow-left"></i> Назад</a>
+                <a href="{% url 'logout' %}" class="btn btn-danger" style="background:#dc3545;border:none;"><i class="fas fa-sign-out-alt"></i> Выйти</a>
             </div>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-line"></i> Прогресс по курсам</h3>
+        <div class="card mb-4" style="border-radius:16px;box-shadow:0 2px 8px rgba(34,52,122,0.07);border:none;background:#fff;">
+            <div class="card-header bg-white" style="border-bottom:1px solid #e3eaff;background:#fff;">
+                <h3 class="mb-0" style="font-size:1.3rem;font-weight:600;color:#22347a;font-family:'Montserrat',sans-serif;"><i class="fas fa-info-circle text-primary mr-2"></i>Основная информация</h3>
             </div>
-            <div class="card-body">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>Курс</th>
-                            <th>Прогресс</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for progress in progress_data %}
-                        <tr>
-                            <td>{{ progress.course.title }}</td>
-                            <td>
-                                <div class="progress" style="max-width:200px;">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ progress.progress }}%;" aria-valuenow="{{ progress.progress }}" aria-valuemin="0" aria-valuemax="100">{{ progress.progress }}%</div>
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="2">Нет данных о курсе</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card-body" style="font-family:'Montserrat',sans-serif;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Имя:</span> {{ student.first_name|default:'-' }}</div>
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Фамилия:</span> {{ student.last_name|default:'-' }}</div>
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Email:</span> {{ student.email|default:'-' }}</div>
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Телефон:</span> {{ student.phone_number|default:'-' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Временный пароль (dev):</span> {{ student.temporary_password|default:'-' }}</div>
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Звёзд:</span> <span class="badge" style="background:#ffeb3b;color:#222;font-size:1.1em;"><i class="fas fa-star text-star"></i> {{ student.stars }}</span></div>
+                        <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Группы:</span> {% for group in student.groups.all %}<span class="badge" style="background:#22347a;color:#fff;margin-right:4px;">{{ group.name }}</span>{% empty %}<span class="text-muted">Нет групп</span>{% endfor %}</div>
+                    </div>
+                </div>
+                <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Курсы:</span> {% for course in student.courses.all %}<span class="badge" style="background:#1abc9c;color:#fff;margin-right:4px;">{{ course.title }}</span>{% empty %}<span class="text-muted">Нет курсов</span>{% endfor %}</div>
+                <div class="mb-3"><span class="font-weight-bold" style="color:#22347a;">Прогресс по курсам:</span>
+                    {% for item in progress_data %}
+                        <div class="mb-2">
+                            <div style="font-weight:500;color:#22347a;">{{ item.course }}</div>
+                            <div class="progress" style="height:10px;width:100%;background:#e3eaff;">
+                                <div class="progress-bar" role="progressbar" style="width: {{ item.progress }}%;background:#22347a;" aria-valuenow="{{ item.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span style="font-size:0.95em;color:#22347a;font-weight:600;">{{ item.progress }}%</span>
+                        </div>
+                    {% empty %}
+                        <span class="text-muted">Нет данных о прогрессе</span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

@@ -1,132 +1,238 @@
-{% extends 'base.html' %}
 {% load static %}
-
-{% block content %}
-<div class="container mt-4">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-    <h2>Редактирование квиза</h2>
-    <form method="post">
-        {% csrf_token %}
-        
-        <!-- Основная информация о квизе -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Основная информация</h5>
-                <div class="mb-3">
-                    <label for="id_title" class="form-label">Название квиза</label>
-                    {{ form.title }}
-                    {% if form.title.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.title.errors }}
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="mb-3">
-                    <label for="id_stars" class="form-label">Количество звёзд</label>
-                    {{ form.stars }}
-                    {% if form.stars.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.stars.errors }}
-                        </div>
-                    {% endif %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование квиза</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            color: #22347a;
+            min-height: 100vh;
+        }
+        .admin-header {
+            background: #fff;
+            padding: 1.5rem 2rem 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(34,52,122,0.07);
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .admin-title i {
+            color: #4CAF50;
+            font-size: 2rem;
+        }
+        .btn-back {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            transition: background 0.2s;
+        }
+        .btn-back:hover {
+            background: #e3eaff;
+            color: #1a2a61;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.07);
+            margin: 0 auto 2rem auto;
+            border: none;
+        }
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e3eaff;
+            padding: 1.2rem 1.5rem 0.7rem 1.5rem;
+        }
+        .card-header h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #22347a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-header i {
+            color: #4CAF50;
+            font-size: 1.3rem;
+        }
+        .card-body {
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+        .form-group label, .form-label {
+            font-weight: 600;
+            color: #22347a;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e3eaff;
+            padding: 0.85rem 1.1rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.08rem;
+            background: #f8f9fa;
+        }
+        .form-control:focus {
+            border-color: #22347a;
+            box-shadow: 0 0 0 0.15rem rgba(34, 52, 122, 0.10);
+            background: #fff;
+        }
+        .btn-primary {
+            background: #22347a;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(34,52,122,0.07);
+            transition: background 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+        .btn-primary:hover {
+            background: #1a2a61;
+            box-shadow: 0 4px 16px rgba(34,52,122,0.13);
+        }
+        .btn-secondary {
+            background: #f3f6fa;
+            color: #22347a;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.5rem;
+            margin-left: 0.7rem;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #e3eaff;
+            color: #1a2a61;
+        }
+        .question-container {
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.2rem 1rem 1rem 1rem;
+            margin-bottom: 1.5rem;
+            border: 1.5px solid #e3eaff;
+        }
+        .question-container:hover {
+            box-shadow: 0 4px 8px rgba(34,52,122,0.08);
+        }
+        .answers-container {
+            margin-left: 0.5rem;
+        }
+        .input-group-text {
+            background: #e3eaff;
+            border: none;
+        }
+        .alert {
+            border-radius: 10px;
+            font-size: 1.05em;
+            margin-bottom: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <span class="admin-title"><i class="fas fa-question-circle"></i>Редактирование квиза</span>
+        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+    </header>
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <!-- Основная информация о квизе -->
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-info-circle"></i> Основная информация</h3></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Название квиза</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.title.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_stars" class="form-label">Количество звёзд</label>
+                        {{ form.stars }}
+                        {% if form.stars.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.stars.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Вопросы -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Вопросы</h5>
-                <div id="questions-container">
-                    {% for question_data in questions_data %}
-                        <div class="question-container mb-4 p-3 border rounded">
-                            <input type="hidden" name="question_id[]" value="{{ question_data.id }}">
-                            <div class="mb-3">
-                                <label for="question_{{ forloop.counter0 }}" class="form-label">Вопрос</label>
-                                <input type="text" id="question_{{ forloop.counter0 }}" name="question_text[]" 
-                                       value="{{ question_data.text }}" class="form-control">
-                            </div>
-                            
-                            <!-- Ответы -->
-                            <div class="answers-container ms-4">
-                                <h6 class="mb-3">Ответы</h6>
-                                <div class="row">
-                                    {% for answer in question_data.answers %}
-                                        <div class="col-md-6 mb-3">
-                                            <div class="input-group">
-                                                <div class="input-group-text">
-                                                    <input type="radio" name="answer_{{ question_data.id }}"
-                                                           value="{{ forloop.counter0 }}"
-                                                           {% if forloop.counter0 == question_data.correct_answer_index %}checked{% endif %}>
+            <!-- Вопросы -->
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-question"></i> Вопросы</h3></div>
+                <div class="card-body">
+                    <div id="questions-container">
+                        {% for question_data in questions_data %}
+                            <div class="question-container">
+                                <input type="hidden" name="question_id[]" value="{{ question_data.id }}">
+                                <div class="mb-3">
+                                    <label for="question_{{ forloop.counter0 }}" class="form-label">Вопрос</label>
+                                    <input type="text" id="question_{{ forloop.counter0 }}" name="question_text[]" value="{{ question_data.text }}" class="form-control">
+                                </div>
+                                <!-- Ответы -->
+                                <div class="answers-container">
+                                    <h6 class="mb-3">Ответы</h6>
+                                    <div class="row">
+                                        {% for answer in question_data.answers %}
+                                            <div class="col-md-6 mb-3">
+                                                <div class="input-group">
+                                                    <div class="input-group-text">
+                                                        <input type="radio" name="answer_{{ question_data.id }}" value="{{ forloop.counter0 }}" {% if forloop.counter0 == question_data.correct_answer_index %}checked{% endif %}>
+                                                    </div>
+                                                    <input type="text" name="answer_text_{{ question_data.id }}" value="{{ answer.text }}" class="form-control">
                                                 </div>
-                                                <input type="text" name="answer_text_{{ question_data.id }}"
-                                                       value="{{ answer.text }}" class="form-control">
                                             </div>
-                                        </div>
-                                    {% endfor %}
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-            <a href="{% url 'admin_page' %}" class="btn btn-secondary">Отмена</a>
-        </div>
-    </form>
-</div>
-
-<style>
-.question-container {
-    transition: all 0.3s ease;
-}
-
-.question-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.form-control {
-    border-radius: 8px;
-}
-
-.btn {
-    padding: 0.5rem 1.5rem;
-    border-radius: 8px;
-}
-
-.card {
-    border-radius: 12px;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Добавляем стили для форм
-    const formControls = document.querySelectorAll('input[type="text"], textarea');
-    formControls.forEach(control => {
-        control.classList.add('form-control');
-    });
-
-    // Обработка удаления вопросов
-    const deleteCheckboxes = document.querySelectorAll('input[type="checkbox"][name*="DELETE"]');
-    deleteCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const questionCard = this.closest('.question-card');
-            if (this.checked) {
-                questionCard.style.opacity = '0.5';
-            } else {
-                questionCard.style.opacity = '1';
-            }
-        });
-    });
-});
-</script>
-{% endblock %}
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Сохранить изменения</button>
+                <a href="{% url 'admin_page' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

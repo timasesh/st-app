@@ -42,4 +42,8 @@ def embed_url(url):
         video_id = vimeo_match.group(1)
         return f'https://player.vimeo.com/video/{video_id}'
     
-    return url 
+    return url
+
+@register.filter
+def dict_get(d, key):
+    return d.get(key) 
