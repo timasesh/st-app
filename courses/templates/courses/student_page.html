@@ -33,6 +33,29 @@
     </style>
 </head>
 <body>
+    <style>
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-right: 4px;
+            margin-left: 30px;
+        }
+        .header-logo-stretch {
+            height: 150px;
+            width: auto;
+            object-fit: contain;
+            background: transparent;
+            align-self: center;
+        }
+        .header-flex-row {
+            display: flex;
+            align-items: stretch;
+        }
+    </style>
+</head>
+<body>
     <header class="student-header">
         <div class="header-flex-row" style="display:flex;align-items:stretch;">
             <div class="logo-container mr-3">
@@ -96,7 +119,17 @@
                             {% if course.image %}
                                 <img src="{{ course.image.url }}" class="course-row-img" alt="{{ course.title }}">
                             {% else %}
-                                <img src="{% static 'images/default-course.jpg' %}" class="course-row-img" alt="Default Course Image">
+                                <span class="course-row-img" style="display:flex;align-items:center;justify-content:center;background:#e3f2fd;">
+                                  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="60" height="60" rx="16" fill="#e3f2fd"/>
+                                    <rect x="14" y="18" width="32" height="20" rx="4" fill="#1976d2"/>
+                                    <rect x="18" y="22" width="24" height="2.5" rx="1.25" fill="#fff"/>
+                                    <rect x="18" y="27" width="24" height="2.5" rx="1.25" fill="#fff"/>
+                                    <rect x="18" y="32" width="16" height="2.5" rx="1.25" fill="#90caf9"/>
+                                    <rect x="14" y="38" width="32" height="4" rx="2" fill="#64b5f6"/>
+                                    <rect x="14" y="42" width="32" height="2" rx="1" fill="#bbdefb"/>
+                                  </svg>
+                                </span>
                             {% endif %}
                             <div class="course-row-info">
                                 <div class="course-row-title">{{ course.title }}</div>
@@ -137,36 +170,52 @@
                     {% if groups %}
                     <div class="row">
                         {% for group in groups %}
-                        <div class="col-md-6 mb-4 fade-in">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <i class="fas fa-users mr-2"></i>{{ group.name }}
-                                    </h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Место</th>
-                                                    <th>Студент</th>
-                                                    <th>Звёзды</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for s in group.students.all|dictsortreversed:'stars' %}
-                                                <tr {% if s.id == student.id %}class="table-primary"{% endif %}>
-                                                    <td>{{ forloop.counter }}</td>
-                                                    <td>{{ s.user.username }}</td>
-                                                    <td>
-                                                        <span class="badge badge-info text-star" style="background:var(--accent-color);color:#fff;">
-                                                            <i class="fas fa-star text-star"></i> {{ s.stars }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                        <div class="col-12 mb-4 fade-in">
+                            <div class="rating-group-card">
+                                <h5 class="mb-4" style="font-weight:700;font-size:1.3rem;"><i class="fas fa-users mr-2"></i>{{ group.name }}</h5>
+                                <div class="table-responsive">
+                                    <table class="table rating-table">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th style="width:70px;">Место</th>
+                                                <th>Студент</th>
+                                                <th style="width:120px;">Звёзды</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for s in group.students.all|dictsortreversed:'stars' %}
+                                            <tr class="rating-student-row {% if s.id == student.id %}table-primary{% endif %}">
+                                                <td class="rating-place text-center">{{ forloop.counter }}</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if s.avatar %}
+                                                            <img src="{{ s.avatar.url }}" alt="avatar" class="rating-avatar mr-2">
+                                                        {% else %}
+                                                            <span class="mr-2" style="display:inline-block;width:48px;height:48px;">
+                                                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <circle cx="24" cy="24" r="22" stroke="#222" stroke-width="3" fill="#f4f6fa"/>
+                                                                    <circle cx="24" cy="20" r="7" fill="#222"/>
+                                                                    <ellipse cx="24" cy="34" rx="12" ry="7" fill="#222"/>
+                                                                </svg>
+                                                            </span>
+                                                        {% endif %}
+                                                        <a href="{% url 'student_public_profile' s.id %}" class="rating-student-link">
+                                                            {{ s.user.get_full_name|default:s.user.username }}
+                                                            {% if forloop.counter == 1 %}
+                                                                <i class="fas fa-crown text-warning ml-2" title="Лучший в группе" style="font-size:1.3em;vertical-align:middle;"></i>
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="rating-stars">
+                                                        <i class="fas fa-star text-star"></i> {{ s.stars }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -212,31 +261,144 @@
 
                         <div class="mt-4">
                             <h4 class="mb-3">Запросить новый курс</h4>
-                            <form method="post">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <select class="form-control" name="course_id" required>
-                                        <option value="">Выберите курс...</option>
-                                        {% for course in all_courses %}
-                                        {% if course not in courses %}
-                                        <option value="{{ course.id }}">{{ course.title }}</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
+                            <button type="button" class="btn btn-profile" data-toggle="modal" data-target="#addCourseRequestModal">
+                                <i class="fas fa-plus mr-2"></i>Запросить курс
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-5">
+
+                    <div class="message-request-section fade-in">
+                        <h3 class="mb-4">Произвольные запросы</h3>
+                        {% if message_requests %}
+                        <div class="request-list">
+                            {% for request in message_requests %}
+                            <div class="request-item card mb-3 p-3 shadow-sm border-left-{{ request.status }} position-relative">
+                                {% if request.status == 'pending' or request.status == 'rejected' %}
+                                <form method="post" style="position:absolute; top:10px; right:10px; z-index:2;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete_message_request" value="{{ request.id }}">
+                                    <button type="submit" class="btn btn-link p-0 m-0 text-danger" title="Удалить запрос" onclick="return confirm('Удалить этот запрос?');">
+                                        <i class="fas fa-times fa-lg"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="mr-3">
+                                        <i class="fas fa-envelope-open-text fa-2x text-{{ request.status }}"></i>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-secondary">№ {{ request.unique_code }}</span>
+                                        <span class="ml-2 text-muted"><i class="far fa-clock"></i> {{ request.created_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="request-status status-{{ request.status }}">
+                                            {{ request.get_status_display }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <textarea class="form-control" name="comment" rows="3" placeholder="Комментарий (необязательно)"></textarea>
+                                <div class="mb-2">
+                                    <strong>Сообщение:</strong><br>
+                                    <span style="white-space: pre-line;">{{ request.message }}</span>
                                 </div>
-                                <button type="submit" name="add_course_request" class="btn btn-profile mt-2">
-                                    <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
-                                </button>
-                            </form>
+                                {% if request.admin_response %}
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0">
+                                    <strong>Ответ администратора:</strong><br>
+                                    <span style="white-space: pre-line;">{{ request.admin_response }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">У вас пока нет произвольных запросов</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <h4 class="mb-3">Отправить произвольный запрос</h4>
+                            <button type="button" class="btn btn-profile" data-toggle="modal" data-target="#messageRequestModal">
+                                <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно для запроса на добавление курса -->
+    <div class="modal fade" id="addCourseRequestModal" tabindex="-1" role="dialog" aria-labelledby="addCourseRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCourseRequestModalLabel">Запросить новый курс</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="course-select">Выберите курс:</label>
+                            <select class="form-control" id="course-select" name="course_id" required>
+                                <option value="">Выберите курс...</option>
+                                {% for course in all_courses %}
+                                {% if course not in courses %}
+                                <option value="{{ course.id }}">{{ course.title }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-text">Комментарий (необязательно):</label>
+                            <textarea class="form-control" id="comment-text" name="comment" rows="3" placeholder="Укажите причину запроса..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" name="add_course_request" class="btn btn-profile">
+                            <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для произвольного запроса -->
+    <div class="modal fade" id="messageRequestModal" tabindex="-1" role="dialog" aria-labelledby="messageRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageRequestModalLabel">Отправить произвольный запрос</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="message-text">Ваше сообщение:</label>
+                            <textarea class="form-control" id="message-text" name="message" rows="4" placeholder="Введите ваше сообщение..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" name="message_request" class="btn btn-profile">
+                            <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     // JS для вкладок
     document.querySelectorAll('.tab-link').forEach(function(tab) {
@@ -248,5 +410,65 @@
         });
         });
     </script>
+    <style>
+        .border-left-pending { border-left: 5px solid #ffc107 !important; }
+        .border-left-approved { border-left: 5px solid #28a745 !important; }
+        .border-left-rejected { border-left: 5px solid #dc3545 !important; }
+        .text-pending { color: #ffc107 !important; }
+        .text-approved { color: #28a745 !important; }
+        .text-rejected { color: #dc3545 !important; }
+        .rating-group-card {
+            background: #f8fafd;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 2rem 2rem 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+            width: 100%;
+        }
+        .rating-table th, .rating-table td {
+            vertical-align: middle !important;
+        }
+        .rating-student-row {
+            transition: box-shadow 0.2s, background 0.2s;
+            border-radius: 12px;
+        }
+        .rating-student-row:hover {
+            background: #eaf3ff;
+            box-shadow: 0 2px 12px rgba(0,123,255,0.08);
+        }
+        .rating-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 8px #e3e3e3;
+            background: #e3f2fd;
+            display: block;
+        }
+        .rating-student-link {
+            font-weight: 600;
+            color: #22347a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .rating-student-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .rating-place {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+        .rating-stars {
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #00c6ff, #007bff);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0.3em 1em;
+            font-weight: 600;
+            box-shadow: 0 1px 4px rgba(0,123,255,0.08);
+        }
+    </style>
 </body>
 </html>
