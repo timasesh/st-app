@@ -6,6 +6,8 @@ from django.db.models.signals import post_save
 from .validators import validate_video_url
 import os
 from django.conf import settings
+import random
+import string
 
 
 class User(AbstractUser):
@@ -174,10 +176,6 @@ class Module(models.Model):
         return self.title
 
 
-import random
-import string
-
-
 class Course(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -209,6 +207,7 @@ class StudentProgress(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     completed_lessons = models.ManyToManyField(Lesson, blank=True)
     progress = models.IntegerField(default=0)
+    completed_modules = models.ManyToManyField('Module', blank=True, related_name='completed_by_students')
 
     def save(self, *args, **kwargs):
         self.progress = max(0, min(self.progress, 100))  # Ограничиваем значение от 0 до 100
@@ -336,6 +335,28 @@ class QuizAttempt(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title} - Attempt {self.attempt_number}"
+
+
+class StudentMessageRequest(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    message = models.TextField()
+    status = models.CharField(max_length=20, choices=[('pending', 'В ожидании'), ('approved', 'Подтверждено'), ('rejected', 'Отклонено')], default='pending')
+    admin_response = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+    unique_code = models.CharField(max_length=6, unique=True, editable=False, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.unique_code:
+            while True:
+                code = ''.join(random.choices(string.digits, k=6))
+                if not StudentMessageRequest.objects.filter(unique_code=code).exists():
+                    self.unique_code = code
+                    break
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Запрос {self.unique_code or self.id} от {self.student}"
 
 
 

@@ -1,0 +1,6 @@
+Django>=5.0.7
+django-widget-tweaks
+pandas
+Pillow
+PyMuPDF
+python-pptx 

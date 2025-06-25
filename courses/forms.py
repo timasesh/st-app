@@ -8,12 +8,17 @@ from django.db import transaction
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 import re
+from .models import StudentMessageRequest
 
 
 class StudentRegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True, label='Email')
+    first_name = forms.CharField(required=False, label='Имя')
+    last_name = forms.CharField(required=False, label='Фамилия')
+
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,10 +37,18 @@ class StudentRegistrationForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+        user.is_student = True
         if commit:
             user.save()
             with transaction.atomic():
-                Student.objects.create(user=user)  # Создаем объект Student при регистрации пользователя
+                student = Student.objects.create(user=user)
+                student.email = user.email
+                student.first_name = user.first_name
+                student.last_name = user.last_name
+                student.save()
         return user
 
 
@@ -108,7 +121,7 @@ class LessonCreationForm(forms.ModelForm):
 class ModuleCreationForm(forms.ModelForm):
     class Meta:
         model = Module
-        fields = ['title', 'lessons']
+        fields = ['title', 'description', 'lessons']
         widgets = {
             'lessons': forms.CheckboxSelectMultiple
         }
@@ -116,15 +129,30 @@ class ModuleCreationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['lessons'].required = False
+        # Показываем только реально существующие уроки (можно добавить фильтр по статусу, если появится soft delete)
+        self.fields['lessons'].queryset = Lesson.objects.all().order_by('id', 'title')
+        # Для description — красивый textarea
+        if 'description' in self.fields:
+            self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Краткое описание модуля'})
 
 
 class CourseCreationForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'modules', 'image']  # Добавили поле image
+        fields = ['title', 'description', 'modules', 'image']
         widgets = {
-            'modules': forms.CheckboxSelectMultiple
+            'modules': forms.CheckboxSelectMultiple,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Описание — textarea с placeholder
+        self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Краткое описание курса'})
+        # Модули — чекбоксы с прокруткой
+        self.fields['modules'].widget.attrs.update({'style': 'max-height:180px;overflow-y:auto;background:#f8f9fa;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;'})
+        # Картинка — стилизованный input
+        self.fields['image'].widget.attrs.update({'class': 'form-control', 'accept': 'image/*'})
+        self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Название курса'})
 
 
 class QuestionForm(forms.ModelForm):
@@ -148,6 +176,11 @@ class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
         fields = ['title', 'stars']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Название квиза'})
+        self.fields['stars'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Звёздочки за квиз', 'min': 1, 'type': 'number'})
 
 
 class QuestionForm(forms.ModelForm):
@@ -184,5 +217,14 @@ class StudentProfileForm(forms.ModelForm):
 
 class StudentExcelUploadForm(forms.Form):
     file = forms.FileField(label='Загрузить Excel-файл', required=True)
+
+
+class StudentMessageRequestForm(forms.ModelForm):
+    class Meta:
+        model = StudentMessageRequest
+        fields = ['message']
+        widgets = {
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Введите ваше сообщение...'}),
+        }
 
 

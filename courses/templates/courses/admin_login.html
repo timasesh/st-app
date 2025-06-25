@@ -1,164 +1,220 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Admin Login</title>
+    <title>Вход для администратора</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-        background: linear-gradient(to right, #ffffff, #ffffff);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e88e5 0%, #8e24aa 50%, #e53935 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Nunito', sans-serif;
         }
-        .login-container {
-        display: flex;
-        align-items: center; /* Центрируем по вертикали */
+        .login-card {
+            background: var(--card-bg, #fff);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg, 0 8px 32px rgba(229, 57, 53, 0.18));
+            padding: 1.7rem 1.5rem 1.2rem 1.5rem;
+            max-width: 370px;
+            width: 100%;
+            margin: 1.2rem;
+            position: relative;
         }
-        .form-container {
-        background: #ffffff;
-        padding: 3rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        width: 450px; /* Ширина формы оставлена прежней */
-        margin-left: 20px; /* Увеличен отступ между изображением и формой */
+        .alma-logo {
+            display: block;
+            margin: 0 auto 1.2rem auto;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(30,136,229,0.13);
         }
-        h1 {
-        margin-bottom: 2rem;
-        font-size: 2rem;
-        text-align: center;
+        .admin-gif {
+            display: block;
+            margin: 0 auto 0.5rem auto;
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(229,57,53,0.13);
+        }
+        .login-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.3rem;
+            letter-spacing: 1px;
+        }
+        .login-subtitle {
+            text-align: center;
+            color: var(--primary-red);
+            font-size: 1.1rem;
+            margin-bottom: 1.1rem;
         }
         .form-group label {
-        font-weight: bold;
+            font-weight: 600;
+            color: var(--primary-blue);
         }
         .form-control {
-
-        border: 2px solid #5c81b2df; /* Обводка полей ввода */
-        border-radius: 4px; /* Уголок рамки */
+            border: 2px solid var(--primary-blue);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.2rem;
         }
-
         .form-control:focus {
-
-        border-color: #efe8e8; /* Цвет обводки при фокусе */
-        box-shadow: none; /* Убираем тень по умолчанию */
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px var(--primary-red, #e53935, 0.15);
         }
-        .btn-primary {
-        width: 100%;
-        padding: 10px;
-        font-size: 1.1rem;
-        background: linear-gradient(to right, #0e43c4f0, #22a68eef);
-        border: none;
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #1e88e5, #e53935);
+            color: #fff !important;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 2px 8px rgba(30,136,229,0.13);
+            transition: background 0.2s, box-shadow 0.2s;
         }
-        .btn-primary:hover {
-        opacity: 0.9;
-        }
-        .alert {
-        margin-top: 1rem;
-        font-size: 1rem;
-        }
-        p {
-        font-size: 1rem;
-        }
-        .welcome-message {
-        margin-top: 1.5rem;
-        font-size: 1.1rem;
-        text-align: left;
-        margin-bottom: 2rem; /* Отступ после welcome message */
-        }
-        .logo {
-        width: 550px; /* Ширина GIF */
-        height: auto; /* Автоматическая высота для сохранения пропорций */
-        }
-        .toggle-password {
-        cursor: pointer;
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        }
-        .eye-icon {
-        width: 30px;
-        height: 30px;
+        .btn-login:hover {
+            background: linear-gradient(90deg, #e53935, #1e88e5);
+            color: #fff !important;
+            box-shadow: 0 4px 16px rgba(229,57,53,0.13);
         }
         .remember-me {
-        display: flex;
-        align-items: center;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.2rem;
         }
-        /* Стили для кастомного чекбокса */
-        input[type="checkbox"] {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #22347a;
-        border-radius: 4px;
-        outline: none;
-        cursor: pointer;
-        position: relative;
-        margin-top: -10px; /* Настройте значение по необходимости */
+        .remember-me label {
+            margin-left: 0.5rem;
+            color: var(--primary-blue);
+            font-weight: 400;
         }
-        input[type="checkbox"]:checked {
-        background-color: #22347a;
+        .login-error {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            background: rgba(229, 57, 53, 0.12);
+            color: var(--primary-red, #e53935);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+            font-size: 1.08rem;
+            font-weight: 600;
+            padding: 0.85rem 1.2rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            border: 1.5px solid var(--primary-red, #e53935);
+            animation: fadeIn 0.7s;
         }
-        input[type="checkbox"]:checked::after {
-        content: '';
-        position: absolute;
-        left: 5px;
-        top: 2px;
-        width: 5px;
-        height: 10px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .password-group {
+            position: relative;
+        }
+        .password-group .form-control {
+            padding-right: 2.5rem;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 0;
+            right: 1.1rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            outline: none;
+            z-index: 2;
+        }
+        .toggle-password svg {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-blue, #1e88e5);
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            vertical-align: middle;
+            display: block;
+            transform: translateY(15px);
+        }
+        .toggle-password:hover svg,
+        .toggle-password:focus svg {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <img src="{% static 'icons/logoo.gif' %}" alt="Actuary Logo" class="logo">
-        <div class="form-container">
-            <h1>Admin Login</h1>
-            <p class="welcome-message">Welcome to Admin Login! 👋🏻 </p>
+    <div class="d-flex justify-content-center align-items-center flex-column" style="min-height:100vh;">
+        <div class="login-card">
+            <div class="d-flex justify-content-center align-items-center mb-3 flex-column">
+                <img src="{% static 'icons/logoo.gif' %}" alt="ALMAU Gif" class="admin-gif">
+            </div>
+            <div class="login-title">Вход для администратора</div>
+            <div class="login-subtitle">Добро пожаловать в панель управления ALMAU!</div>
             <form method="post" action="{% url 'admin_login' %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                    <label for="username">Логин</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Введите логин" required>
                 </div>
-                <div class="form-group position-relative">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                    <span class="toggle-password" id="togglePassword">
-                        <img class="eye-icon" src="{% static 'icons/eye1.png' %}" alt="Toggle Password Visibility">
-                    </span>
+                <div class="form-group password-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+                    <button type="button" class="toggle-password" tabindex="-1" aria-label="Показать пароль" onclick="togglePassword()">
+                        <span id="eye-open" style="display:block;">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </span>
+                        <span id="eye-closed" style="display:none;">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95m3.362-2.568A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.032M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L6 6"/></svg>
+                        </span>
+                    </button>
                 </div>
-                <div class="form-group remember-me">
+                <div class="remember-me">
                     <input type="checkbox" id="rememberMe" name="rememberMe">
-                    <label for="rememberMe" class="ml-2" style="font-weight: normal;">Remember Me</label>
+                    <label for="rememberMe">Запомнить меня</label>
                 </div>
                 {% if error %}
-                    <div class="alert alert-danger">{{ error }}</div>
+                    <div class="login-error">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><circle cx="12" cy="12" r="12" fill="#e53935" fill-opacity="0.18"/><path d="M12 7V13" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="16" r="1" fill="#e53935"/></svg>
+                        <span>Неверный логин или пароль. Попробуйте ещё раз!</span>
+                    </div>
                 {% endif %}
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-login">Войти</button>
             </form>
-            <p style="margin-top: 20px; text-align: right;">Student? <a href="{% url 'student_login' %}">Login here</a></p>
+            <p style="margin-top: 20px; text-align: right;">Студент? <a href="{% url 'student_login' %}">Войти здесь</a></p>
         </div>
     </div>
-
     <script>
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-
-        togglePassword.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.querySelector('img').src = type === 'password' ? '{% static "icons/eye1.png" %}' : '{% static "icons/eye2.png" %}';
-        });
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

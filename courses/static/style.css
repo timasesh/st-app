@@ -405,9 +405,9 @@ body {
 
 /* Sidebar for modules and lessons */
 .sidebar-modules {
-    width: 290px;
-    min-width: 220px;
-    max-width: 340px;
+    min-width: 270px;
+    max-width: 480px;
+    width: 100%;
     background: #f7f8fa;
     border-right: 1.5px solid #e0e4ea;
     padding: 24px 12px 24px 18px;
@@ -432,11 +432,11 @@ body {
     gap: 18px;
 }
 .sidebar-module-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #1a1d29;
-    margin-bottom: 7px;
-    margin-top: 2px;
+    word-break: break-word;
+    hyphens: auto;
+    font-weight: 700;
+    font-size: 1.08rem;
+    margin-bottom: 0.5rem;
 }
 .sidebar-lessons-list, .sidebar-quiz-list {
     list-style: none;
@@ -470,19 +470,38 @@ body {
     font-size: 0.97rem;
     margin-top: 2px;
 }
+.sidebar-lessons-list .lesson-link span,
+.sidebar-quiz-list .quiz-link {
+    display: inline-block;
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    word-break: break-word;
+}
+.badge, .quiz-result, .sidebar-module .badge {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    font-size: 0.98rem;
+    padding: 0.32em 0.7em;
+    vertical-align: middle;
+    display: inline-block;
+}
 @media (max-width: 900px) {
     .sidebar-modules {
-        width: 100vw;
-        max-width: 100vw;
-        min-width: 0;
-        position: static;
-        height: auto;
-        box-shadow: none;
-        border-right: none;
-        padding: 12px 4px 12px 8px;
+        min-width: 100%;
+        max-width: 100%;
     }
-    .course-main.d-flex {
-        flex-direction: column;
+    .sidebar-lessons-list .lesson-link span,
+    .sidebar-quiz-list .quiz-link {
+        max-width: 100%;
+    }
+    .badge, .quiz-result, .sidebar-module .badge {
+        max-width: 120px;
+        font-size: 0.93rem;
     }
 }
 .main-course-content {

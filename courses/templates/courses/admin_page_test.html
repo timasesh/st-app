@@ -294,9 +294,9 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
-        /* Добавляем стили для подсветки курса */
+        /* Добавляем стили для мягкой подсветки курса */
         .course-highlight {
-            background-color: rgba(255, 193, 7, 0.3) !important;
+            background-color: #fff9e1 !important;
             transition: background-color 0.5s ease;
         }
 
@@ -386,7 +386,6 @@
                                             <th>Имя пользователя</th>
                                             <th>Email</th>
                                             <th>Курсы</th>
-                                            <th>Прогресс</th>
                                             <th class="course-actions-col">Действия</th>
                                         </tr>
                                     </thead>
@@ -397,24 +396,11 @@
                                             <td>{{ student.user.email }}</td>
                                             <td>
                                                 {% for course in student.courses.all %}
-                                                <div class="mb-2">
-                                                    <a href="#" class="course-link" data-course-id="{{ course.id }}" data-course-title="{{ course.title }}">
-                                                        <span class="badge bg-info text-dark">{{ course.title }}</span>
-                                                    </a>
-                                                </div>
-                                                {% endfor %}
-                                            </td>
-                                            <td>
-                                                {% for course in student.courses.all %}
-                                                {% with key=student.user.id|stringformat:"s"|add:"_"|add:course.id|stringformat:"s" %}
-                                                <div class="progress mb-3">
-                                                    <div class="progress-bar" role="progressbar" 
-                                                         style="width: {{ progress_dict|get_item:key }}%;"
-                                                         aria-valuenow="{{ progress_dict|get_item:key }}"
-                                                         aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="mb-2">
+                                                        <a href="#" class="course-link" data-course-id="{{ course.id }}" data-course-title="{{ course.title }}" style="display:inline-block;vertical-align:middle;">
+                                                            <span class="badge bg-info text-dark" style="font-size:1em;">{{ course.title }}</span>
+                                                        </a>
                                                     </div>
-                                                </div>
-                                                {% endwith %}
                                                 {% endfor %}
                                             </td>
                                             <td class="course-actions-col">
@@ -444,19 +430,27 @@
                                     <form method="post" class="needs-validation" novalidate>
                                         {% csrf_token %}
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="id_username" class="form-label">Имя пользователя</label>
                                                 <input type="text" class="form-control" id="id_username" name="username" required>
                                                 <div class="invalid-feedback">
                                                     Пожалуйста, введите имя пользователя.
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <label for="id_email" class="form-label">Email</label>
                                                 <input type="email" class="form-control" id="id_email" name="email" required>
                                                 <div class="invalid-feedback">
                                                     Пожалуйста, введите корректный email.
                                                 </div>
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <label for="id_first_name" class="form-label">Имя</label>
+                                                <input type="text" class="form-control" id="id_first_name" name="first_name">
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <label for="id_last_name" class="form-label">Фамилия</label>
+                                                <input type="text" class="form-control" id="id_last_name" name="last_name">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -719,7 +713,7 @@
                         <div class="btn-group mb-4" role="group" aria-label="Типы запросов">
                             <button type="button" class="btn btn-primary" id="profile-edit-btn">Редактирование профиля</button>
                             <button type="button" class="btn btn-primary" id="course-add-btn">Добавление курсов</button>
-                            <button type="button" class="btn btn-primary" id="other-request-btn1">Запрос 3</button>
+                            <button type="button" class="btn btn-primary" id="other-request-btn1">Произвольные запросы</button>
                         </div>
                         <div id="requests-profile-edit" class="requests-section">
                             {% if edit_requests %}
@@ -790,7 +784,42 @@
                             {% endif %}
                         </div>
                         <div id="requests-other" class="requests-section" style="display:none;">
-                            <div class="alert alert-info">Нет запросов.</div>
+                            {% if message_requests %}
+                            <table class="table table-bordered mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>Студент</th>
+                                        <th>Сообщение</th>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for req in message_requests %}
+                                    <tr>
+                                        <td>{{ req.student.user.username }}</td>
+                                        <td>{{ req.message|truncatewords:20 }}</td>
+                                        <td>{{ req.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>{{ req.get_status_display }}</td>
+                                        <td>
+                                            <form method='post' style='display:inline-block;'>
+                                                {% csrf_token %}
+                                                <input type='hidden' name='message_request_id' value='{{ req.id }}'>
+                                                <textarea name='admin_response' placeholder='Ответ администратора (необязательно)' class='form-control mb-2' rows='2'></textarea>
+                                                <button type='submit' name='approve_message' class='btn btn-success btn-sm'>Подтвердить</button>
+                                                <button type='submit' name='reject_message' class='btn btn-danger btn-sm'>Отклонить</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <div class="alert alert-info">Нет произвольных запросов.</div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -910,6 +939,29 @@
                         <button type="submit" class="btn btn-primary">Добавить урок</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- Модальное окно подтверждения удаления квиза -->
+    <div class="modal fade" id="confirmDeleteQuizModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteQuizModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="deleteQuizForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmDeleteQuizModalLabel">Подтверждение удаления квиза</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Вы уверены, что хотите удалить этот квиз?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1152,6 +1204,22 @@
         $('#requests-profile-edit').show();
         $('#requests-course-add').hide();
         $('#requests-other').hide();
+
+        // Клик по названию курса — открывает вкладку "Детали курса" и мягко подсвечивает только строку курса
+        $(document).on('click', '.course-link', function(e) {
+            e.preventDefault();
+            const courseId = $(this).data('course-id');
+            $('#v-pills-edit-course-tab').tab('show');
+            setTimeout(function() {
+                // Удаляем предыдущие подсветки только с <tr>
+                $("#v-pills-edit-course tr[data-course-id]").removeClass('course-highlight');
+                // Добавляем подсветку к нужной строке
+                $("#v-pills-edit-course tr[data-course-id='" + courseId + "']").addClass('course-highlight');
+                setTimeout(function() {
+                    $("#v-pills-edit-course tr[data-course-id='" + courseId + "']").removeClass('course-highlight');
+                }, 3000);
+            }, 300);
+        });
         };
     </script>
 </body>

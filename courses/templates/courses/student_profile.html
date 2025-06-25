@@ -27,7 +27,13 @@
                 {% if student.avatar %}
                     <img src="{{ student.avatar.url }}" alt="Avatar" class="student-avatar">
                 {% else %}
-                    <img src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/user.svg" alt="Avatar" class="student-avatar" style="background:#e3f2fd; padding:7px;">
+                    <span class="student-avatar student-avatar-default" style="display:flex;align-items:center;justify-content:center;background:#e3f2fd;padding:7px;width:120px;height:120px;border-radius:50%;">
+                      <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="30" r="28" fill="#fff" stroke="#90caf9" stroke-width="3"/>
+                        <circle cx="30" cy="26" r="10" fill="#90caf9"/>
+                        <ellipse cx="30" cy="44" rx="14" ry="8" fill="#bbdefb"/>
+                      </svg>
+                    </span>
                 {% endif %}
             </div>
             <div class="student-name-block mb-2">
@@ -59,7 +65,7 @@
             </div>
         </div>
         {% if not student.profile_edited_once %}
-            <button id="edit-button" class="btn btn-profile mt-4"><i class="fas fa-edit mr-1"></i>Редактировать</button>
+            <button id="edit-button" class="btn btn-profile btn-modern mt-4"><i class="fas fa-edit mr-1"></i>Редактировать</button>
             <form id="profile-edit" class="hidden mt-3" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group text-left">
@@ -75,8 +81,8 @@
                     <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value }}">
                 </div>
                 <div class="d-flex justify-content-between mt-3">
-                    <button type="submit" class="btn btn-profile btn-block">Сохранить изменения</button>
-                    <button type="button" id="cancel-button" class="btn btn-secondary btn-block">Отмена</button>
+                    <button type="submit" class="btn btn-profile btn-modern btn-block">Сохранить изменения</button>
+                    <button type="button" id="cancel-button" class="btn btn-secondary btn-modern btn-block">Отмена</button>
                 </div>
             </form>
         {% else %}
@@ -89,7 +95,7 @@
             {% else %}
                 <form method="post" class="mt-3">
                     {% csrf_token %}
-                    <button type="submit" name="request_edit" class="btn btn-profile">Запросить редактирование аккаунта</button>
+                    <button type="submit" name="request_edit" class="btn btn-profile btn-modern">Запросить редактирование аккаунта</button>
                 </form>
             {% endif %}
         {% endif %}

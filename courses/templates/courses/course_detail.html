@@ -12,17 +12,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-right: 4px;
+            margin-left: 30px;
+        }
+        .header-logo-stretch {
+            height: 150px;
+            width: auto;
+            object-fit: contain;
+            background: transparent;
+            align-self: center;
+        }
+        .header-flex-row {
+            display: flex;
+            align-items: stretch;
+        }
+    </style>
 </head>
 <body>
 <header class="course-header">
-    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
-        <div class="d-flex flex-column flex-md-row align-items-center gap-3">
-            <div class="course-title">{{ course.title }}</div>
-            
+    <div class="header-flex-row">
+        <div class="logo-container">
+            <img src="/media/logo.png" alt="Logo" class="header-logo-stretch">
         </div>
-        <div class="header-btns">
-            <a href="{% url 'student_page' %}" class="btn btn-profile"><i class="fas fa-arrow-left mr-1"></i>Назад</a>
-            <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt mr-1"></i>Выйти</a>
+        <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+                <div class="course-title">{{ course.title }}</div>
+            </div>
+            <div class="header-btns">
+                <a href="{% url 'student_page' %}" class="btn btn-profile"><i class="fas fa-arrow-left mr-1"></i>Назад</a>
+                <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt mr-1"></i>Выйти</a>
+            </div>
         </div>
     </div>
 </header>
@@ -80,6 +105,13 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% if module_can_be_completed|get_item:module.id %}
+                <div class="text-center my-2">
+                    <button class="btn btn-primary btn-block finish-module-btn" data-module-id="{{ module.id }}" data-course-id="{{ course.id }}">
+                        <i class="fas fa-flag-checkered mr-1"></i> Завершить модуль
+                    </button>
+                </div>
+                {% endif %}
             </div>
             {% else %}
             <div class="sidebar-module disabled">
@@ -455,6 +487,35 @@ $(document).ready(function () {
     // Явное закрытие по крестику (на случай, если Bootstrap JS не сработал)
     $(document).on('click', '.alert-dismissible .close', function() {
         $(this).closest('.alert').alert('close');
+    });
+
+    $(document).on('click', '.finish-module-btn', function() {
+        var moduleId = $(this).data('module-id');
+        var courseId = $(this).data('course-id');
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.ajax({
+            url: '/mark-module-complete/',
+            type: 'POST',
+            data: {
+                module_id: moduleId,
+                course_id: courseId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    showTemporaryAlert('Модуль успешно завершён!', 'success');
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    showTemporaryAlert(response.error || 'Ошибка при завершении модуля.', 'danger');
+                    btn.prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                showTemporaryAlert('Ошибка при завершении модуля.', 'danger');
+                btn.prop('disabled', false);
+            }
+        });
     });
 });
 </script>
