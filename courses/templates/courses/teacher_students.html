@@ -1,0 +1,153 @@
+{% extends 'courses/teacher_base.html' %}
+
+{% block title %}Мои студенты{% endblock %}
+{% block page_title %}Мои студенты{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-users mr-2"></i>
+                    Мои студенты
+                </h3>
+                <span class="badge badge-primary badge-pill">{{ students.count }} студентов</span>
+            </div>
+            <div class="card-body">
+                {% if students %}
+                    <div class="row">
+                        {% for student in students %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        {% if student.avatar %}
+                                            <img src="{{ student.avatar.url }}" alt="Avatar" class="rounded-circle mr-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h5 class="card-title mb-0">{{ student.user.first_name }} {{ student.user.last_name }}</h5>
+                                            <small class="text-muted">@{{ student.user.username }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="mb-1">
+                                            <i class="fas fa-envelope text-muted mr-2"></i>
+                                            {{ student.user.email }}
+                                        </p>
+                                        {% if student.phone_number %}
+                                            <p class="mb-1">
+                                                <i class="fas fa-phone text-muted mr-2"></i>
+                                                {{ student.phone_number }}
+                                            </p>
+                                        {% endif %}
+                                        {% if student.is_school_student and student.grade %}
+                                            <p class="mb-1">
+                                                <i class="fas fa-graduation-cap text-muted mr-2"></i>
+                                                {{ student.grade }} класс
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>Записан на курсы:</h6>
+                                        {% for course in student.enrolled_courses.all %}
+                                            <span class="badge badge-success mr-1">{{ course.title }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>Прогресс:</h6>
+                                        {% for course in student.enrolled_courses.all %}
+                                            <div class="mb-2">
+                                                <small class="text-muted">{{ course.title }}:</small>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: {{ student.calculate_progress|default:0 }}%"></div>
+                                                </div>
+                                                <small class="text-muted">{{ student.calculate_progress|default:0 }}%</small>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-star"></i> {{ student.stars }} звезд
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="badge badge-info">
+                                                Уровень {{ student.level_number }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewStudentProgress({{ student.id }})">
+                                            <i class="fas fa-chart-line"></i> Подробный прогресс
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">У вас пока нет студентов</h4>
+                        <p class="text-muted">Студенты появятся после записи на ваши курсы</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра прогресса студента -->
+<div class="modal fade" id="studentProgressModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Прогресс студента</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="studentProgressContent">
+                <!-- Контент будет загружен через AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewStudentProgress(studentId) {
+    $('#studentProgressModal').modal('show');
+    
+    // Загружаем данные о прогрессе студента
+    $.ajax({
+        url: '{% url "teacher_student_progress" %}',
+        method: 'GET',
+        data: {
+            'student_id': studentId
+        },
+        success: function(response) {
+            if (response.success) {
+                $('#studentProgressContent').html(response.html);
+            } else {
+                $('#studentProgressContent').html('<div class="alert alert-danger">Ошибка загрузки данных</div>');
+            }
+        },
+        error: function() {
+            $('#studentProgressContent').html('<div class="alert alert-danger">Ошибка загрузки данных</div>');
+        }
+    });
+}
+</script>
+{% endblock %}

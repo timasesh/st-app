@@ -5,395 +5,446 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ quiz.title }}</title>
+    <link rel="icon" type="image/png" href="/media/image/ST.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #22347a;
-            --secondary-color: #4CAF50;
-            --background-color: #f9faff;
-            --text-color: #2d3748;
-            --border-color: #e2e8f0;
-            --hover-color: #1a2a5e;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
+        /* Основные стили */
+        * {
+            box-sizing: border-box;
         }
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar {
-            background-color: var(--primary-color);
-            padding: 15px 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .quiz-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            flex: 1;
-        }
-
-        .quiz-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            animation: fadeInDown 0.5s ease-out;
-        }
-
-        .quiz-title {
-            color: var(--primary-color);
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .quiz-description {
-            color: #4a5568;
-            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
             line-height: 1.6;
         }
-
-        .question-container {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .question-container:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .question-number {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 15px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .question-number i {
-            color: var(--secondary-color);
-        }
-
-        .form-check {
-            padding: 15px 20px;
-            margin: 10px 0;
-            background: #ffffff;
-            border-radius: 10px;
-            border: 2px solid var(--border-color);
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-check:hover {
-            background: #f1f5f9;
-            border-color: var(--primary-color);
-            transform: translateX(5px);
-        }
-
-        .form-check-input {
-            margin-top: 0;
-            cursor: pointer;
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            left: 0;
+        
+        /* Современный header */
+        .quiz-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
             top: 0;
-            z-index: 1;
+            z-index: 1000;
         }
-
-        .form-check-label {
-            margin-left: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--text-color);
-            transition: color 0.2s ease;
-            flex: 1;
-            padding-left: 25px;
-            position: relative;
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
         }
-
-        .form-check-label::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 18px;
-            height: 18px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-
-        .form-check:hover .form-check-label::before {
-            border-color: var(--primary-color);
-        }
-
-        .form-check-input:checked + .form-check-label::before {
-            border-color: var(--primary-color);
-            background-color: var(--primary-color);
-            box-shadow: inset 0 0 0 4px white;
-        }
-
-        .form-check:hover .form-check-label {
-            color: var(--primary-color);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            padding: 15px 35px;
-            font-size: 16px;
+        .quiz-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(34, 52, 122, 0.2);
+            color: #2c3e50;
+            margin: 0;
         }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(34, 52, 122, 0.3);
-            background: linear-gradient(135deg, var(--hover-color), var(--secondary-color));
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
         }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            padding: 15px 35px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+        .header-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
         }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(34, 52, 122, 0.2);
+        .header-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
         }
-
-        .quiz-footer {
+        
+        .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #007bff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .timer-display i {
+            font-size: 1rem;
+        }
+        
+        /* Прогресс-бар */
+        .progress-section {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+        }
+        .progress-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        .progress-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border-color);
+            margin-bottom: 0.5rem;
         }
-
-        .progress-container {
-            margin-bottom: 30px;
-            padding: 15px;
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        .progress-text {
+            font-size: 0.875rem;
+            color: #6c757d;
         }
-
-        .progress {
-            height: 10px;
-            border-radius: 5px;
-            background-color: #e2e8f0;
+        .progress-bar-modern {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
             overflow: hidden;
         }
-
-        .progress-bar {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            border-radius: 4px;
             transition: width 0.3s ease;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        /* Основной контент */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
         }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        /* Карточка квиза */
+        .quiz-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
-
-        .timer {
-            background: #e3f2fd;
-            padding: 10px 20px;
-            border-radius: 25px;
-            color: var(--primary-color);
+        
+        /* Вопросы */
+        .question-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .question-number {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 0.5rem;
+        }
+        .question-text {
+            font-size: 1.125rem;
             font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        /* Ответы */
+        .answers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .answer-option {
+            position: relative;
+            cursor: pointer;
+        }
+        .answer-option input[type="radio"],
+        .answer-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .answer-label {
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.25rem;
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
-
-        .timer i {
-            color: var(--primary-color);
+        .answer-label:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
         }
-
-        .selected {
-            border-color: var(--primary-color);
-            background-color: #f1f5f9;
+        .answer-option input:checked + .answer-label {
+            border-color: #007bff;
+            background: #e3f2fd;
+            color: #1565c0;
         }
-
-        .selected .form-check-label {
-            color: var(--primary-color);
+        .answer-indicator {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .answer-option input[type="checkbox"] + .answer-label .answer-indicator {
+            border-radius: 4px;
+        }
+        .answer-option input:checked + .answer-label .answer-indicator {
+            border-color: #007bff;
+            background: #007bff;
+        }
+        .answer-option input:checked + .answer-label .answer-indicator::after {
+            content: '\2713';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Кнопки */
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .btn-modern {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
             font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .selected .form-check-label::before {
-            border-color: var(--primary-color);
-            background-color: var(--primary-color);
-            box-shadow: inset 0 0 0 4px white;
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+        }
+        
+        /* Таймер */
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+        .timer-icon {
+            color: #007bff;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0.75rem 1rem;
+                gap: 1rem;
+            }
+            .quiz-title {
+                font-size: 1rem;
+            }
+            .header-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .quiz-card {
+                padding: 1.5rem;
+            }
+            .question-container {
+                padding: 1rem;
+            }
+            .quiz-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .btn-modern {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="navbar navbar-dark">
-        <div class="container">
-            <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" class="btn btn-outline-light">
-                <i class="fas fa-arrow-left mr-2"></i>Вернуться к курсу
-            </a>
-        </div>
-    </header>
-
-    <div class="quiz-container">
-        <div class="quiz-header">
+    <header class="quiz-header">
+        <div class="header-container">
             <h1 class="quiz-title">{{ quiz.title }}</h1>
-            <p class="quiz-description">Внимательно прочитайте каждый вопрос и выберите правильный ответ.</p>
-        </div>
-
-        <div class="progress-container">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Прогресс</span>
-                <span id="progress-text">0%</span>
-            </div>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-        </div>
-
-        <form method="post" id="quiz-form">
-            {% csrf_token %}
-            {% for question in questions %}
-            <div class="question-container" data-question="{{ forloop.counter }}">
-                <div class="question-number">
-                    <i class="fas fa-question-circle"></i>
-                    Вопрос {{ forloop.counter }}: {{ question.text }}
+            <div class="header-actions">
+                <div class="timer-display" id="timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="timer-text">00:00</span>
                 </div>
-                {% for answer in question.answers.all %}
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" 
-                           name="question_{{ question.id }}" 
-                           id="answer_{{ answer.id }}" 
-                           value="{{ answer.text }}"
-                           required>
-                    <label class="form-check-label" for="answer_{{ answer.id }}">
-                        {{ answer.text }}
-                    </label>
-                </div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-
-            <div class="quiz-footer">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check-circle mr-2"></i>Завершить тест
-                </button>
-                <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" 
-                   class="btn btn-outline-primary">
-                    <i class="fas fa-times-circle mr-2"></i>Отменить
+                <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" class="header-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    К курсу
                 </a>
             </div>
-        </form>
+        </div>
+    </header>
+    
+    <div class="progress-section">
+        <div class="progress-container">
+            <div class="progress-info">
+                <span class="progress-text">Прогресс квиза</span>
+                <span class="progress-text"><span id="current-question">1</span> из {{ quiz.questions.count }}</span>
+            </div>
+            <div class="progress-bar-modern">
+                <div class="progress-fill" id="quiz-progress" style="width: 0%;"></div>
+            </div>
+        </div>
     </div>
-
+    
+    <div class="main-content">
+        <div class="quiz-card">
+            <form method="post" id="quiz-form">
+                {% csrf_token %}
+                {% for question in quiz.questions.all %}
+                    <div class="question-container" data-question="{{ forloop.counter }}">
+                        <div class="question-number">
+                            Вопрос {{ forloop.counter }}
+                        </div>
+                        <div class="question-text">
+                            {{ question.text }}
+                        </div>
+                        <div class="answers-container">
+                            {% for answer in question.answers.all %}
+                                <div class="answer-option">
+                                    <input type="radio" 
+                                           id="answer_{{ question.id }}_{{ answer.id }}" 
+                                           name="question_{{ question.id }}" 
+                                           value="{{ answer.id }}">
+                                    <label for="answer_{{ question.id }}_{{ answer.id }}" class="answer-label">
+                                        <div class="answer-indicator"></div>
+                                        <span>{{ answer.text }}</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <div class="quiz-actions">
+                    <button type="submit" class="btn-modern btn-success">
+                        <i class="fas fa-check"></i>
+                        Завершить квиз
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('quiz-form');
-            const questions = document.querySelectorAll('.question-container');
-            const progressBar = document.querySelector('.progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const totalQuestions = questions.length;
-            let answeredQuestions = 0;
-
-            // Update progress when an answer is selected
-            questions.forEach(question => {
-                const radioButtons = question.querySelectorAll('input[type="radio"]');
-                radioButtons.forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        const questionContainer = this.closest('.question-container');
-                        const formChecks = questionContainer.querySelectorAll('.form-check');
-                        
-                        // Remove selected class from all options
-                        formChecks.forEach(check => check.classList.remove('selected'));
-                        
-                        // Add selected class to the chosen option
-                        this.closest('.form-check').classList.add('selected');
-                        
-                        // Update progress
-                        answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
-                        const progress = (answeredQuestions / totalQuestions) * 100;
-                        progressBar.style.width = `${progress}%`;
-                        progressBar.setAttribute('aria-valuenow', progress);
-                        progressText.textContent = `${Math.round(progress)}%`;
-                    });
+            let startTime = Date.now();
+            let timerInterval;
+            
+            // Таймер
+            function updateTimer() {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer-text').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // Обновление прогресс-бара
+            function updateProgress() {
+                const questions = document.querySelectorAll('.question-container');
+                const totalQuestions = questions.length;
+                let answeredQuestions = 0;
+                
+                questions.forEach((question, index) => {
+                    const inputs = question.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
+                    if (inputs.length > 0) {
+                        answeredQuestions++;
+                    }
                 });
-
-                // Make the entire form-check clickable
-                const formChecks = question.querySelectorAll('.form-check');
-                formChecks.forEach(check => {
-                    check.addEventListener('click', function(e) {
-                        // Don't trigger if clicking the radio input directly
-                        if (e.target.type === 'radio') return;
-                        
-                        const radio = this.querySelector('input[type="radio"]');
-                        if (radio) {
-                            radio.checked = true;
-                            // Trigger the change event
-                            radio.dispatchEvent(new Event('change'));
-                        }
-                    });
-                });
-            });
-
-            // Form submission validation
-            form.addEventListener('submit', function(e) {
-                const allQuestionsAnswered = document.querySelectorAll('input[type="radio"]:checked').length === totalQuestions;
-                if (!allQuestionsAnswered) {
-                    e.preventDefault();
-                    alert('Пожалуйста, ответьте на все вопросы перед отправкой.');
+                
+                const progress = (answeredQuestions / totalQuestions) * 100;
+                document.getElementById('quiz-progress').style.width = progress + '%';
+                document.getElementById('current-question').textContent = answeredQuestions;
+            }
+            
+            // Отслеживание изменений в ответах
+            document.addEventListener('change', function(e) {
+                if (e.target.type === 'radio' || e.target.type === 'checkbox') {
+                    updateProgress();
                 }
             });
-
-            // Add animation to questions
-            questions.forEach((question, index) => {
-                question.style.animationDelay = `${index * 0.1}s`;
+            
+            // Проверка перед отправкой
+            document.getElementById('quiz-form').addEventListener('submit', function(e) {
+                const questions = document.querySelectorAll('.question-container');
+                let unansweredQuestions = [];
+                
+                questions.forEach((question, index) => {
+                    const inputs = question.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
+                    if (inputs.length === 0) {
+                        unansweredQuestions.push(index + 1);
+                    }
+                });
+                
+                if (unansweredQuestions.length > 0) {
+                    e.preventDefault();
+                    alert(`Пожалуйста, ответьте на все вопросы. Не отвечены вопросы: ${unansweredQuestions.join(', ')}`);
+                    return false;
+                }
+                
+                clearInterval(timerInterval);
             });
         });
     </script>

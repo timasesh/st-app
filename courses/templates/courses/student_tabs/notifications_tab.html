@@ -1,0 +1,99 @@
+{% load static %}
+{% load course_filters %}
+
+<div id="notifications" class="tab-pane">
+    <div class="notifications-container">
+        <div class="notifications-hero">
+            <div class="notifications-hero-content">
+                <h2><i class="fas fa-bell"></i> Уведомления</h2>
+                <p>Будьте в курсе всех событий и обновлений</p>
+            </div>
+        </div>
+
+        <!-- Фильтры уведомлений -->
+        <div class="notifications-filters">
+            <button class="notification-filter-btn active" data-filter="all">
+                <i class="fas fa-list"></i> Все
+            </button>
+            <button class="notification-filter-btn" data-filter="unread">
+                <i class="fas fa-envelope"></i> Непрочитанные
+                {% if unread_notifications_count > 0 %}
+                    <span class="unread-badge">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </button>
+            <button class="notification-filter-btn" data-filter="read">
+                <i class="fas fa-envelope-open"></i> Прочитанные
+            </button>
+            {% if unread_notifications_count > 0 %}
+                <button class="mark-all-read-btn" id="markAllReadBtn">
+                    <i class="fas fa-check-double"></i> Отметить все как прочитанные
+                </button>
+            {% endif %}
+        </div>
+
+        <!-- Список уведомлений -->
+        <div class="notifications-list-container">
+            <div class="notifications-list" id="notificationsList">
+                {% for notification in notifications %}
+                    <div class="notification-card {% if not notification.is_read %}unread{% endif %}" 
+                         data-notification-id="{{ notification.id }}" 
+                         data-type="{{ notification.type }}">
+                        <div class="notification-icon-wrapper">
+                            {% if notification.type == 'achievement' %}
+                                <i class="fas fa-trophy"></i>
+                            {% elif notification.type == 'quiz' %}
+                                <i class="fas fa-question-circle"></i>
+                            {% elif notification.type == 'course' %}
+                                <i class="fas fa-book"></i>
+                            {% elif notification.type == 'level' %}
+                                <i class="fas fa-star"></i>
+                            {% elif notification.type == 'homework' %}
+                                <i class="fas fa-book-open"></i>
+                            {% else %}
+                                <i class="fas fa-bell"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <div class="notification-message">{{ notification.message }}</div>
+                                <div class="notification-actions">
+                                    {% if not notification.is_read %}
+                                        <button class="mark-read-btn" data-notification-id="{{ notification.id }}" title="Отметить как прочитанное">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    {% endif %}
+                                    <button class="delete-notification-btn" data-notification-id="{{ notification.id }}" title="Удалить">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="notification-meta">
+                                <div class="notification-time">
+                                    <i class="fas fa-clock"></i> {{ notification.created_at|timesince }} назад
+                                </div>
+                                <div class="notification-type">{{ notification.get_type_display }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="no-notifications">
+                        <div class="no-notifications-icon">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <h4>Нет уведомлений</h4>
+                        <p>У вас пока нет уведомлений. Они появятся здесь, когда произойдут важные события.</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Кнопка загрузки дополнительных уведомлений -->
+            {% if notifications|length >= 10 %}
+                <div class="notifications-footer">
+                    <button class="load-more-notifications-btn" id="loadMoreNotifications">
+                        <i class="fas fa-plus"></i> Загрузить еще
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

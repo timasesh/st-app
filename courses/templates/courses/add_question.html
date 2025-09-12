@@ -138,7 +138,7 @@
 <body>
     <header class="admin-header">
         <span class="admin-title"><i class="fas fa-question-circle"></i>Добавить вопрос к квизу: {{ quiz.title }}</span>
-        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+        <a href="{% url 'admin_quizzes_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
     </header>
     <div class="container">
         <div class="card">
@@ -173,7 +173,7 @@
                         <i class="fas fa-save"></i> Сохранить вопрос
                     </button>
                 </form>
-                <a href="{% url 'admin_page' %}" class="btn btn-back mt-3"><i class="fas fa-check"></i> Завершить добавление вопросов</a>
+                <a href="{% url 'admin_quizzes_page' %}" class="btn btn-back mt-3"><i class="fas fa-check"></i> Завершить добавление вопросов</a>
             </div>
         </div>
     </div>

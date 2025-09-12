@@ -1,0 +1,719 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление студентами{% endblock %}
+
+{% block extra_css %}
+<style>
+.nav-tabs .nav-link {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 8px 8px 0 0 !important;
+    margin-right: 5px !important;
+    padding: 10px 20px !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    border-bottom-color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stats-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.achievement-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.achievement-reward {
+    background: rgba(255,255,255,0.2);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+/* Стили для заголовка карточки с вкладками */
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-bottom: none !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px !important;
+}
+
+.card-header-tabs {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ students.count }}</div>
+            <div class="stats-label">Всего студентов</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ groups.count }}</div>
+            <div class="stats-label">Групп</div>
+        </div>
+    </div>
+    
+    
+</div>
+
+<!-- Секции управления -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="studentsTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="students-tab" data-toggle="tab" href="#students" role="tab">
+                            <i class="fas fa-users mr-2"></i>Студенты
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="groups-tab" data-toggle="tab" href="#groups" role="tab">
+                            <i class="fas fa-layer-group mr-2"></i>Группы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="requests-tab" data-toggle="tab" href="#requests" role="tab">
+                            <i class="fas fa-envelope mr-2"></i>Запросы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="achievements-tab" data-toggle="tab" href="#achievements" role="tab">
+                            <i class="fas fa-trophy mr-2"></i>Достижения студентов
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="studentsTabContent">
+                    <!-- Секция студентов -->
+                    <div class="tab-pane fade show active" id="students" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Список студентов</h5>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#addStudentModal">
+                                <i class="fas fa-plus mr-2"></i>Добавить студента
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Фото</th>
+                                        <th>Имя</th>
+                                        <th>Email</th>
+                                        <th>Телефон</th>
+                                        <th>Группа</th>
+                                        <th>Преподаватель</th>
+                                        <th>Дата регистрации</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.id }}</td>
+                                        <td>
+                                            {% if student.avatar %}
+                                                <img src="{{ student.avatar.url }}" alt="Avatar" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                        <td>{{ student.email }}</td>
+                                        <td>{{ student.phone_number|default:"-" }}</td>
+                                        <td>{{ student.group.name|default:"-" }}</td>
+                                        <td>
+                                            {% if student.teacher %}
+                                                {{ student.teacher.first_name }} {{ student.teacher.last_name }}
+                                            {% else %}
+                                                <span class="text-muted">Не назначен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ student.user.date_joined|date:"d.m.Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'student_details' student.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-info" onclick="assignTeacher({{ student.id }})" title="Назначить преподавателя">
+                                                    <i class="fas fa-chalkboard-teacher"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent({{ student.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Студенты не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция групп -->
+                    <div class="tab-pane fade" id="groups" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Управление группами</h5>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#addGroupModal">
+                                <i class="fas fa-plus mr-2"></i>Создать группу
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название</th>
+                                        <th>Количество студентов</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for group in groups %}
+                                    <tr>
+                                        <td>{{ group.id }}</td>
+                                        <td>{{ group.name }}</td>
+                                        <td>{{ group.students.count }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'group_management' group.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-cog"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteGroup({{ group.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Группы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция запросов -->
+                    <div class="tab-pane fade" id="requests" role="tabpanel">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="studentSelect" class="form-label">Выберите студента:</label>
+                                <select class="form-control" id="studentSelect">
+                                    <option value="">Все студенты</option>
+                                    {% for student in students %}
+                                    <option value="{{ student.id }}">{{ student.first_name }} {{ student.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Студент</th>
+                                        <th>Тип запроса</th>
+                                        <th>Содержание</th>
+                                        <th>Статус</th>
+                                        <th>Дата</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requestsTableBody">
+                                    {% for request in total_requests %}
+                                    <tr data-student-id="{{ request.student.id }}" data-request-type="{{ request.request_type }}">
+                                        <td>{{ request.id }}</td>
+                                        <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                                        <td>
+                                            {% if request.request_type == 'message' %}
+                                                <span class="badge badge-info">Сообщение</span>
+                                            {% else %}
+                                                <span class="badge badge-warning">Профиль</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.request_type == 'message' %}
+                                                {{ request.message|truncatechars:50 }}
+                                            {% else %}
+                                                {{ request.message }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{% if request.status == 'pending' %}warning{% elif request.status == 'approved' %}success{% else %}danger{% endif %}">
+                                                {{ request.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewRequest({{ request.id }}, '{{ request.request_type }}')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Запросы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция достижений студентов -->
+                    <div class="tab-pane fade" id="achievements" role="tabpanel">
+                        <h5 class="mb-3">Достижения студентов (более 50% выполнения)</h5>
+                        
+                        {% for achievement in student_achievements %}
+                        <div class="achievement-card">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-trophy mr-2"></i>
+                                        {{ achievement.achievement.title }}
+                                    </h6>
+                                    <p class="mb-2">{{ achievement.achievement.description }}</p>
+                                    <div class="achievement-reward">
+                                        <i class="fas fa-gift mr-1"></i>
+                                        <strong>Подарок:</strong> {{ achievement.achievement.reward }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="mb-2">
+                                        <strong>Студент:</strong><br>
+                                        {{ achievement.student.first_name }} {{ achievement.student.last_name }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Получено:</strong><br>
+                                        {{ achievement.unlocked_at|date:"d.m.Y H:i" }}
+                                    </div>
+                                    <div>
+                                        <strong>Уровень:</strong> {{ achievement.student.calculate_level }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-trophy fa-3x mb-3"></i>
+                            <p>Пока нет достижений студентов</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно добавления студента -->
+<div class="modal fade" id="addStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить студента</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_students_page' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_student">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" class="form-control" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Фамилия</label>
+                        <input type="text" class="form-control" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" class="form-control" name="phone_number">
+                    </div>
+                    <div class="form-group">
+                        <label>Группа</label>
+                        <select class="form-control" name="group">
+                            <option value="">Выберите группу</option>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления группы -->
+<div class="modal fade" id="addGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать группу</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_students_page' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_group">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Название группы</label>
+                        <input type="text" class="form-control" name="group_name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления студента -->
+<div class="modal fade" id="deleteStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этого студента? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteStudentForm" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_student">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно просмотра запроса -->
+<div class="modal fade" id="viewRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Детали запроса</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="requestDetails">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+            <div class="modal-footer" id="requestActions" style="display: none;">
+                <div class="row w-100">
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="adminResponse" placeholder="Введите комментарий администратора..." rows="3"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-success btn-block mb-2" onclick="approveRequest()">
+                            <i class="fas fa-check"></i> Одобрить
+                        </button>
+                        <button type="button" class="btn btn-danger btn-block" onclick="rejectRequest()">
+                            <i class="fas fa-times"></i> Отклонить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteStudent(studentId) {
+    if (confirm('Вы уверены, что хотите удалить этого студента?')) {
+        $('#deleteStudentForm').attr('action', '/delete_student/' + studentId + '/');
+        $('#deleteStudentModal').modal('show');
+    }
+}
+
+function deleteGroup(groupId) {
+    if (confirm('Вы уверены, что хотите удалить эту группу?')) {
+        window.location.href = '/delete_group/' + groupId + '/';
+    }
+}
+
+let currentRequestId = null;
+let currentRequestType = null;
+
+function viewRequest(requestId, requestType) {
+    currentRequestId = requestId;
+    currentRequestType = requestType;
+    
+    $('#viewRequestModal').modal('show');
+    $('#requestDetails').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Загрузка...</div>');
+    $('#requestActions').hide();
+    
+    // AJAX запрос для получения деталей запроса
+    $.ajax({
+        url: `/get_request_details/${requestType}/${requestId}/`,
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const data = response.data;
+                let statusBadge = '';
+                if (data.status === 'pending') {
+                    statusBadge = '<span class="badge badge-warning">Ожидает</span>';
+                } else if (data.status === 'approved') {
+                    statusBadge = '<span class="badge badge-success">Одобрен</span>';
+                } else if (data.status === 'rejected') {
+                    statusBadge = '<span class="badge badge-danger">Отклонен</span>';
+                }
+                
+                let subjectHtml = '';
+                if (data.subject) {
+                    subjectHtml = `<div class="mb-3">
+                        <strong>Тема:</strong> ${data.subject}
+                    </div>`;
+                }
+                
+                let adminResponseHtml = '';
+                if (data.admin_response) {
+                    adminResponseHtml = `<div class="mb-3">
+                        <strong>Ответ администратора:</strong>
+                        <div class="alert alert-info">${data.admin_response}</div>
+                    </div>`;
+                }
+                
+                let reviewedAtHtml = '';
+                if (data.reviewed_at) {
+                    reviewedAtHtml = `<div class="mb-3">
+                        <strong>Дата рассмотрения:</strong> ${data.reviewed_at}
+                    </div>`;
+                }
+                
+                $('#requestDetails').html(`
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>ID запроса:</strong> #${data.id}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Студент:</strong> ${data.student_name}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Email:</strong> ${data.student_email}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Статус:</strong> ${statusBadge}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Дата создания:</strong> ${data.created_at}
+                            </div>
+                            ${reviewedAtHtml}
+                        </div>
+                    </div>
+                    ${subjectHtml}
+                    <div class="mb-3">
+                        <strong>Содержание:</strong>
+                        <div class="alert alert-light">${data.message}</div>
+                    </div>
+                    ${adminResponseHtml}
+                `);
+                
+                // Показываем кнопки действий только для запросов в статусе "ожидает"
+                if (data.status === 'pending') {
+                    $('#requestActions').show();
+                    $('#adminResponse').val(data.admin_response || '');
+                } else {
+                    $('#requestActions').hide();
+                }
+            } else {
+                $('#requestDetails').html(`
+                    <div class="alert alert-danger">
+                        <h6>Ошибка загрузки</h6>
+                        <p>${response.error}</p>
+                    </div>
+                `);
+            }
+        },
+        error: function() {
+        $('#requestDetails').html(`
+                <div class="alert alert-danger">
+                    <h6>Ошибка загрузки</h6>
+                    <p>Произошла ошибка при загрузке деталей запроса.</p>
+            </div>
+        `);
+        }
+    });
+}
+
+function approveRequest() {
+    updateRequestStatus('approved');
+}
+
+function rejectRequest() {
+    updateRequestStatus('rejected');
+}
+
+function updateRequestStatus(status) {
+    if (!currentRequestId || !currentRequestType) {
+        alert('Ошибка: не удалось определить запрос');
+        return;
+    }
+    
+    const adminResponse = $('#adminResponse').val();
+    
+    $.ajax({
+        url: '{% url "update_request_status" %}',
+        method: 'POST',
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'request_type': currentRequestType,
+            'request_id': currentRequestId,
+            'status': status,
+            'admin_response': adminResponse
+        },
+        success: function(response) {
+            if (response.success) {
+                $('#viewRequestModal').modal('hide');
+                location.reload(); // Перезагружаем страницу для обновления данных
+            } else {
+                alert('Ошибка: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Произошла ошибка при обновлении статуса');
+        }
+    });
+}
+
+// Фильтрация запросов по студенту
+$('#studentSelect').change(function() {
+    var selectedStudentId = $(this).val();
+    var rows = $('#requestsTableBody tr');
+    
+    if (selectedStudentId === '') {
+        rows.show();
+    } else {
+        rows.hide();
+        rows.filter('[data-student-id="' + selectedStudentId + '"]').show();
+    }
+});
+
+// Функция для назначения преподавателя
+function assignTeacher(studentId) {
+    $('#assignTeacherModal').modal('show');
+    $('#studentIdForTeacher').val(studentId);
+}
+</script>
+
+<!-- Модальное окно для назначения преподавателя -->
+<div class="modal fade" id="assignTeacherModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Назначить преподавателя</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="assign_teacher">
+                <input type="hidden" name="student_id" id="studentIdForTeacher">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="teacherSelect">Выберите преподавателя:</label>
+                        <select class="form-control" name="teacher_id" id="teacherSelect">
+                            <option value="">Без преподавателя</option>
+                            {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}">{{ teacher.first_name }} {{ teacher.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Назначить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

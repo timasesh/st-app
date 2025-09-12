@@ -6,10 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
+    <link rel="icon" type="image/png" href="/media/image/ST.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin_page_test.css' %}">
     <style>
         :root {
             --primary-color: #22347a;
@@ -33,12 +35,14 @@
         /* Sidebar Styles */
         .sidebar {
             background-color: var(--primary-color);
-        min-height: 100vh;
+            min-height: 100vh;
             padding: 1.5rem 1rem;
             position: fixed;
             width: 250px;
             transition: var(--transition);
             z-index: 1000;
+            top: 0;
+            left: 0;
         }
 
         .sidebar .nav-link {
@@ -66,6 +70,11 @@
             margin-left: 250px;
             padding: 2rem;
             transition: var(--transition);
+            min-height: 100vh;
+            background-color: var(--light-bg);
+            width: calc(100% - 250px);
+            position: relative;
+            overflow-x: hidden;
         }
 
         .admin-header {
@@ -108,6 +117,51 @@
             margin-bottom: 1.5rem;
             border: none;
         }
+        
+        /* Улучшаем таблицу уровней */
+        #levels-management .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        #levels-management .table th,
+        #levels-management .table td {
+            vertical-align: middle;
+        }
+        
+        /* Стили для изображений уровней */
+        #levels-management .level-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+        }
+        
+        #levels-management .level-image:hover {
+            border-color: #007bff;
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+        
+        #levels-management .image-upload {
+            font-size: 10px;
+            padding: 2px;
+        }
+        
+        #levels-management .btn-group .btn {
+            padding: 0.25rem 0.4rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Улучшаем отображение номера уровня */
+        #levels-management input[name="number"] {
+            text-align: center;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+        }
+        
+
 
         .card-header {
             background-color: white;
@@ -212,8 +266,10 @@
         }
 
         .section-content.active {
-            display: block;
+            display: block !important;
         }
+        
+
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -318,6 +374,33 @@
             width: 35%;
             vertical-align: top;
         }
+
+        /* Стили для подвкладок курсов (аналогично подвкладкам студентов) */
+        #course-details-subtabs .nav-link {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border: none !important;
+            border-bottom: 2px solid transparent !important;
+            border-radius: 8px 8px 0 0 !important;
+            margin-right: 5px !important;
+            padding: 10px 20px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        #course-details-subtabs .nav-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        #course-details-subtabs .nav-link.active {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            border-bottom-color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        }
     </style>
 </head>
 <body>
@@ -328,18 +411,30 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-            <a class="nav-link active" id="v-pills-students-tab" data-toggle="pill" href="#v-pills-students" role="tab">
+        <div class="nav flex-column" id="main-tabs">
+            <a class="nav-link active" data-tab="students">
                 <i class="fas fa-users"></i> Студенты
             </a>
-            <a class="nav-link" id="v-pills-edit-course-tab" data-toggle="pill" href="#v-pills-edit-course" role="tab">
+            <a class="nav-link" data-tab="edit-course">
                 <i class="fas fa-book"></i> Детали курса
             </a>
-            <a class="nav-link" id="v-pills-create-quiz-tab" data-toggle="pill" href="#v-pills-create-quiz" role="tab">
+            <a class="nav-link" data-tab="create-quiz">
                 <i class="fas fa-question-circle"></i> Создать квиз
             </a>
-            <a class="nav-link" id="v-pills-requests-tab" data-toggle="pill" href="#v-pills-requests" role="tab">
+            <a class="nav-link" data-tab="requests">
                 <i class="fas fa-bell"></i> Запросы
+            </a>
+            <a class="nav-link" data-tab="notifications">
+                 <i class="fas fa-bell"></i> Уведомления
+             </a>
+            <a class="nav-link" data-tab="achievements">
+                <i class="fas fa-trophy"></i> Достижения
+            </a>
+            <a class="nav-link" data-tab="levels">
+                <i class="fas fa-layer-group"></i> Уровни
+            </a>
+            <a class="nav-link" data-tab="teachers">
+                <i class="fas fa-chalkboard-teacher"></i> Преподаватели
             </a>
                 </div>
             </div>
@@ -353,9 +448,24 @@
             </a>
                 </header>
 
-        <div class="tab-content" id="v-pills-tabContent">
+        <!-- Messages Block -->
+        {% if messages %}
+        <div class="container-fluid mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-circle{% else %}info-circle{% endif %} mr-2"></i>
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="tab-content" id="main-tab-content">
             <!-- Students Tab -->
-            <div class="tab-pane fade show active" id="v-pills-students" role="tabpanel">
+            <div class="tab-pane active" id="tab-students">
                                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
@@ -370,9 +480,14 @@
                                 <button class="btn btn-primary" data-section="student-groups">
                                     <i class="fas fa-users"></i> Группы
                                                 </button>
+                                <button class="btn btn-primary" data-section="student-achievements">
+                                    <i class="fas fa-trophy"></i> Достижения
+                                                </button>
                                 <button class="btn btn-primary" data-section="add-students-by-email">
                                     <i class="fas fa-file-excel"></i> Добавить студентов по Email
                                         </button>
+
+
                                     </div>
                                             </div>
                                 </div>
@@ -385,7 +500,7 @@
                                         <tr>
                                             <th>Имя пользователя</th>
                                             <th>Email</th>
-                                            <th>Курсы</th>
+                                            <th>Информация</th>
                                             <th class="course-actions-col">Действия</th>
                                         </tr>
                                     </thead>
@@ -395,6 +510,14 @@
                                             <td>{{ student.user.username }}</td>
                                             <td>{{ student.user.email }}</td>
                                             <td>
+                                                <div class="student-stats mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> {{ student.stars }}
+                                                    </span>
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-layer-group"></i> Уровень {{ student.get_level }}
+                                                    </span>
+                                                </div>
                                                 {% for course in student.courses.all %}
                                                     <div class="mb-2">
                                                         <a href="#" class="course-link" data-course-id="{{ course.id }}" data-course-title="{{ course.title }}" style="display:inline-block;vertical-align:middle;">
@@ -404,9 +527,9 @@
                                                 {% endfor %}
                                             </td>
                                             <td class="course-actions-col">
-                                                <div class="d-flex flex-column gap-2">
-                                                    <a href="{% url 'student_details' student.user.id %}" class="btn btn-info btn-sm d-block mb-2">
-                                                        <i class="fas fa-eye"></i> Детали
+<div class="d-flex flex-column gap-2">
+                                                    <a href="{% url 'student_details' student.user.id %}" class="btn btn-info btn-sm d-block mb-2" target="_blank">
+                                                    <i class="fas fa-eye"></i> Детали
                                                     </a>
                                                     <button class="btn btn-danger btn-sm d-block delete-student-btn" data-student-id="{{ student.user.id }}">
                                                         <i class="fas fa-trash"></i> Удалить
@@ -596,6 +719,155 @@
                             </div>
                         </div>
 
+                        <!-- Student Achievements Section -->
+                        <div class="section-content" id="student-achievements">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3 class="mb-0">Достижения студентов</h3>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm active" data-subsection="achievements-unlocked">
+                                            <i class="fas fa-trophy"></i> Полученные
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" data-subsection="achievements-soon">
+                                            <i class="fas fa-gift"></i> Скоро подарок
+                                        </button>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary" onclick="location.href=location.href;return false;">
+                                            <i class="fas fa-sync-alt"></i> Обновить
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-success" onclick="alert('Для добавления новых достижений используйте management-команду create_initial_achievements или админку.');return false;">
+                                            <i class="fas fa-plus"></i> Добавить
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Подсекция: Полученные достижения -->
+                                    <div class="subsection-content active" id="achievements-unlocked">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Студент</th>
+                                                    <th>Достижение</th>
+                                                    <th>Тип условия</th>
+                                                    <th>Требование</th>
+                                                    <th>Награда</th>
+                                                    <th>Открыто</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for s in students %}
+                                                    {% for sa in s.unlocked_achievements.all %}
+                                                    <tr>
+                                                        <td>{{ s.user.username }}</td>
+                                                        <td>{{ sa.achievement.title }}</td>
+                                                        <td>{{ sa.achievement.get_condition_type_display }}</td>
+                                                        <td>{{ sa.achievement.condition_value }}</td>
+                                                        <td>{{ sa.achievement.reward_icon }} {{ sa.achievement.reward }}</td>
+                                                        <td>{{ sa.unlocked_at|date:"d.m.Y H:i" }}</td>
+                                                    </tr>
+                                                    {% empty %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                    <!-- Подсекция: Скоро подарок -->
+                                    <div class="subsection-content" id="achievements-soon">
+                                        <h4 class="mb-3">
+                                            <i class="fas fa-gift text-success"></i> 
+                                            Студенты, которые скоро получат достижения (более 50% выполнено)
+                                        </h4>
+                                        
+                                        {% if achievement_progress_data %}
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead class="thead-dark">
+                                                        <tr>
+                                                            <th style="width: 200px;">Студент</th>
+                                                            <th style="width: 200px;">Достижение</th>
+                                                            <th style="width: 150px;">Прогресс</th>
+                                                            <th style="width: 200px;">Награда</th>
+                                                            <th style="width: 150px;">Осталось</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for item in achievement_progress_data %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="avatar-sm me-2">
+                                                                        {% if item.student.avatar %}
+                                                                            <img src="{{ item.student.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                                                        {% else %}
+                                                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                                                <i class="fas fa-user text-white"></i>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div>
+                                                                        <strong>{{ item.student.user.get_full_name|default:item.student.user.username }}</strong>
+                                                                        <br>
+                                                                        <small class="text-muted">{{ item.student.user.email }}</small>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div>
+                                                                    <strong>{{ item.achievement.title }}</strong>
+                                                                    <br>
+                                                                    <small class="text-muted">{{ item.achievement.get_condition_type_display }}</small>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="progress" style="height: 20px;">
+                                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                                         style="width: {{ item.progress_data.progress_percentage }}%"
+                                                                         aria-valuenow="{{ item.progress_data.progress_percentage }}" 
+                                                                         aria-valuemin="0" aria-valuemax="100">
+                                                                        {{ item.progress_data.progress_percentage }}%
+                                                                    </div>
+                                                                </div>
+                                                                <small class="text-muted">
+                                                                    {{ item.progress_data.current_value }} / {{ item.progress_data.target_value }}
+                                                                </small>
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <span class="me-2" style="font-size: 1.2em;">{{ item.achievement.reward_icon }}</span>
+                                                                    <span>{{ item.achievement.reward }}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                {% with remaining=item.progress_data.target_value|add:"-"|add:item.progress_data.current_value %}
+                                                                    {% if remaining > 0 %}
+                                                                        <span class="badge bg-warning text-dark">
+                                                                            Осталось: {{ remaining }}
+                                                                        </span>
+                                                                    {% else %}
+                                                                        <span class="badge bg-success">
+                                                                            Готово!
+                                                                        </span>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle"></i>
+                                                Пока нет студентов с прогрессом достижений более 50%.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Add Students by Excel Section -->
                         <div class="section-content" id="add-students-by-email">
                             <div class="card">
@@ -618,12 +890,519 @@
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
 
+            <!-- Notifications Tab -->
+            <div class="tab-pane" id="tab-notifications">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Уведомления</h2>
+                        <button class="btn btn-success btn-sm" data-toggle="collapse" data-target="#createNotificationForm">
+                            <i class="fas fa-plus"></i> Новое уведомление
+                        </button>
+                    </div>
+                    <div id="createNotificationForm" class="collapse">
+                        <div class="card-body">
+                            <form method="post" class="row">
+                                {% csrf_token %}
+                                <input type="hidden" name="create_notification" value="1" />
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label">Студент</label>
+                                    <select name="notification_student_id" class="form-control" required>
+                                        <option value="">-- Выберите студента --</option>
+                                        {% for s in students %}
+                                            <option value="{{ s.id }}">{{ s.user.username }} ({{ s.user.first_name }} {{ s.user.last_name }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Тип</label>
+                                    <select name="notification_type" class="form-control" required>
+                                        {% for val, label in notification_type_choices %}
+                                            <option value="{{ val }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Приоритет</label>
+                                    <select name="notification_priority" class="form-control">
+                                        <option value="1">Низкий</option>
+                                        <option value="2">Средний</option>
+                                        <option value="3">Высокий</option>
+                                        <option value="4">Критический</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2 d-flex align-items-end">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="notification_is_read" id="notifReadCreate">
+                                        <label class="form-check-label" for="notifReadCreate">Считать прочитанным</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-2">
+                                    <label class="form-label">Сообщение</label>
+                                    <textarea name="notification_message" class="form-control" rows="2" required></textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success">Создать</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Студент</th>
+                                        <th>Тип</th>
+                                        <th>Приоритет</th>
+                                        <th>Сообщение</th>
+                                        <th>Дата</th>
+                                        <th>Прочитано</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for n in notifications_admin %}
+                                    <tr>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <td>{{ n.id }}<input type="hidden" name="notification_id" value="{{ n.id }}"/></td>
+                                            <td>{{ n.student.user.username }} (ID: {{ n.student.id }})</td>
+                                            <td>
+                                                <select name="notification_type" class="form-control form-control-sm">
+                                                    {% for val, label in notification_type_choices %}
+                                                        <option value="{{ val }}" {% if val == n.type %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select name="notification_priority" class="form-control form-control-sm">
+                                                    <option value="1" {% if n.priority == 1 %}selected{% endif %}>1</option>
+                                                    <option value="2" {% if n.priority == 2 %}selected{% endif %}>2</option>
+                                                    <option value="3" {% if n.priority == 3 %}selected{% endif %}>3</option>
+                                                    <option value="4" {% if n.priority == 4 %}selected{% endif %}>4</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="notification_message" value="{{ n.message }}" class="form-control form-control-sm" />
+                                            </td>
+                                            <td>{{ n.created_at|date:"d.m.Y H:i" }}</td>
+                                            <td>
+                                                <input type="checkbox" name="notification_is_read" {% if n.is_read %}checked{% endif %} />
+                                            </td>
+                                            <td class="d-flex gap-1">
+                                                <button type="submit" name="update_notification" class="btn btn-primary btn-sm">Сохранить</button>
+                                        </form>
+                                                <form method="post" onsubmit="return confirm('Удалить уведомление?')">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="notification_id" value="{{ n.id }}" />
+                                                    <button type="submit" name="delete_notification" class="btn btn-danger btn-sm">Удалить</button>
+                                                </form>
+                                            </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Levels Tab -->
+            <div class="tab-pane" id="tab-levels">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Управление уровнями</h2>
+                        <button class="btn btn-success" data-toggle="collapse" data-target="#addLevelForm">
+                            <i class="fas fa-plus"></i> Добавить уровень
+                        </button>
+                    </div>
+                    <div class="collapse" id="addLevelForm">
+                        <div class="card-body">
+                            <form method="post" action="" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="form-group col-md-2">
+                                        <label for="levelNumber">Номер</label>
+                                        <input type="number" class="form-control" name="number" id="levelNumber" min="1" max="30" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="levelName">Название</label>
+                                        <input type="text" class="form-control" name="name" id="levelName" required>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label for="minStars">Мин. звёзд</label>
+                                        <input type="number" class="form-control" name="min_stars" id="minStars" min="0" required>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label for="maxStars">Макс. звёзд</label>
+                                        <input type="number" class="form-control" name="max_stars" id="maxStars" min="1" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="levelImage">Изображение</label>
+                                        <input type="file" class="form-control-file" name="image" id="levelImage" accept="image/*" onchange="previewImage(this, 'imagePreview')">
+                                        <small class="form-text text-muted">Необязательно. Поддерживаются PNG, JPG, JPEG</small>
+                                        <div id="imagePreview" class="mt-2" style="display: none;">
+                                            <img id="previewImg" src="" alt="Предварительный просмотр" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 2px solid #007bff;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <label for="levelDescription">Описание</label>
+                                        <textarea class="form-control" name="description" id="levelDescription" rows="2" placeholder="Описание уровня (необязательно)"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" name="add_level" class="btn btn-primary mt-2">
+                                    <i class="fas fa-plus"></i> Добавить
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 70px;">#</th>
+                                        <th style="width: 70px;">Изображение</th>
+                                        <th style="width: 120px;">Название</th>
+                                        <th style="width: 80px;">Мин. звёзд</th>
+                                        <th style="width: 80px;">Макс. звёзд</th>
+                                        <th style="width: 200px;">Описание</th>
+                                        <th style="width: 150px;">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for level in levels %}
+                                    <tr>
+                                        <form method="post" action="" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <td><input type="number" name="number" value="{{ level.number }}" class="form-control form-control-sm" style="width:70px;" required></td>
+                                            <td class="text-center">
+                                                {% if level.image %}
+                                                    <img src="{{ level.image.url }}" alt="{{ level.name }}" class="level-image" title="Текущее изображение уровня">
+                                                {% else %}
+                                                    <i class="fas fa-image text-muted" style="font-size: 24px;" title="Нет изображения"></i>
+                                                {% endif %}
+                                                <div class="mt-1">
+                                                    <input type="file" name="image" class="form-control-file image-upload" accept="image/*" title="Загрузить новое изображение">
+                                                </div>
+                                            </td>
+                                            <td><input type="text" name="name" value="{{ level.name }}" class="form-control form-control-sm" required></td>
+                                            <td><input type="number" name="min_stars" value="{{ level.min_stars }}" class="form-control form-control-sm" required></td>
+                                            <td><input type="number" name="max_stars" value="{{ level.max_stars }}" class="form-control form-control-sm" required></td>
+                                            <td><textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Описание уровня">{{ level.description|default:"" }}</textarea></td>
+                                            <td>
+                                                <input type="hidden" name="level_id" value="{{ level.id }}">
+                                                <button type="submit" name="update_level" class="btn btn-primary btn-sm">Сохранить</button>
+                                                <button type="submit" name="delete_level" class="btn btn-danger btn-sm" onclick="return confirm('Удалить уровень?')">Удалить</button>
+                                            </td>
+                                        </form>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers Tab -->
+            <div class="tab-pane" id="tab-teachers">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Управление преподавателями</h2>
+                        <button class="btn btn-success" data-toggle="collapse" data-target="#addTeacherForm">
+                            <i class="fas fa-plus"></i> Добавить преподавателя
+                        </button>
+                    </div>
+                    <div class="collapse" id="addTeacherForm">
+                        <div class="card-body">
+                            <form method="post" action="" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherFirstName">Имя *</label>
+                                        <input type="text" class="form-control" name="first_name" id="teacherFirstName" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherLastName">Фамилия *</label>
+                                        <input type="text" class="form-control" name="last_name" id="teacherLastName" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherEmail">Email *</label>
+                                        <input type="email" class="form-control" name="email" id="teacherEmail" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherPhone">Номер телефона</label>
+                                        <input type="tel" class="form-control" name="phone_number" id="teacherPhone">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherSpecialization">Специализация</label>
+                                        <input type="text" class="form-control" name="specialization" id="teacherSpecialization" placeholder="Например: Математика, Физика">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherExperience">Годы опыта</label>
+                                        <input type="number" class="form-control" name="experience_years" id="teacherExperience" min="0" max="50" value="0">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <label for="teacherBio">О преподавателе</label>
+                                        <textarea class="form-control" name="bio" id="teacherBio" rows="3" placeholder="Краткая биография преподавателя"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherAvatar">Фото профиля</label>
+                                        <input type="file" class="form-control-file" name="avatar" id="teacherAvatar" accept="image/*" onchange="previewImage(this, 'teacherImagePreview')">
+                                        <small class="form-text text-muted">Необязательно. Поддерживаются PNG, JPG, JPEG</small>
+                                        <div id="teacherImagePreview" class="mt-2" style="display: none;">
+                                            <img id="teacherPreviewImg" src="" alt="Предварительный просмотр" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid #007bff;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="teacherPassword">Пароль *</label>
+                                        <input type="password" class="form-control" name="password" id="teacherPassword" required>
+                                        <small class="form-text text-muted">Пароль для входа в систему</small>
+                                    </div>
+                                </div>
+                                <button type="submit" name="add_teacher" class="btn btn-primary mt-2">
+                                    <i class="fas fa-plus"></i> Добавить преподавателя
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th style="width: 80px;">Фото</th>
+                                        <th style="width: 150px;">Имя</th>
+                                        <th style="width: 200px;">Email</th>
+                                        <th style="width: 120px;">Телефон</th>
+                                        <th style="width: 150px;">Специализация</th>
+                                        <th style="width: 80px;">Опыт</th>
+                                        <th style="width: 80px;">Курсы</th>
+                                        <th style="width: 80px;">Статус</th>
+                                        <th style="width: 150px;">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for teacher in teachers %}
+                                    <tr>
+                                        <td class="text-center">
+                                            {% if teacher.avatar %}
+                                                <img src="{{ teacher.avatar.url }}" alt="{{ teacher.full_name }}" class="teacher-avatar" title="{{ teacher.full_name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                            {% else %}
+                                                <i class="fas fa-user text-muted" style="font-size: 32px;" title="Нет фото"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ teacher.full_name }}</td>
+                                        <td>{{ teacher.email }}</td>
+                                        <td>{{ teacher.phone_number|default:"-" }}</td>
+                                        <td>{{ teacher.specialization|default:"-" }}</td>
+                                        <td>{{ teacher.experience_years }} лет</td>
+                                        <td>{{ teacher.courses_count }}</td>
+                                        <td>
+                                            {% if teacher.is_active %}
+                                                <span class="badge badge-success">Активен</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Неактивен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post" action="" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                                                <button type="submit" name="toggle_teacher_status" class="btn btn-sm {% if teacher.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                                    {% if teacher.is_active %}
+                                                        <i class="fas fa-pause"></i> Деактивировать
+                                                    {% else %}
+                                                        <i class="fas fa-play"></i> Активировать
+                                                    {% endif %}
+                                                </button>
+                                                <button type="submit" name="delete_teacher" class="btn btn-danger btn-sm" onclick="return confirm('Удалить преподавателя? Это действие нельзя отменить.')">
+                                                    <i class="fas fa-trash"></i> Удалить
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">
+                                            <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                                            <p>Преподаватели не найдены</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements Tab -->
+            <div class="tab-pane" id="tab-achievements">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Достижения</h2>
+                        <button class="btn btn-success btn-sm" data-toggle="collapse" data-target="#createAchievementForm">
+                            <i class="fas fa-plus"></i> Новое достижение
+                        </button>
+                    </div>
+                    <div id="createAchievementForm" class="collapse">
+                        <div class="card-body">
+                            <form method="post" class="row">
+                                {% csrf_token %}
+                                <input type="hidden" name="create_achievement" value="1" />
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Код</label>
+                                    <input type="text" class="form-control" name="ach_code" placeholder="например, quiz_10" required />
+                                </div>
+                                <div class="col-md-5 mb-2">
+                                    <label class="form-label">Название</label>
+                                    <input type="text" class="form-control" name="ach_title" required />
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label">Иконка награды</label>
+                                    <input type="text" class="form-control" name="ach_reward_icon" value="🎁" />
+                                </div>
+                                <div class="col-md-12 mb-2">
+                                    <label class="form-label">Описание</label>
+                                    <textarea name="ach_description" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label">Тип условия</label>
+                                    <select name="ach_condition_type" class="form-control" required>
+                                        <option value="passed_quizzes">Пройдено квизов (>=70%)</option>
+                                        <option value="perfect_quizzes">Квизы на 100%</option>
+                                        <option value="completed_courses">Завершено курсов</option>
+                                        <option value="total_stars">Накоплено звёзд</option>
+                                        <option value="level_reached">Достигнут уровень</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label">Значение</label>
+                                    <input type="number" class="form-control" name="ach_condition_value" min="1" value="10" required />
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label">Награда</label>
+                                    <input type="text" class="form-control" name="ach_reward" placeholder="Например, Фирменные наклейки" required />
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-success">Создать</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">ID</th>
+                                        <th style="width: 120px;">Код</th>
+                                        <th style="width: 200px;">Название</th>
+                                        <th style="width: 150px;">Тип</th>
+                                        <th style="width: 100px;">Значение</th>
+                                        <th style="width: 250px;">Награда</th>
+                                        <th style="width: 80px;">Активно</th>
+                                        <th style="width: 150px;">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ach in all_achievements %}
+                                    <tr>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="achievement_id" value="{{ ach.id }}" />
+                                            <td>{{ ach.id }}</td>
+                                            <td><input type="text" class="form-control form-control-sm" name="ach_code" value="{{ ach.code }}" /></td>
+                                            <td><input type="text" class="form-control form-control-sm" name="ach_title" value="{{ ach.title }}" /></td>
+                                            <td>
+                                                <select name="ach_condition_type" class="form-control form-control-sm">
+                                                    <option value="passed_quizzes" {% if ach.condition_type == 'passed_quizzes' %}selected{% endif %}>Квизы (>=70%)</option>
+                                                    <option value="perfect_quizzes" {% if ach.condition_type == 'perfect_quizzes' %}selected{% endif %}>Квизы 100%</option>
+                                                    <option value="completed_courses" {% if ach.condition_type == 'completed_courses' %}selected{% endif %}>Курсы</option>
+                                                    <option value="total_stars" {% if ach.condition_type == 'total_stars' %}selected{% endif %}>Звёзды</option>
+                                                    <option value="level_reached" {% if ach.condition_type == 'level_reached' %}selected{% endif %}>Уровень</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="number" class="form-control form-control-sm" name="ach_condition_value" value="{{ ach.condition_value }}" /></td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <div class="input-group-prepend"><span class="input-group-text">{{ ach.reward_icon }}</span></div>
+                                                    <input type="text" class="form-control" name="ach_reward" value="{{ ach.reward }}" />
+                                                    <input type="text" class="form-control" name="ach_reward_icon" value="{{ ach.reward_icon }}" style="max-width:80px" />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox" name="ach_is_active" {% if ach.is_active %}checked{% endif %} />
+                                            </td>
+                                            <td class="d-flex gap-1">
+                                                <button type="submit" name="update_achievement" class="btn btn-primary btn-sm">Сохранить</button>
+                                        </form>
+                                                <form method="post" onsubmit="return confirm('Удалить достижение?')">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="achievement_id" value="{{ ach.id }}" />
+                                                    <button type="submit" name="delete_achievement" class="btn btn-danger btn-sm">Удалить</button>
+                                                </form>
+                                            </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
             <!-- Course Details Section -->
-                    <div class="tab-pane fade" id="v-pills-edit-course" role="tabpanel" aria-labelledby="v-pills-edit-course-tab">
+                    <div class="tab-pane" id="tab-edit-course">
+                        <!-- Внутренние вкладки для Деталей курса -->
+                        <ul class="nav nav-tabs mb-3" id="course-details-subtabs" role="tablist" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; padding:8px; display:inline-flex; gap:8px; border-bottom: none;">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="subtab-course-list-tab" data-toggle="tab" href="#course-list-pane" role="tab" aria-controls="course-list-pane" aria-selected="true">
+                                    <i class="fas fa-list"></i> Курсы
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="subtab-modules-tab" data-toggle="tab" href="#modules-pane" role="tab" aria-controls="modules-pane" aria-selected="false">
+                                    <i class="fas fa-boxes"></i> Модули
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="subtab-lessons-tab" data-toggle="tab" href="#lessons-pane" role="tab" aria-controls="lessons-pane" aria-selected="false">
+                                    <i class="fas fa-chalkboard-teacher"></i> Уроки
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="course-details-subtabs-content">
+                            <!-- Подвкладка: Курсы (текущий контент) -->
+                            <div class="tab-pane fade show active" id="course-list-pane" role="tabpanel" aria-labelledby="subtab-course-list-tab">
                         <h2>Список курсов</h2>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
@@ -637,7 +1416,14 @@
                                 <tbody>
                                     {% for course in courses %}
                             <tr data-course-id="{{ course.id }}" data-course-title="{{ course.title }}">
-                                        <td>{{ course.title }}</td>
+                                        <td>
+                                            {{ course.title }}
+                                            <div class="mt-2">
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-star"></i> Средняя оценка: {{ course.get_average_rating|default:"Нет отзывов" }}
+                                                </span>
+                                            </div>
+                                        </td>
                                 <td class="course-modules-col">
                                             {% for module in course.modules.all %}
                                             <div class="module-section" style="margin-bottom: 20px;">
@@ -657,6 +1443,27 @@
                                                         <li class="text-muted">Нет уроков в этом модуле.</li>
                                                         {% endfor %}
                                                     </ul>
+                                                    
+                                                    <!-- Квизы модуля -->
+                                                    <h5 style="margin-top: 20px; color: #764ba2;">
+                                                        <i class="fas fa-question-circle"></i> Квизы модуля:
+                                                    </h5>
+                                                    <ul>
+                                                        {% for quiz in module.quizzes.all %}
+                                                        <li style="display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px;" id="quiz-li-{{ quiz.id }}-{{ course.id }}-{{ module.id }}">
+                                                            <div style="display: flex; align-items: center;">
+                                                                <i class="fas fa-question-circle" style="color: #764ba2; margin-right: 8px;"></i>
+                                                                <a href="{% url 'quiz_detail' quiz.id %}" class="quiz-edit-link" style="color: #764ba2; font-weight: 500;">{{ quiz.title }}</a>
+                                                </div>
+                                                            <div style="display: flex; gap: 5px;">
+                                                                <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm detach-quiz-btn" data-quiz-id="{{ quiz.id }}" data-module-id="{{ module.id }}" data-course-id="{{ course.id }}">Открепить</button>
+                                                            </div>
+                                                        </li>
+                                                        {% empty %}
+                                                        <li class="text-muted">Нет квизов в этом модуле.</li>
+                                                        {% endfor %}
+                                                    </ul>
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -666,6 +1473,138 @@
                                         <button class="btn btn-danger mb-2 delete-course-btn" data-course-id="{{ course.id }}" data-toggle="modal" data-target="#confirmDeleteModal">Удалить курс</button>
                                         <a href="{% url 'add_module_to_course' course.id %}" class="btn btn-primary mb-2">Привязать модуль</a>
                                         <a href="#" class="btn btn-info copy-course-code-btn" data-course-code="{{ course.course_code }}">Показать код курса</a>
+                                        <button class="btn btn-secondary mb-2 show-feedback-btn" data-course-id="{{ course.id }}">Отзывы</button>
+                                    </div>
+                                    <!-- Модальное окно с отзывами -->
+                                    <div class="modal fade" id="feedbackModal-{{ course.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                                                <div class="modal-header" style="background: linear-gradient(135deg, #22347a, #1a2a61); color: white; border-radius: 15px 15px 0 0; border: none; padding: 20px 25px;">
+                                                    <h5 class="modal-title" style="font-weight: 600; font-size: 1.3rem; margin: 0;">
+                                                        <i class="fas fa-star" style="color: #ffd700; margin-right: 10px;"></i>
+                                                        Отзывы о курсе "{{ course.title }}"
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8; font-size: 1.5rem;">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
+                                                    {% if course.feedbacks.all %}
+                                                        <!-- Статистика -->
+                                                        <div class="feedback-summary mb-4" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+                                                            <h6 style="color: #22347a; font-weight: 600; margin-bottom: 15px; font-size: 1.1rem;">
+                                                                <i class="fas fa-chart-bar" style="margin-right: 8px; color: #4CAF50;"></i>
+                                                                Общая статистика
+                                                            </h6>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 8px; margin-bottom: 10px;">
+                                                                        <div style="font-size: 2rem; font-weight: bold; color: #1976d2;">{{ course.feedbacks.count }}</div>
+                                                                        <div style="color: #1976d2; font-weight: 500;">Всего отзывов</div>
+                                                        </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-radius: 8px;">
+                                                                        <div style="font-size: 2rem; font-weight: bold; color: #f57c00;">{{ course.get_average_rating }}</div>
+                                                                        <div style="color: #f57c00; font-weight: 500;">Средняя оценка</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Список отзывов -->
+                                                        <div class="feedback-list">
+                                                            {% for feedback in course.feedbacks.all %}
+                                                                <div class="feedback-card" style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; transition: transform 0.2s ease;">
+                                                                    <!-- Заголовок отзыва -->
+                                                                    <div class="d-flex justify-content-between align-items-center mb-3" style="border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
+                                                                        <div class="student-info">
+                                                                            <h6 style="margin: 0; color: #22347a; font-weight: 600; font-size: 1.1rem;">
+                                                                                <i class="fas fa-user-circle" style="margin-right: 8px; color: #4CAF50;"></i>
+                                                                                {{ feedback.student.user.username }}
+                                                                            </h6>
+                                                                            <small style="color: #666; font-size: 0.9rem;">
+                                                                                <i class="fas fa-calendar-alt" style="margin-right: 5px;"></i>
+                                                                                {{ feedback.created_at|date:"d.m.Y H:i" }}
+                                                                            </small>
+                                                                        </div>
+                                                                        <div class="rating-display">
+                                                                            <div class="stars" style="font-size: 1.2rem;">
+                                                                                {% for i in feedback.get_stars_range %}
+                                                                                    <i class="fas fa-star" style="color: #ffd700; margin-right: 2px;"></i>
+                                                                                {% endfor %}
+                                                                            </div>
+                                                                            <small style="color: #666; display: block; text-align: center; margin-top: 5px;">
+                                                                                {{ feedback.rating_text_only }}
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <!-- Содержимое отзыва -->
+                                                                    <div class="feedback-content">
+                                                                        {% if feedback.comment %}
+                                                                            <div class="feedback-section mb-3">
+                                                                                <h6 style="color: #22347a; font-weight: 600; margin-bottom: 8px;">
+                                                                                    <i class="fas fa-comment" style="margin-right: 8px; color: #2196F3;"></i>
+                                                                                    Комментарий
+                                                                                </h6>
+                                                                                <p style="margin: 0; color: #333; line-height: 1.6; background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 3px solid #2196F3;">
+                                                                                    "{{ feedback.comment }}"
+                                                                                </p>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                        
+                                                                        {% if feedback.what_liked %}
+                                                                            <div class="feedback-section mb-3">
+                                                                                <h6 style="color: #22347a; font-weight: 600; margin-bottom: 8px;">
+                                                                                    <i class="fas fa-thumbs-up" style="margin-right: 8px; color: #4CAF50;"></i>
+                                                                                    Что понравилось
+                                                                                </h6>
+                                                                                <p style="margin: 0; color: #333; line-height: 1.6; background: #f1f8e9; padding: 12px; border-radius: 8px; border-left: 3px solid #4CAF50;">
+                                                                                    {{ feedback.what_liked }}
+                                                                                </p>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                        
+                                                                        {% if feedback.what_to_improve %}
+                                                                            <div class="feedback-section mb-3">
+                                                                                <h6 style="color: #22347a; font-weight: 600; margin-bottom: 8px;">
+                                                                                    <i class="fas fa-lightbulb" style="margin-right: 8px; color: #FF9800;"></i>
+                                                                                    Что можно улучшить
+                                                                                </h6>
+                                                                                <p style="margin: 0; color: #333; line-height: 1.6; background: #fff3e0; padding: 12px; border-radius: 8px; border-left: 3px solid #FF9800;">
+                                                                                    {{ feedback.what_to_improve }}
+                                                                                </p>
+                                                                            </div>
+                                                                        {% endif %}
+                                                                        
+                                                                        <!-- Рекомендация -->
+                                                                        <div class="recommendation-section" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                                                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                                                <span style="color: #666; font-size: 0.9rem;">
+                                                                                    <i class="fas fa-share-alt" style="margin-right: 5px;"></i>
+                                                                                    Рекомендует курс другим
+                                                                                </span>
+                                                                                <span style="color: {% if feedback.would_recommend %}#4CAF50{% else %}#f44336{% endif %}; font-weight: 600;">
+                                                                                    <i class="fas fa-{% if feedback.would_recommend %}check-circle{% else %}times-circle{% endif %}"></i>
+                                                                                    {% if feedback.would_recommend %}Да{% else %}Нет{% endif %}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        <div style="text-align: center; padding: 40px 20px; color: #666;">
+                                                            <i class="fas fa-comments" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+                                                            <h5 style="color: #999; margin-bottom: 10px;">Пока нет отзывов</h5>
+                                                            <p style="color: #999; margin: 0;">Студенты еще не оставили отзывы об этом курсе.</p>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                         </td>
                                     </tr>
@@ -677,11 +1616,141 @@
                             <a href="{% url 'create_lesson' %}" class="btn btn-primary">Создать новый урок</a>
                             <a href="{% url 'create_module' %}" class="btn btn-primary">Создать новый модуль</a>
                             <a href="{% url 'create_course' %}" class="btn btn-primary">Создать новый курс</a>
+                                </div>
+                            </div>
+                            <!-- Подвкладка: Уроки -->
+                            <div class="tab-pane fade" id="lessons-pane" role="tabpanel" aria-labelledby="subtab-lessons-tab">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h3 class="mb-0"><i class="fas fa-chalkboard"></i> Все уроки</h3>
+                                        <a href="{% url 'create_lesson' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Создать урок</a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Название</th>
+                                                        <th>Видео</th>
+                                                        <th>PDF</th>
+                                                        <th>Конвертация слайдов</th>
+                                                        <th>Привязка к модулю</th>
+                                                        <th class="course-actions-col">Действия</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for l in lessons %}
+                                                    <tr>
+                                                        <td>{{ l.title }}</td>
+                                                        <td>{% if l.video %}<span class="badge badge-success">Файл</span>{% elif l.video_url %}<a href="{{ l.video_url }}" target="_blank" class="badge badge-info">URL</a>{% else %}<span class="badge badge-light">—</span>{% endif %}</td>
+                                                        <td>{% if l.pdf %}<span class="badge badge-danger">PDF</span>{% else %}<span class="badge badge-light">—</span>{% endif %}</td>
+                                                        <td>
+                                                            {% if l.convert_pdf_to_slides %}
+                                                                <span class="badge badge-primary">Вкл</span>
+                                                            {% else %}
+                                                                <span class="badge badge-secondary">Выкл</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td style="min-width:260px;">
+                                                            <div class="input-group input-group-sm">
+                                                                <select class="form-control attach-lesson-module-select" id="attach-lesson-module-{{ l.id }}">
+                                                                    <option value="">-- Выберите модуль --</option>
+                                                                    {% for m in modules %}
+                                                                        <option value="{{ m.id }}">{{ m.title }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <div class="input-group-append">
+                                                                    <button class="btn btn-outline-primary attach-lesson-to-module-btn" data-lesson-id="{{ l.id }}" type="button">Привязать</button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="course-actions-col">
+                                                            <div class="d-flex flex-column">
+                                                                <a href="{% url 'edit_lesson' l.id %}" class="btn btn-info btn-sm mb-1"><i class="fas fa-pen"></i> Редактировать</a>
+                                                                <form method="post" action="{% url 'delete_lesson' l.id %}" onsubmit="return confirm('Удалить урок?')">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Удалить</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    {% empty %}
+                                                    <tr><td colspan="6" class="text-center text-muted">Уроков пока нет</td></tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Подвкладка: Модули -->
+                            <div class="tab-pane fade" id="modules-pane" role="tabpanel" aria-labelledby="subtab-modules-tab">
+                                <h2>Модули</h2>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Название модуля</th>
+                                                <th>Уроки</th>
+                                                <th>Квизы</th>
+                                                <th>Курсы</th>
+                                                <th style="width:280px;">Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for module in modules %}
+                                            <tr id="module-row-{{ module.id }}">
+                                                <td>
+                                                    <strong>{{ module.title }}</strong>
+                                                    {% if module.description %}
+                                                        <div class="text-muted" style="font-size:0.9rem;">{{ module.description|truncatewords:14 }}</div>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ module.lessons.count }}</td>
+                                                <td>{{ module.quizzes.count }}</td>
+                                                <td>
+                                                    {% with module_courses=module.course_set.all %}
+                                                        {% if module_courses %}
+                                                            {% for c in module_courses %}
+                                                                <span class="badge badge-light" style="border:1px solid #e0e0e0;">{{ c.title }}</span>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <span class="text-muted">Не привязан</span>
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center" style="gap:6px;flex-wrap:wrap;">
+                                                        <a href="{% url 'module_details' module.id %}" class="btn btn-outline-info btn-sm">Инфо</a>
+                                                        <a href="{% url 'edit_module' module.id %}" class="btn btn-outline-primary btn-sm">Редактировать</a>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm delete-module-btn" data-module-id="{{ module.id }}">Удалить</button>
+                                                        <div class="d-flex" style="gap:6px;">
+                                                            <select class="form-control" id="attach-course-select-{{ module.id }}" style="min-width:160px;">
+                                                                <option value="">Выберите курс</option>
+                                                                {% for c in courses %}
+                                                                    <option value="{{ c.id }}">{{ c.title }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            <button type="button" class="btn btn-success btn-sm attach-module-btn" data-module-id="{{ module.id }}">Привязать</button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Модулей пока нет</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Создание квиза -->
-                    <div class="tab-pane fade" id="v-pills-create-quiz" role="tabpanel" aria-labelledby="v-pills-create-quiz-tab">
+                    <div class="tab-pane" id="tab-create-quiz">
                         <h2>Список квизов</h2>
                         <table class="table table-bordered">
                             <thead>
@@ -708,12 +1777,15 @@
                     </div>
 
                     <!-- ====== Вкладка Запросы ====== -->
-                    <div class="tab-pane fade" id="v-pills-requests" role="tabpanel" aria-labelledby="v-pills-requests-tab">
+                    <div class="tab-pane" id="tab-requests">
                         <h2>Запросы</h2>
                         <div class="btn-group mb-4" role="group" aria-label="Типы запросов">
                             <button type="button" class="btn btn-primary" id="profile-edit-btn">Редактирование профиля</button>
                             <button type="button" class="btn btn-primary" id="course-add-btn">Добавление курсов</button>
                             <button type="button" class="btn btn-primary" id="other-request-btn1">Произвольные запросы</button>
+                            <button type="button" class="btn btn-warning" id="history-requests-btn" style="font-weight:700;">
+                                <i class="fas fa-history"></i> История запросов
+                            </button>
                         </div>
                         <div id="requests-profile-edit" class="requests-section">
                             {% if edit_requests %}
@@ -753,7 +1825,7 @@
                                 <thead>
                                     <tr>
                                         <th>Студент</th>
-                                        <th>Курс</th>
+                                        <th>Запрошенный курс</th>
                                         <th>Комментарий</th>
                                         <th>Статус</th>
                                         <th>Действие</th>
@@ -763,7 +1835,7 @@
                                     {% for req in course_add_requests %}
                                     <tr>
                                         <td>{{ req.student.user.username }}</td>
-                                        <td>{{ req.course.title }}</td>
+                                        <td>{{ req.course_name }}</td>
                                         <td>{{ req.comment|default_if_none:'' }}</td>
                                         <td>{{ req.get_status_display }}</td>
                                         <td>
@@ -771,6 +1843,12 @@
                                                 {% csrf_token %}
                                                 <input type='hidden' name='request_id' value='{{ req.id }}'>
                                                 <input type='text' name='admin_response' placeholder='Комментарий (необязательно)' class='form-control mb-2' />
+                                                <select name='assigned_course_id' class='form-control mb-2' required>
+                                                    <option value=''>Выберите курс для назначения</option>
+                                                    {% for course in courses %}
+                                                        <option value='{{ course.id }}'>{{ course.title }}</option>
+                                                    {% endfor %}
+                                                </select>
                                                 <button type='submit' name='approve_course_add' class='btn btn-success btn-sm'>Подтвердить</button>
                                                 <button type='submit' name='reject_course_add' class='btn btn-danger btn-sm'>Отклонить</button>
                                             </form>
@@ -819,9 +1897,48 @@
                             <div class="alert alert-info">Нет произвольных запросов.</div>
                             {% endif %}
                         </div>
+
+                        <!-- История запросов -->
+                        <div id="requests-history" class="requests-section" style="display:none;">
+                            <div class="card" style="border-radius:12px;">
+                                <div class="card-body">
+                                    <div class="form-inline" style="gap:10px;">
+                                        <label for="history-student" class="mr-2">Фильтр по студенту:</label>
+                                        <select id="history-student" class="form-control" style="min-width:220px;">
+                                            <option value="">Все студенты</option>
+                                            {% for s in students %}
+                                                <option value="{{ s.id }}">{{ s.user.get_full_name|default:s.user.username }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button id="history-refresh" class="btn btn-primary">Обновить</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered table-striped" id="requests-history-table">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Тип</th>
+                                            <th>Студент</th>
+                                            <th>Курс</th>
+                                            <th>Сообщение</th>
+                                            <th>Статус</th>
+                                            <th>Создан</th>
+                                            <th>Рассмотрен</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="7" class="text-center text-muted">Загрузите данные</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
@@ -963,8 +2080,11 @@
                     </div>
                 </form>
             </div>
+        <!-- Detailed Student Info Tab Content -->
+            <!-- Удаляем вкладку Детали Студента -->
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -975,6 +2095,25 @@
             $('#confirmDeleteStudentModal').modal('show');
         }
 
+        // Функция предварительного просмотра изображений
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const previewImg = document.getElementById('previewImg');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
         window.onload = function() {
             console.log("Admin Page JS loaded (via window.onload).");
 
@@ -983,31 +2122,37 @@
                 $(this).tab();
             });
 
-            // Handle click event for main tabs
-            $('#v-pills-tab a').on('click', function (e) {
-                console.log("Main tab clicked: " + $(this).attr('href'));
-                e.preventDefault(); // Prevent default anchor click behavior
-                $(this).tab('show'); // Show the clicked tab
-            });
 
-            // Handle tab changes
-            $('#v-pills-tab a').on('shown.bs.tab', function (e) {
-                const target = $(e.target).attr('href');
-                console.log("Tab shown: " + target);
-                if (history.pushState) {
-                    history.pushState(null, null, target);
-                } else {
-                    location.hash = target;
-                }
-            });
 
             // Set default active tab based on URL hash or default to students tab
             var hash = window.location.hash;
+            console.log('Initializing tabs. Hash:', hash);
+            console.log('Bootstrap tab function available:', typeof $.fn.tab);
+            
             if (hash) {
+                console.log('Showing tab from hash:', hash);
                 $('a[data-toggle="pill"][href="' + hash + '"]').tab('show');
             } else {
+                console.log('Showing default students tab');
                 $('#v-pills-students-tab').tab('show');
             }
+            
+            // Debug: проверим все вкладки
+            $('a[data-toggle="pill"]').each(function() {
+                console.log('Found tab:', $(this).attr('href'));
+            });
+            
+            // Добавляем обработчик кликов для debug
+            $('a[data-toggle="pill"]').on('click', function(e) {
+                console.log('Tab clicked:', $(this).attr('href'));
+            });
+            
+            // Добавляем обработчик показа вкладок
+            $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+                console.log('Tab shown:', e.target.getAttribute('href'));
+            });
+
+
 
         // Sidebar Toggle
         document.getElementById('sidebarToggle').addEventListener('click', function() {
@@ -1015,26 +2160,41 @@
         });
 
             // Section Switching (для внутренних секций вкладки Студенты)
-        document.querySelectorAll('.btn-group .btn').forEach(button => {
-            button.addEventListener('click', function() {
-                    // Remove active class from all buttons in this group
-                document.querySelectorAll('.btn-group .btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                // Add active class to clicked button
-                this.classList.add('active');
-                
-                    // Hide all sections within the current tab (e.g., within #v-pills-students)
-                document.querySelectorAll('.section-content').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Show selected section
-                const sectionId = this.getAttribute('data-section');
-                document.getElementById(sectionId).classList.add('active');
-            });
+        $('.btn-group .btn').on('click', function(e) {
+            e.preventDefault();
+            const $this = $(this);
+            const sectionId = $this.data('section');
+            
+            console.log('Button clicked:', sectionId); // Отладочная информация
+
+            // Remove active class from all buttons and add to clicked
+            $('.btn-group .btn').removeClass('active');
+            $this.addClass('active');
+
+            // Hide all sections and show selected
+            $('.section-content').removeClass('active');
+            const targetSection = $('#' + sectionId);
+            console.log('Target section:', targetSection.length); // Отладочная информация
+            console.log('Target section HTML:', targetSection.html()); // Отладочная информация
+            targetSection.addClass('active');
+
+            // Store active section in sessionStorage
+            sessionStorage.setItem('activeSection', sectionId);
         });
+
+        // Restore active section from sessionStorage
+        const activeSection = sessionStorage.getItem('activeSection');
+        console.log('Available sections:', $('.section-content').map(function() { return this.id; }).get()); // Отладочная информация
+        if (activeSection) {
+            $('.btn-group .btn[data-section="' + activeSection + '"]').click();
+        } else {
+            // Default to first button if no stored section
+            $('.btn-group .btn:first-child').click();
+        }
+
+        // Проверяем наличие элементов подсекций при загрузке
+        console.log('Available subsections:', $('.subsection-content').map(function() { return this.id; }).get()); // Отладочная информация
+        console.log('Subsection buttons:', $('[data-subsection^="achievements-"]').length); // Отладочная информация
 
             // Show the first section by default in the Students tab
             // Ensure this is called after the internal section click handler is defined
@@ -1081,6 +2241,20 @@
             });
         });
 
+        // Функция предварительного просмотра изображений
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#' + previewId).show();
+                    $('#previewImg').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        
+
             // Удаление студента
             $('.delete-student-btn').click(function() {
                 const studentId = $(this).data('student-id');
@@ -1110,10 +2284,27 @@
                 
                 if (lessonsList.is(':hidden')) {
                     lessonsList.slideDown(300);
-                        } else {
+                } else {
                     lessonsList.slideUp(300);
                 }
             });
+
+            // Обработчик для кнопки показа отзывов
+            $('.show-feedback-btn').click(function() {
+                var courseId = $(this).data('course-id');
+                $('#feedbackModal-' + courseId).modal('show');
+            });
+
+            // Обработчик для кнопки показа деталей студента
+            // Удаляем js-логику для show-student-details-btn
+            // $('.show-student-details-btn').click(function() {
+            //     var studentId = $(this).data('student-id');
+            //     // Activate the new student details tab
+            //     $('a[href="#v-pills-student-details"]').tab('show');
+            //     // Optionally, store studentId for the new tab to use
+            //     // For example, you could update a hidden input field or a data attribute on the tab content
+            //     $('#v-pills-student-details').data('student-id', studentId);
+            // });
 
             // Добавление урока
             $('.add-lesson-btn').click(function(e) {
@@ -1184,6 +2375,35 @@
             }
     });
 
+            // Открепление квиза
+        $(document).on('click', '.detach-quiz-btn', function () {
+                const quizId = $(this).data('quiz-id');
+                const moduleId = $(this).data('module-id');
+                const courseId = $(this).data('course-id');
+                
+            if (confirm('Вы уверены, что хотите открепить этот квиз?')) {
+                $.ajax({
+                        url: '/detach-quiz/' + quizId + '/from-module/' + moduleId + '/',
+                    type: 'POST',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                                $('#quiz-li-' + quizId + '-' + courseId + '-' + moduleId).fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                        } else {
+                            alert('Не удалось открепить квиз.');
+                        }
+                    },
+                    error: function() {
+                        alert('Ошибка при откреплении квиза.');
+                    }
+                });
+            }
+    });
+
         // Переключение между секциями запросов
             $('#profile-edit-btn').click(function() {
             $('.requests-section').hide();
@@ -1204,6 +2424,7 @@
         $('#requests-profile-edit').show();
         $('#requests-course-add').hide();
         $('#requests-other').hide();
+        $('#requests-history').hide();
 
         // Клик по названию курса — открывает вкладку "Детали курса" и мягко подсвечивает только строку курса
         $(document).on('click', '.course-link', function(e) {
@@ -1220,8 +2441,129 @@
                 }, 3000);
             }, 300);
         });
-        };
+
+        // Переключение на Историю запросов
+        $('#history-requests-btn').click(function(){
+            $('.requests-section').hide();
+            $('#requests-history').show();
+            loadRequestsHistory();
+        });
+
+        // Загрузка истории запросов
+        function loadRequestsHistory(){
+            const studentId = $('#history-student').val();
+            const params = studentId ? ('?student_id=' + encodeURIComponent(studentId)) : '';
+            $('#requests-history-table tbody').html('<tr><td colspan="7" class="text-center text-muted">Загрузка...</td></tr>');
+            fetch('/api/requests/history/' + params)
+                .then(resp => resp.json())
+                .then(data => {
+                    const tbody = $('#requests-history-table tbody');
+                    tbody.empty();
+                    if (!data.items || !data.items.length){
+                        tbody.append('<tr><td colspan="7" class="text-center text-muted">Нет данных</td></tr>');
+                        return;
+                    }
+                    data.items.forEach(item => {
+                        const typeTitle = item.type === 'profile_edit' ? 'Редактирование профиля' : (item.type === 'course_add' ? 'Добавление курса' : 'Произвольный запрос');
+                        const row = `<tr>
+                            <td>${typeTitle}</td>
+                            <td>${item.student || ''}</td>
+                            <td>${item.course || ''}</td>
+                            <td>${item.message || ''}</td>
+                            <td>${item.status || ''}</td>
+                            <td>${item.created_at || ''}</td>
+                            <td>${item.reviewed_at || ''}</td>
+                        </tr>`;
+                        tbody.append(row);
+                    });
+                })
+                .catch(() => {
+                    $('#requests-history-table tbody').html('<tr><td colspan="7" class="text-center text-danger">Ошибка загрузки</td></tr>');
+                });
+        }
+        $('#history-refresh').click(function(){
+            loadRequestsHistory();
+        });
+
+        // Привязка модуля к курсу из подвкладки Модули
+        $(document).on('click', '.attach-module-btn', function(){
+            const moduleId = $(this).data('module-id');
+            const courseId = $('#attach-course-select-' + moduleId).val();
+            if (!courseId){
+                alert('Выберите курс');
+                return;
+            }
+            $.post('/attach-module-to-course/', {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'module_id': moduleId,
+                'course_id': courseId
+            }).done(function(res){
+                if (res.success){
+                    alert('Модуль привязан к курсу');
+                } else {
+                    alert(res.error || 'Ошибка привязки');
+                }
+            }).fail(function(){
+                alert('Ошибка привязки');
+            });
+        });
+
+        // Удаление модуля
+        $(document).on('click', '.delete-module-btn', function(){
+            const moduleId = $(this).data('module-id');
+            if (!confirm('Удалить этот модуль? Действие необратимо.')) return;
+            $.ajax({
+                url: '/delete/module/' + moduleId + '/',
+                type: 'POST',
+                data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                success: function(){
+                    $('#module-row-' + moduleId).fadeOut(300, function(){ $(this).remove(); });
+                },
+                error: function(){
+                    alert('Не удалось удалить модуль');
+                }
+            });
+        });
+
+        // Обработчик переключения секций в вкладке достижений
+        $('[data-section^="achievements-"]').on('click', function(e) {
+            e.preventDefault();
+            const $this = $(this);
+            const sectionId = $this.data('section');
+            
+            // Убираем активный класс со всех кнопок и добавляем к текущей
+            $('[data-section^="achievements-"]').removeClass('btn-primary').addClass('btn-outline-primary');
+            $this.removeClass('btn-outline-primary').addClass('btn-primary');
+            
+            // Скрываем все секции и показываем выбранную
+            $('.section-content').removeClass('active');
+            $('#' + sectionId).addClass('active');
+        });
+
+        // Обработчик переключения подсекций в разделе достижений студентов
+        $(document).on('click', '[data-subsection^="achievements-"]', function(e) {
+            e.preventDefault();
+            const $this = $(this);
+            const subsectionId = $this.data('subsection');
+            
+            console.log('Subsection button clicked:', subsectionId); // Отладочная информация
+            console.log('Button element:', $this); // Отладочная информация
+            
+            // Убираем активный класс со всех кнопок и добавляем к текущей
+            $('[data-subsection^="achievements-"]').removeClass('btn-primary').addClass('btn-outline-primary');
+            $this.removeClass('btn-outline-primary').addClass('btn-primary');
+            
+            // Скрываем все подсекции и показываем выбранную
+            $('.subsection-content').removeClass('active');
+            const targetSubsection = $('#' + subsectionId);
+            console.log('Target subsection:', targetSubsection.length); // Отладочная информация
+            console.log('Target subsection element:', targetSubsection); // Отладочная информация
+            targetSubsection.addClass('active');
+        });
+    });
+
     </script>
+
 </body>
 </html>
 

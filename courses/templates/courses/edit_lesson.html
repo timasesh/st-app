@@ -1,0 +1,438 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование урока - {{ lesson.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .edit-lesson-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .edit-lesson-header {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .edit-lesson-header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Raleway', sans-serif;
+        }
+        
+        .edit-lesson-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .edit-lesson-body {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            background: white;
+        }
+        
+        .form-control-file {
+            border: 2px dashed #4A90E2;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-file:hover {
+            border-color: #357ABD;
+            background: #f0f4ff;
+        }
+        
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin-top: 0;
+        }
+        
+        .form-check-label {
+            font-weight: 500;
+            color: #555;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+        
+        .current-files {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .current-files h5 {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #4A90E2;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .help-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-danger {
+            background: #ffe6e6;
+            color: #d63384;
+        }
+        
+        .alert-success {
+            background: #e6ffe6;
+            color: #198754;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #4A90E2;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #357ABD;
+            text-decoration: none;
+        }
+        
+        .back-link i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .edit-lesson-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .edit-lesson-header {
+                padding: 20px;
+            }
+            
+            .edit-lesson-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .edit-lesson-body {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="edit-lesson-container">
+            <div class="edit-lesson-header">
+                <h1><i class="fas fa-edit"></i> Редактирование урока</h1>
+                <p>{{ lesson.title }}</p>
+            </div>
+            
+            <div class="edit-lesson-body">
+                <a href="{% url 'admin_lessons_page' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Вернуться в админку
+                </a>
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Ошибка!</strong> Пожалуйста, исправьте ошибки в форме.
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+                
+                <!-- Текущие файлы -->
+                <div class="current-files">
+                    <h5><i class="fas fa-file-alt"></i> Текущие файлы урока</h5>
+                    
+                    {% if lesson.video %}
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">Видеофайл</div>
+                                <div class="file-size">{{ lesson.video.name|slice:"8:" }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if lesson.video_url %}
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">Ссылка на видео</div>
+                                <div class="file-size">{{ lesson.video_url }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if lesson.pdf %}
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">PDF файл</div>
+                                <div class="file-size">{{ lesson.pdf.name|slice:"5:" }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if not lesson.video and not lesson.video_url and not lesson.pdf %}
+                        <div class="file-item">
+                            <div class="file-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name">Файлы не загружены</div>
+                                <div class="file-size">Добавьте видео или PDF файл</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="fas fa-heading"></i> Название урока
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.help_text %}
+                            <div class="help-text">{{ form.title.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.video.id_for_label }}" class="form-label">
+                            <i class="fas fa-video"></i> Видеофайл
+                        </label>
+                        {{ form.video }}
+                        <div class="help-text">
+                            Загрузите видеофайл (MP4, AVI, MOV, WMV, FLV, WebM). 
+                            Максимальный размер: 100 МБ.
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.video_url.id_for_label }}" class="form-label">
+                            <i class="fas fa-link"></i> Ссылка на видео
+                        </label>
+                        {{ form.video_url }}
+                        <div class="help-text">
+                            Или укажите ссылку на видео (YouTube, Vimeo, Google Drive, Dropbox, OneDrive)
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.pdf.id_for_label }}" class="form-label">
+                            <i class="fas fa-file-pdf"></i> PDF файл
+                        </label>
+                        {{ form.pdf }}
+                        <div class="help-text">
+                            Загрузите PDF или PPTX файл для урока
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ form.convert_pdf_to_slides }}
+                            <label for="{{ form.convert_pdf_to_slides.id_for_label }}" class="form-check-label">
+                                <i class="fas fa-images"></i> Конвертировать PDF в слайды
+                            </label>
+                        </div>
+                        <div class="help-text">
+                            Автоматически конвертировать PDF в слайды для удобного просмотра
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Сохранить изменения
+                        </button>
+                        <a href="{% url 'admin_lessons_page' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Предварительный просмотр файлов
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                        console.log(`Выбран файл: ${file.name} (${fileSize} МБ)`);
+                    }
+                });
+            });
+            
+            // Валидация формы
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const video = document.querySelector('#id_video').files[0];
+                const videoUrl = document.querySelector('#id_video_url').value;
+                const pdf = document.querySelector('#id_pdf').files[0];
+                
+                if (!video && !videoUrl && !pdf) {
+                    e.preventDefault();
+                    alert('Необходимо указать либо видеофайл, либо URL видео, либо PDF файл');
+                    return false;
+                }
+                
+                if (video && videoUrl) {
+                    e.preventDefault();
+                    alert('Нельзя указать одновременно видеофайл и URL видео');
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

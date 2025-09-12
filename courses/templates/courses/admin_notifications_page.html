@@ -1,0 +1,279 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление уведомлениями{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ notifications.count }}</div>
+            <div class="stats-label">Всего уведомлений</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ notifications|dictsort:"created_at"|slice:":1"|length }}</div>
+            <div class="stats-label">Новых сегодня</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ notifications|dictsort:"created_at"|slice:":7"|length }}</div>
+            <div class="stats-label">За неделю</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ notifications|dictsort:"created_at"|slice:":30"|length }}</div>
+            <div class="stats-label">За месяц</div>
+        </div>
+    </div>
+</div>
+
+<!-- Управление уведомлениями -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell mr-2"></i>Управление уведомлениями
+                </h5>
+                <div>
+                    <button class="btn btn-success" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double mr-2"></i>Отметить все как прочитанные
+                    </button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addNotificationModal">
+                        <i class="fas fa-plus mr-2"></i>Создать уведомление
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Тип</th>
+                                <th>Заголовок</th>
+                                <th>Сообщение</th>
+                                <th>Получатель</th>
+                                <th>Статус</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notification in notifications %}
+                            <tr>
+                                <td>{{ notification.id }}</td>
+                                <td>
+                                    {% if notification.type == 'info' %}
+                                        <span class="badge badge-info">Информация</span>
+                                    {% elif notification.type == 'success' %}
+                                        <span class="badge badge-success">Успех</span>
+                                    {% elif notification.type == 'warning' %}
+                                        <span class="badge badge-warning">Предупреждение</span>
+                                    {% elif notification.type == 'error' %}
+                                        <span class="badge badge-danger">Ошибка</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ notification.title }}</td>
+                                <td>{{ notification.message|truncatechars:50 }}</td>
+                                <td>
+                                    {% if notification.recipient %}
+                                        {{ notification.recipient.first_name }} {{ notification.recipient.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">Все пользователи</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if notification.is_read %}
+                                        <span class="badge badge-success">Прочитано</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Новое</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ notification.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewNotification({{ notification.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        {% if not notification.is_read %}
+                                        <button class="btn btn-sm btn-outline-success" onclick="markAsRead({{ notification.id }})">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification({{ notification.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Уведомления не найдены</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно создания уведомления -->
+<div class="modal fade" id="addNotificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать уведомление</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_notifications_page' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Тип уведомления</label>
+                        <select class="form-control" name="type" required>
+                            <option value="info">Информация</option>
+                            <option value="success">Успех</option>
+                            <option value="warning">Предупреждение</option>
+                            <option value="error">Ошибка</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Заголовок</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Сообщение</label>
+                        <textarea class="form-control" name="message" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Получатель</label>
+                        <select class="form-control" name="recipient">
+                            <option value="">Все пользователи</option>
+                            <!-- Здесь можно добавить список пользователей -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" name="add_notification" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно просмотра уведомления -->
+<div class="modal fade" id="viewNotificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Детали уведомления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationContent">
+                <!-- Содержимое будет загружено через AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления уведомления -->
+<div class="modal fade" id="deleteNotificationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить это уведомление? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'admin_notifications_page' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="notification_id" id="delete_notification_id">
+                    <button type="submit" name="delete_notification" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewNotification(notificationId) {
+    // Здесь можно добавить AJAX запрос для получения деталей уведомления
+    $('#notificationContent').html('<p>Загрузка...</p>');
+    $('#viewNotificationModal').modal('show');
+}
+
+function markAsRead(notificationId) {
+    $.ajax({
+        url: '/api/notifications/mark-read/',
+        method: 'POST',
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'notification_id': notificationId
+        },
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert('Ошибка: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Произошла ошибка при обновлении статуса');
+        }
+    });
+}
+
+function markAllAsRead() {
+    if (confirm('Отметить все уведомления как прочитанные?')) {
+        $.ajax({
+            url: '/api/notifications/mark-all-read/',
+            method: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('Произошла ошибка при обновлении статуса');
+            }
+        });
+    }
+}
+
+function deleteNotification(notificationId) {
+    if (confirm('Вы уверены, что хотите удалить это уведомление?')) {
+        $('#delete_notification_id').val(notificationId);
+        $('#deleteNotificationModal').modal('show');
+    }
+}
+</script>
+{% endblock %}

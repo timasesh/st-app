@@ -1,0 +1,655 @@
+{% load static %}
+{% load course_extras %}
+{% load math_filters %}
+{% load course_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашние задания - Study Task</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
+    <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/student_page_mobile.css' %}">
+    <style>
+        /* Принудительное выделение активной вкладки "Домашние задания" */
+        .sidebar-nav-link[href*="student_homework_standalone_page"] {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        .sidebar-nav-link[href*="student_homework_standalone_page"]:hover {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+        
+        /* Дополнительные стили для гарантии */
+        .sidebar-nav-link[href*="student_homework_standalone_page"].active {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        /* Стили для всех состояний */
+        .sidebar-nav-link[href*="student_homework_standalone_page"]:active,
+        .sidebar-nav-link[href*="student_homework_standalone_page"]:focus,
+        .sidebar-nav-link[href*="student_homework_standalone_page"]:visited {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+        
+        /* Стили для домашних заданий */
+        .homework-container {
+            padding: 2rem 0;
+        }
+
+        .homework-hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .homework-hero-content h2 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .homework-hero-content p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .homework-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .homework-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .homework-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin: 0 0 0.5rem;
+        }
+
+        .stat-content p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .all-homework-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .all-homework-section h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .homework-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #666;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .homework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .homework-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .homework-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .homework-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .homework-card-header h4 {
+            margin: 0;
+            color: #333;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .homework-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .homework-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .homework-status.submitted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .homework-status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .homework-card-body p {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .homework-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .homework-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .homework-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .review-status {
+            color: #856404;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .no-homework-container {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .no-homework-card {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .no-homework-icon {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .no-homework-card h4 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .no-homework-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body class="modern-student-body">
+    
+    <!-- Сайдбар -->
+    <div class="student-sidebar" id="studentSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="sidebar-logo">
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}'">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_courses_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_courses_page' %}'">
+                    <i class="fas fa-book"></i>
+                    <span>Мои курсы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_rating_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_rating_page' %}'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Рейтинг</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_levels_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_levels_page' %}'">
+                    <i class="fas fa-medal"></i>
+                    <span>Уровни</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_quizzes_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_quizzes_page' %}'">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Квизы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_homework_standalone_page' %}" class="nav-link sidebar-nav-link active">
+                    <i class="fas fa-book-open"></i>
+                    <span>Домашние задания</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_requests_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_requests_page' %}'">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Запросы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#achievements" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#achievements'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Достижения</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#notifications" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#notifications'">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведомления</span>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="sidebar-notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#wheel" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#wheel'">
+                    <i class="fas fa-dice"></i>
+                    <span>Колесо фортуны</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оверлей для сайдбара -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <header class="modern-student-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+            </div>
+            
+            <!-- Кнопка открытия сайдбара -->
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-actions">
+                <div class="user-dropdown">
+                    <button class="user-dropdown-btn" id="userDropdownBtn">
+                        {% if user.student.avatar %}
+                            <img src="{{ user.student.avatar.url }}" alt="Аватар" class="user-avatar">
+                        {% else %}
+                            <div class="user-avatar-placeholder">
+                                {% if user.first_name %}{{ user.first_name|first }}{% else %}{{ user.username|first|upper }}{% endif %}
+                            </div>
+                        {% endif %}
+                        <span class="user-name">
+                            {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown-content" id="userDropdown">
+                        <a href="{% url 'student_profile' %}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Кнопка "Назад" для мобильной версии -->
+    <button class="mobile-back-btn" id="mobileBackBtn" onclick="window.location.href='{% url 'student_page' %}'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <main class="modern-student-main">
+        <div class="main-container">
+            <!-- Контент домашних заданий -->
+            <div class="homework-container">
+                <div class="homework-hero">
+                    <div class="homework-hero-content">
+                        <h2><i class="fas fa-book-open"></i> Домашние задания</h2>
+                        <p>Управляйте своими учебными заданиями и отслеживайте прогресс</p>
+                    </div>
+                </div>
+
+                <!-- Статистика домашних заданий -->
+                <div class="homework-stats-grid">
+                    <div class="homework-stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ pending_homeworks|length }}</h3>
+                            <p>Ожидают выполнения</p>
+                        </div>
+                    </div>
+                    <div class="homework-stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ submitted_homeworks|length }}</h3>
+                            <p>Отправлены</p>
+                        </div>
+                    </div>
+                    <div class="homework-stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ completed_homeworks|length }}</h3>
+                            <p>Завершены</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Все задания -->
+                <div class="all-homework-section">
+                    <h3><i class="fas fa-list"></i> Все домашние задания</h3>
+                    {% if total_homeworks > 0 %}
+                        <div class="homework-filters">
+                            <button class="filter-btn active" data-filter="all">Все</button>
+                            <button class="filter-btn" data-filter="pending">Ожидают</button>
+                            <button class="filter-btn" data-filter="submitted">Отправлены</button>
+                            <button class="filter-btn" data-filter="completed">Завершены</button>
+                        </div>
+                        
+                        <div class="homework-grid">
+                            {% for homework in pending_homeworks %}
+                                <div class="homework-card" data-status="pending">
+                                    <div class="homework-card-header">
+                                        <h4>{{ homework.title }}</h4>
+                                        <span class="homework-status pending">
+                                            <i class="fas fa-clock"></i> Не выполнено
+                                        </span>
+                                    </div>
+                                    <div class="homework-card-body">
+                                        <p>{{ homework.description|truncatewords:30 }}</p>
+                                        <div class="homework-meta">
+                                            <span><i class="fas fa-user-tie"></i> {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}</span>
+                                            <span><i class="fas fa-calendar"></i> {{ homework.due_date|date:"d.m.Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="homework-card-footer">
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Просмотреть
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            {% for homework in submitted_homeworks %}
+                                <div class="homework-card" data-status="submitted">
+                                    <div class="homework-card-header">
+                                        <h4>{{ homework.title }}</h4>
+                                        <span class="homework-status submitted">
+                                            <i class="fas fa-paper-plane"></i> Отправлено
+                                        </span>
+                                    </div>
+                                    <div class="homework-card-body">
+                                        <p>{{ homework.description|truncatewords:30 }}</p>
+                                        <div class="homework-meta">
+                                            <span><i class="fas fa-user-tie"></i> {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}</span>
+                                            <span><i class="fas fa-calendar"></i> {{ homework.due_date|date:"d.m.Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="homework-card-footer">
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Просмотреть
+                                        </a>
+                                        <span class="review-status">
+                                            <i class="fas fa-hourglass-half"></i> На проверке
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            {% for homework in completed_homeworks %}
+                                <div class="homework-card" data-status="completed">
+                                    <div class="homework-card-header">
+                                        <h4>{{ homework.title }}</h4>
+                                        <span class="homework-status completed">
+                                            <i class="fas fa-check-circle"></i> Завершено
+                                        </span>
+                                    </div>
+                                    <div class="homework-card-body">
+                                        <p>{{ homework.description|truncatewords:30 }}</p>
+                                        <div class="homework-meta">
+                                            <span><i class="fas fa-user-tie"></i> {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}</span>
+                                            <span><i class="fas fa-calendar"></i> {{ homework.due_date|date:"d.m.Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="homework-card-footer">
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Просмотреть
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-homework-container">
+                            <div class="no-homework-card">
+                                <div class="no-homework-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <h4>Нет домашних заданий</h4>
+                                <p>У вас пока нет назначенных домашних заданий. Они появятся здесь, когда преподаватель создаст для вас задание.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/student_page_mobile.js' %}"></script>
+    
+    <!-- CSRF Token -->
+    {% csrf_token %}
+    
+    <script>
+        // Dropdown функциональность
+        const userDropdownBtn = document.getElementById('userDropdownBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userDropdownBtn && userDropdown) {
+            userDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+        }
+        
+        // Закрытие dropdown'ов при клике вне их
+        document.addEventListener('click', function(e) {
+            if (!userDropdownBtn?.contains(e.target) && !userDropdown?.contains(e.target)) {
+                userDropdown?.classList.remove('show');
+            }
+        });
+        
+        // Сайдбар функциональность
+        const sidebar = document.getElementById('studentSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            });
+        }
+        
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Фильтрация домашних заданий
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const homeworkCards = document.querySelectorAll('.homework-card');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Убираем активный класс у всех кнопок
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Добавляем активный класс к нажатой кнопке
+                    this.classList.add('active');
+                    
+                    // Показываем/скрываем карточки
+                    homeworkCards.forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-status') === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Принудительно устанавливаем активное состояние для вкладки "Домашние задания"
+            const homeworkLink = document.querySelector('.sidebar-nav-link[href*="student_homework_standalone_page"]');
+            if (homeworkLink) {
+                // Убираем активный класс у всех ссылок
+                document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                // Добавляем активный класс к вкладке "Домашние задания"
+                homeworkLink.classList.add('active');
+            }
+            
+            // Отключаем стандартную инициализацию вкладок из student_page.js
+            // Переопределяем функцию switchTab, чтобы она не мешала
+            if (window.switchTab) {
+                const originalSwitchTab = window.switchTab;
+                window.switchTab = function(tabName) {
+                    // Если пытаются переключить на вкладку, которая не существует на этой странице,
+                    // просто игнорируем это
+                    if (tabName === 'home' || tabName === 'courses' || tabName === 'rating' || tabName === 'levels' || tabName === 'quizzes' || tabName === 'homework') {
+                        return;
+                    }
+                    // Для остальных вкладок используем оригинальную функцию
+                    return originalSwitchTab.call(this, tabName);
+                };
+            }
+            
+            // Постоянно поддерживаем активное состояние вкладки "Домашние задания"
+            setInterval(function() {
+                const homeworkLink = document.querySelector('.sidebar-nav-link[href*="student_homework_standalone_page"]');
+                if (homeworkLink && !homeworkLink.classList.contains('active')) {
+                    // Убираем активный класс у всех ссылок
+                    document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    // Добавляем активный класс к вкладке "Домашние задания"
+                    homeworkLink.classList.add('active');
+                }
+            }, 100); // Проверяем каждые 100мс
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+{% extends 'courses/student_base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Стили для звукового сопровождения квизов */
+.sound-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.sound-toggle-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.sound-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.sound-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.sound-toggle-btn i {
+    transition: all 0.3s ease;
+}
+
+/* Анимация для кнопки звука */
+@keyframes soundPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.sound-toggle-btn.playing {
+    animation: soundPulse 0.3s ease;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .sound-controls {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .sound-toggle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Эффект при воспроизведении звука */
+.answer-option.playing {
+    animation: answerSelect 0.2s ease;
+}
+
+@keyframes answerSelect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Стили для кнопки завершения квиза */
+.submit-btn.playing {
+    animation: submitPulse 0.5s ease;
+}
+
+@keyframes submitPulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.05); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h2>{{ quiz.title }}</h2>
+        <div class="quiz-info">
+            <span class="questions-count">
+                <i class="fas fa-question-circle"></i>
+                {{ questions_with_answers|length }} вопросов
+            </span>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'student_submit_quiz' quiz.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="quiz_attempt_id" value="{{ quiz_attempt.id }}">
+        
+        <div class="questions-container">
+            {% for item in questions_with_answers %}
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="question-number">Вопрос {{ forloop.counter }}</span>
+                </div>
+                <div class="question-text">
+                    {{ item.question.text }}
+                </div>
+                <div class="answers-container">
+                    {% for answer in item.answers %}
+                    <label class="answer-option">
+                        <input type="radio" name="question_{{ item.question.id }}" value="{{ answer.id }}" required>
+                        <span class="answer-text">{{ answer.text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="quiz-actions">
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-check"></i>
+                Завершить квиз
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.quiz-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.quiz-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.quiz-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.questions-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.questions-container {
+    margin-bottom: 3rem;
+}
+
+.question-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.question-header {
+    margin-bottom: 1rem;
+}
+
+.question-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.answers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.answer-option {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.answer-option:hover {
+    border-color: #667eea;
+    background: #f0f2ff;
+    transform: translateY(-2px);
+}
+
+.answer-option input[type="radio"] {
+    margin-right: 1rem;
+    transform: scale(1.2);
+}
+
+.answer-option input[type="radio"]:checked + .answer-text {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.answer-text {
+    font-size: 1.1rem;
+    color: #333;
+    flex: 1;
+}
+
+.quiz-actions {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .quiz-container {
+        padding: 1rem;
+    }
+    
+    .quiz-header h2 {
+        font-size: 2rem;
+    }
+    
+    .question-card {
+        padding: 1.5rem;
+    }
+    
+    .question-text {
+        font-size: 1.1rem;
+    }
+    
+    .answer-text {
+        font-size: 1rem;
+    }
+}
+</style>
+
+<!-- Звуковое сопровождение -->
+<div class="sound-controls">
+    <button id="toggleSound" class="sound-toggle-btn" title="Включить/выключить звуки">
+        <i class="fas fa-volume-up" id="soundIcon"></i>
+    </button>
+</div>
+
+<script>
+// Звуковое сопровождение для квизов
+class QuizSounds {
+    constructor() {
+        this.audioContext = null;
+        this.sounds = {};
+        this.isEnabled = true;
+        this.volume = 0.3;
+        this.init();
+    }
+
+    init() {
+        try {
+            // Создаем AudioContext для генерации звуков
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.createSounds();
+        } catch (error) {
+            console.log('AudioContext не поддерживается, звуки отключены');
+            this.isEnabled = false;
+        }
+    }
+
+    createSounds() {
+        // Звук выбора ответа (короткий клик)
+        this.sounds.answerSelect = this.createTone(800, 0.1, 'sine');
+        
+        // Звук правильного ответа (радостный звук)
+        this.sounds.correctAnswer = this.createTone(1000, 0.2, 'sine');
+        
+        // Звук неправильного ответа (короткий звук)
+        this.sounds.wrongAnswer = this.createTone(400, 0.15, 'sawtooth');
+        
+        // Звук завершения квиза (триумфальный звук)
+        this.sounds.quizComplete = this.createCompletionSound();
+        
+        // Звук начала квиза
+        this.sounds.quizStart = this.createTone(600, 0.3, 'triangle');
+    }
+
+    createTone(frequency, duration, type = 'sine') {
+        return () => {
+            if (!this.isEnabled || !this.audioContext) return;
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            oscillator.type = type;
+
+            gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(this.volume, this.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+        };
+    }
+
+    createCompletionSound() {
+        return () => {
+            if (!this.isEnabled || !this.audioContext) return;
+
+            const now = this.audioContext.currentTime;
+            
+            // Создаем последовательность звуков для завершения
+            const frequencies = [523, 659, 784, 1047]; // C, E, G, C (октава выше)
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(freq, now);
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0, now + index * 0.1);
+                gainNode.gain.linearRampToValueAtTime(this.volume, now + index * 0.1 + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + index * 0.1 + 0.3);
+
+                oscillator.start(now + index * 0.1);
+                oscillator.stop(now + index * 0.1 + 0.3);
+            });
+        };
+    }
+
+    // Воспроизвести звук выбора ответа
+    playAnswerSelect() {
+        if (this.sounds.answerSelect) {
+            this.sounds.answerSelect();
+        }
+    }
+
+    // Воспроизвести звук правильного ответа
+    playCorrectAnswer() {
+        if (this.sounds.correctAnswer) {
+            this.sounds.correctAnswer();
+        }
+    }
+
+    // Воспроизвести звук неправильного ответа
+    playWrongAnswer() {
+        if (this.sounds.wrongAnswer) {
+            this.sounds.wrongAnswer();
+        }
+    }
+
+    // Воспроизвести звук завершения квиза
+    playQuizComplete() {
+        if (this.sounds.quizComplete) {
+            this.sounds.quizComplete();
+        }
+    }
+
+    // Воспроизвести звук начала квиза
+    playQuizStart() {
+        if (this.sounds.quizStart) {
+            this.sounds.quizStart();
+        }
+    }
+
+    // Включить/выключить звуки
+    toggleSound() {
+        this.isEnabled = !this.isEnabled;
+        return this.isEnabled;
+    }
+
+    // Установить громкость
+    setVolume(volume) {
+        this.volume = Math.max(0, Math.min(1, volume));
+    }
+
+    // Получить статус звуков
+    isSoundEnabled() {
+        return this.isEnabled;
+    }
+}
+
+// Создаем глобальный экземпляр звуков
+window.quizSounds = new QuizSounds();
+
+// Функции для удобного использования
+function playAnswerSelect() {
+    if (window.quizSounds) {
+        window.quizSounds.playAnswerSelect();
+    }
+}
+
+function playCorrectAnswer() {
+    if (window.quizSounds) {
+        window.quizSounds.playCorrectAnswer();
+    }
+}
+
+function playWrongAnswer() {
+    if (window.quizSounds) {
+        window.quizSounds.playWrongAnswer();
+    }
+}
+
+function playQuizComplete() {
+    if (window.quizSounds) {
+        window.quizSounds.playQuizComplete();
+    }
+}
+
+function playQuizStart() {
+    if (window.quizSounds) {
+        window.quizSounds.playQuizStart();
+    }
+}
+
+function toggleQuizSound() {
+    if (window.quizSounds) {
+        return window.quizSounds.toggleSound();
+    }
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Воспроизводим звук начала квиза
+    setTimeout(() => {
+        playQuizStart();
+    }, 500);
+
+    // Добавляем звуки при выборе ответов
+    const answerOptions = document.querySelectorAll('.answer-option input[type="radio"]');
+    answerOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            playAnswerSelect();
+        });
+    });
+
+    // Добавляем звук при отправке формы
+    const submitBtn = document.querySelector('.submit-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+            playQuizComplete();
+        });
+    }
+
+    // Кнопка включения/выключения звуков
+    const toggleSoundBtn = document.getElementById('toggleSound');
+    const soundIcon = document.getElementById('soundIcon');
+    
+    if (toggleSoundBtn) {
+        toggleSoundBtn.addEventListener('click', function() {
+            const isEnabled = toggleQuizSound();
+            if (isEnabled) {
+                soundIcon.className = 'fas fa-volume-up';
+                toggleSoundBtn.title = 'Выключить звуки';
+            } else {
+                soundIcon.className = 'fas fa-volume-mute';
+                toggleSoundBtn.title = 'Включить звуки';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

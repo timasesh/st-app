@@ -1,0 +1,601 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рейтинг - Study Task</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
+    <style>
+        /* Основные стили */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Хедер */
+        .rating-header-main {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        /* Основной контент */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .rating-page-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 3rem 2rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        /* Стили для рейтинга */
+        .rating-group-card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #f1f3f4;
+            transition: all 0.3s ease;
+        }
+
+        .rating-group-card-modern:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .rating-group-header {
+            border-bottom: 2px solid #f8f9fa;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .rating-group-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .rating-group-stats .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Подиум */
+        .rating-podium {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .podium-place {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            min-width: 180px;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .podium-place-1 {
+            border-color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .podium-place-2 {
+            border-color: #C0C0C0;
+        }
+
+        .podium-place-3 {
+            border-color: #CD7F32;
+        }
+
+        .podium-place:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .podium-place-1:hover {
+            transform: translateY(-5px) scale(1.07);
+        }
+
+        .current-student {
+            border-color: #007bff !important;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
+        }
+
+        .podium-medal {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .podium-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .podium-avatar-img, .podium-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .podium-avatar-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .podium-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .podium-stars {
+            color: #ffc107;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            min-width: 80px;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 20px;
+        }
+
+        .podium-rank {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* Список рейтинга */
+        .rating-table-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .rating-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .rating-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .rating-item-current {
+            border-color: #007bff;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
+        }
+
+        .rating-item-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .rating-item-avatar {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .rating-item-avatar-img, .rating-item-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .rating-item-avatar-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .rating-item-info {
+            flex: 1;
+        }
+
+        .rating-item-name {
+            color: #2c3e50;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .rating-item-name:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .rating-item-stars {
+            color: #ffc107;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stars-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 70px;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 15px;
+            justify-content: center;
+        }
+        
+        .stars-count {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        /* Пустое состояние */
+        .no-groups-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .no-groups-card {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+
+        .no-groups-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .no-groups-title {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .no-groups-text {
+            color: #6c757d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .rating-page-container {
+                padding: 2rem 1rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .header-container {
+                padding: 0 1rem;
+            }
+            
+            .header-title {
+                font-size: 1.25rem;
+            }
+            
+            .rating-podium {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .podium-place {
+                min-width: 250px;
+            }
+        }
+
+        .podium-place-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .podium-place-link:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <!-- Хедер -->
+    <header class="rating-header-main">
+        <div class="header-container">
+            <h1 class="header-title">
+                <i class="fas fa-trophy"></i>
+                Рейтинг групп
+            </h1>
+            <div class="header-actions">
+                <a href="{% url 'student_page' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад к курсам
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div class="rating-page-container">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-medal"></i>
+                    Рейтинг по группам
+                </h2>
+                <p class="page-subtitle">Соревнуйтесь с участниками своих групп и занимайте топовые позиции!</p>
+            </div>
+            
+            {% if groups %}
+            <div class="row">
+                {% for group in groups %}
+                <div class="col-12 mb-4">
+                    <div class="rating-group-card-modern">
+                        <div class="rating-group-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h4 class="rating-group-title">
+                                    <i class="fas fa-users mr-3"></i>{{ group.name }}
+                                </h4>
+                                <div class="rating-group-stats">
+                                    <span class="badge badge-info px-3 py-2">
+                                        <i class="fas fa-user-friends mr-1"></i>{{ group.students.count }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="rating-podium mb-4">
+                            {% for s in group.students.all|dictsortreversed:'stars'|slice:":3" %}
+                                <a href="{% url 'student_public_profile' s.id %}" class="podium-place-link">
+                                    <div class="podium-place podium-place-{{ forloop.counter }} {% if s.id == student.id %}current-student{% endif %}">
+                                        <div class="podium-medal">
+                                            {% if forloop.counter == 1 %}
+                                                <i class="fas fa-medal" style="color: #FFD700;"></i>
+                                            {% elif forloop.counter == 2 %}
+                                                <i class="fas fa-medal" style="color: #C0C0C0;"></i>
+                                            {% elif forloop.counter == 3 %}
+                                                <i class="fas fa-medal" style="color: #CD7F32;"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="podium-avatar avatar-with-level">
+                                            {% if s.avatar %}
+                                                <img src="{{ s.avatar.url }}" alt="avatar" class="podium-avatar-img">
+                                            {% else %}
+                                                <div class="podium-avatar-placeholder non-selectable">
+                                                    {% if s.user.first_name and s.user.last_name %}
+                                                        {{ s.user.first_name|first|upper }}{{ s.user.last_name|first|upper }}
+                                                    {% elif s.user.first_name %}
+                                                        {{ s.user.first_name|first|upper }}{{ s.user.first_name|slice:"1:2"|upper }}
+                                                    {% else %}
+                                                        {{ s.user.username|first|upper }}{{ s.user.username|slice:"1:2"|upper }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            <div class="level-badge level-{{ s.level_number }} small">
+                                                {{ s.level_number }}
+                                            </div>
+                                        </div>
+                                        <div class="podium-info">
+                                            <div class="podium-name">{{ s.user.get_full_name|default:s.user.username }}</div>
+                                            <div class="podium-stars">
+                                                <i class="fas fa-star"></i>
+                                                <span class="stars-count">{{ s.stars }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="podium-rank">{{ forloop.counter }}</div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+
+                        {% if group.students.count > 3 %}
+                        <div class="rating-table-container">
+                            <h6 class="mb-3 text-muted">Остальные участники:</h6>
+                            <div class="rating-list">
+                                {% for s in group.students.all|dictsortreversed:'stars'|slice:"3:" %}
+                                <div class="rating-item {% if s.id == student.id %}rating-item-current{% endif %}">
+                                    <div class="rating-item-rank">{{ forloop.counter|add:3 }}</div>
+                                    <div class="rating-item-avatar avatar-with-level">
+                                        {% if s.avatar %}
+                                            <img src="{{ s.avatar.url }}" alt="avatar" class="rating-item-avatar-img">
+                                        {% else %}
+                                            <div class="rating-item-avatar-placeholder non-selectable">
+                                                {% if s.user.first_name and s.user.last_name %}
+                                                    {{ s.user.first_name|first|upper }}{{ s.user.last_name|first|upper }}
+                                                {% elif s.user.first_name %}
+                                                    {{ s.user.first_name|first|upper }}{{ s.user.first_name|slice:"1:2"|upper }}
+                                                {% else %}
+                                                    {{ s.user.username|first|upper }}{{ s.user.username|slice:"1:2"|upper }}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                        <div class="level-badge level-{{ s.level_number }} small">
+                                            {{ s.level_number }}
+                                        </div>
+                                    </div>
+                                    <div class="rating-item-info">
+                                        <a href="{% url 'student_public_profile' s.id %}" class="rating-item-name">
+                                            {{ s.user.get_full_name|default:s.user.username }}
+                                        </a>
+                                    </div>
+                                    <div class="rating-item-stars">
+                                        <div class="stars-container">
+                                            <i class="fas fa-star"></i>
+                                            <span class="stars-count">{{ s.stars }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-groups-container">
+                <div class="no-groups-card">
+                    <div class="no-groups-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h4 class="no-groups-title">Вы пока не состоите ни в одной группе</h4>
+                    <p class="no-groups-text">Обратитесь к администратору, чтобы получить доступ к группам и участвовать в рейтинге!</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

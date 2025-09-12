@@ -1,0 +1,438 @@
+/* ===== СТИЛИ ДЛЯ ВКЛАДКИ УРОВНЕЙ ===== */
+
+.levels-container {
+    padding: 2rem 0;
+}
+
+.levels-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.levels-title {
+    color: #1E3A8A;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.levels-title i {
+    color: #FFD700;
+    font-size: 2.2rem;
+}
+
+.levels-subtitle {
+    color: #6B7280;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Карточка текущего уровня */
+.current-level-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    color: white;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Картинка уровня в правом верхнем углу */
+.current-level-image {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    z-index: 3 !important;
+    pointer-events: none !important;
+    width: 80px !important;
+    height: 80px !important;
+    overflow: hidden !important;
+    border-radius: 50% !important;
+}
+
+.level-image-top-right {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    pointer-events: none !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    cursor: default !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    display: block !important;
+    position: relative !important;
+}
+
+.current-level-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.current-level-info {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-right: 110px; /* Место для картинки */
+}
+
+.current-level-badge {
+    position: relative;
+    z-index: 2;
+}
+
+/* Исправляем позиционирование цифры в большом значке */
+.current-level-badge .level-badge {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    bottom: 0;
+    right: 0;
+}
+
+.current-level-details h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.current-level-details p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.stars-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.stars-count i {
+    color: #FFD700;
+    font-size: 1.5rem;
+}
+
+/* Секция прогресса */
+.level-progress-section {
+    position: relative;
+    z-index: 2;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-bar-fill {
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.8s ease;
+    position: relative;
+}
+
+/* Убираем анимацию shimmer для оптимизации */
+
+.next-level-info {
+    opacity: 0.9;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Сетка всех уровней */
+.all-levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.level-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+    height: 140px;
+    display: flex;
+    align-items: stretch;
+}
+
+.level-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.level-card.current {
+    border-color: #FFD700;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+    transform: scale(1.01);
+}
+
+.level-card.completed {
+    border-color: #10B981;
+    background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+}
+
+.level-card.locked {
+    opacity: 0.6;
+    background: #F9FAFB;
+}
+
+.level-card-header {
+    position: relative;
+    width: 120px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #F8FAFC, #E2E8F0);
+}
+
+.level-card.current .level-card-header {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+}
+
+.level-card.completed .level-card-header {
+    background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+}
+
+.level-card.locked .level-card-header {
+    background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+}
+
+.level-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.level-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.level-status-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.level-status-icon .locked-icon {
+    background: none;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+}
+
+.current-icon {
+    background: transparent;
+    color: #FFD700;
+    font-size: 1.5rem;
+}
+
+.completed-icon {
+    background: #10B981;
+    color: white;
+}
+
+.locked-icon {
+    background: transparent;
+    color: #000000;
+    font-size: 1.5rem;
+}
+
+.level-card-body {
+    padding: 1rem 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.level-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.level-card.current .level-name {
+    color: #D97706;
+}
+
+.level-card.completed .level-name {
+    color: #059669;
+}
+
+.level-requirements {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    color: #6B7280;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.level-requirements i {
+    color: #FFD700;
+}
+
+.level-description {
+    color: #6B7280;
+    font-size: 0.85rem;
+    text-align: left;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.no-levels-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #6B7280;
+}
+
+.no-levels-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .levels-title {
+        font-size: 2rem;
+    }
+    
+    .current-level-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .current-level-details h4 {
+        font-size: 1.5rem;
+    }
+    
+    .all-levels-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .level-card {
+        height: auto;
+        min-height: 100px;
+        flex-direction: row;
+    }
+    
+    .level-card-header {
+        width: 80px;
+    }
+    
+    .current-level-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .levels-container {
+        padding: 1rem 0;
+    }
+    
+    .levels-title {
+        font-size: 1.8rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .all-levels-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .level-card {
+        height: auto;
+        min-height: 90px;
+    }
+    
+    .level-card-header {
+        width: 70px;
+    }
+    
+    .level-card-body {
+        padding: 0.75rem 1rem;
+    }
+    
+    .level-name {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .level-requirements {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .level-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 1;
+    }
+} 

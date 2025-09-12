@@ -1,0 +1,600 @@
+{% extends 'courses/student_base.html' %}
+{% load static %}
+
+{% block title %}Результат квиза{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Стили для звукового сопровождения квизов */
+.sound-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.sound-toggle-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.sound-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.sound-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.sound-toggle-btn i {
+    transition: all 0.3s ease;
+}
+
+/* Анимация для кнопки звука */
+@keyframes soundPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.sound-toggle-btn.playing {
+    animation: soundPulse 0.3s ease;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .sound-controls {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .sound-toggle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Эффект при воспроизведении звука */
+.btn-home.playing, .btn-retry.playing {
+    animation: buttonPulse 0.3s ease;
+}
+
+@keyframes buttonPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-result-container">
+    <div class="result-card">
+        <div class="result-header">
+            <h2>{{ quiz.title }}</h2>
+            <div class="result-badge {% if attempt.passed %}passed{% else %}failed{% endif %}">
+                {% if attempt.passed %}
+                    <i class="fas fa-check-circle"></i>
+                    <span>Пройден</span>
+                {% else %}
+                    <i class="fas fa-times-circle"></i>
+                    <span>Не пройден</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="score-section">
+            <div class="score-circle {% if attempt.score == 100 %}perfect{% elif attempt.passed %}good{% else %}poor{% endif %}">
+                <div class="score-number">{{ attempt.score|floatformat:0 }}%</div>
+                <div class="score-label">Ваш результат</div>
+            </div>
+        </div>
+        
+        {% if attempt.score == 100 %}
+        <div class="perfect-score-celebration">
+            <div class="celebration-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h3>Поздравляем! 🎉</h3>
+            <p>Вы получили <strong>{{ quiz.stars }}</strong> звезд за идеальное прохождение!</p>
+            <div class="stars-earned">
+                {% for i in "123"|make_list %}
+                    <i class="fas fa-star"></i>
+                {% endfor %}
+            </div>
+        </div>
+        {% elif attempt.passed %}
+        <div class="passed-message">
+            <div class="message-icon">
+                <i class="fas fa-thumbs-up"></i>
+            </div>
+            <h3>Отлично!</h3>
+            <p>Вы успешно прошли квиз!</p>
+        </div>
+        {% else %}
+        <div class="failed-message">
+            <div class="message-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3>Не расстраивайтесь!</h3>
+            <p>Попробуйте еще раз, чтобы улучшить результат.</p>
+        </div>
+        {% endif %}
+        
+        <div class="result-actions">
+            <a href="{% url 'student_page' %}" class="btn-home">
+                <i class="fas fa-home"></i>
+                На главную
+            </a>
+            {% if attempt.score != 100 %}
+            <a href="{% url 'student_start_quiz' quiz.id %}" class="btn-retry">
+                <i class="fas fa-redo"></i>
+                Пройти еще раз
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.quiz-result-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem;
+}
+
+.result-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    color: white;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+}
+
+.result-header {
+    margin-bottom: 2rem;
+}
+
+.result-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.result-badge.passed {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+}
+
+.result-badge.failed {
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+}
+
+.result-badge i {
+    font-size: 1.2rem;
+}
+
+.score-section {
+    margin-bottom: 2rem;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    border: 4px solid rgba(255,255,255,0.3);
+}
+
+.score-circle.perfect {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #333;
+}
+
+.score-circle.good {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.score-circle.poor {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+    color: white;
+}
+
+.score-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+.perfect-score-celebration {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+}
+
+.celebration-icon {
+    font-size: 3rem;
+    color: #ffd700;
+    margin-bottom: 1rem;
+}
+
+.perfect-score-celebration h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #ffd700;
+}
+
+.perfect-score-celebration p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.stars-earned {
+    font-size: 2rem;
+    color: #ffd700;
+}
+
+.passed-message, .failed-message {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+}
+
+.message-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.passed-message .message-icon {
+    color: #28a745;
+}
+
+.failed-message .message-icon {
+    color: #ffc107;
+}
+
+.passed-message h3, .failed-message h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-home, .btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-home {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.btn-home:hover {
+    background: rgba(255,255,255,0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-retry {
+    background: #ffd700;
+    color: #333;
+    border: 2px solid #ffd700;
+}
+
+.btn-retry:hover {
+    background: #ffed4e;
+    color: #333;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .result-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .result-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .score-circle {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .score-number {
+        font-size: 2rem;
+    }
+    
+    .result-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<!-- Звуковое сопровождение -->
+<div class="sound-controls">
+    <button id="toggleSound" class="sound-toggle-btn" title="Включить/выключить звуки">
+        <i class="fas fa-volume-up" id="soundIcon"></i>
+    </button>
+</div>
+
+<script>
+// Звуковое сопровождение для квизов
+class QuizSounds {
+    constructor() {
+        this.audioContext = null;
+        this.sounds = {};
+        this.isEnabled = true;
+        this.volume = 0.3;
+        this.init();
+    }
+
+    init() {
+        try {
+            // Создаем AudioContext для генерации звуков
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.createSounds();
+        } catch (error) {
+            console.log('AudioContext не поддерживается, звуки отключены');
+            this.isEnabled = false;
+        }
+    }
+
+    createSounds() {
+        // Звук выбора ответа (короткий клик)
+        this.sounds.answerSelect = this.createTone(800, 0.1, 'sine');
+        
+        // Звук правильного ответа (радостный звук)
+        this.sounds.correctAnswer = this.createTone(1000, 0.2, 'sine');
+        
+        // Звук неправильного ответа (короткий звук)
+        this.sounds.wrongAnswer = this.createTone(400, 0.15, 'sawtooth');
+        
+        // Звук завершения квиза (триумфальный звук)
+        this.sounds.quizComplete = this.createCompletionSound();
+        
+        // Звук начала квиза
+        this.sounds.quizStart = this.createTone(600, 0.3, 'triangle');
+    }
+
+    createTone(frequency, duration, type = 'sine') {
+        return () => {
+            if (!this.isEnabled || !this.audioContext) return;
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            oscillator.type = type;
+
+            gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(this.volume, this.audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+        };
+    }
+
+    createCompletionSound() {
+        return () => {
+            if (!this.isEnabled || !this.audioContext) return;
+
+            const now = this.audioContext.currentTime;
+            
+            // Создаем последовательность звуков для завершения
+            const frequencies = [523, 659, 784, 1047]; // C, E, G, C (октава выше)
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(freq, now);
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0, now + index * 0.1);
+                gainNode.gain.linearRampToValueAtTime(this.volume, now + index * 0.1 + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + index * 0.1 + 0.3);
+
+                oscillator.start(now + index * 0.1);
+                oscillator.stop(now + index * 0.1 + 0.3);
+            });
+        };
+    }
+
+    // Воспроизвести звук выбора ответа
+    playAnswerSelect() {
+        if (this.sounds.answerSelect) {
+            this.sounds.answerSelect();
+        }
+    }
+
+    // Воспроизвести звук правильного ответа
+    playCorrectAnswer() {
+        if (this.sounds.correctAnswer) {
+            this.sounds.correctAnswer();
+        }
+    }
+
+    // Воспроизвести звук неправильного ответа
+    playWrongAnswer() {
+        if (this.sounds.wrongAnswer) {
+            this.sounds.wrongAnswer();
+        }
+    }
+
+    // Воспроизвести звук завершения квиза
+    playQuizComplete() {
+        if (this.sounds.quizComplete) {
+            this.sounds.quizComplete();
+        }
+    }
+
+    // Воспроизвести звук начала квиза
+    playQuizStart() {
+        if (this.sounds.quizStart) {
+            this.sounds.quizStart();
+        }
+    }
+
+    // Включить/выключить звуки
+    toggleSound() {
+        this.isEnabled = !this.isEnabled;
+        return this.isEnabled;
+    }
+
+    // Установить громкость
+    setVolume(volume) {
+        this.volume = Math.max(0, Math.min(1, volume));
+    }
+
+    // Получить статус звуков
+    isSoundEnabled() {
+        return this.isEnabled;
+    }
+}
+
+// Создаем глобальный экземпляр звуков
+window.quizSounds = new QuizSounds();
+
+// Функции для удобного использования
+function playAnswerSelect() {
+    if (window.quizSounds) {
+        window.quizSounds.playAnswerSelect();
+    }
+}
+
+function playCorrectAnswer() {
+    if (window.quizSounds) {
+        window.quizSounds.playCorrectAnswer();
+    }
+}
+
+function playWrongAnswer() {
+    if (window.quizSounds) {
+        window.quizSounds.playWrongAnswer();
+    }
+}
+
+function playQuizComplete() {
+    if (window.quizSounds) {
+        window.quizSounds.playQuizComplete();
+    }
+}
+
+function playQuizStart() {
+    if (window.quizSounds) {
+        window.quizSounds.playQuizStart();
+    }
+}
+
+function toggleQuizSound() {
+    if (window.quizSounds) {
+        return window.quizSounds.toggleSound();
+    }
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Воспроизводим звук в зависимости от результата
+    setTimeout(() => {
+        const score = {{ attempt.score|floatformat:0 }};
+        if (score === 100) {
+            playQuizComplete(); // Триумфальный звук для 100%
+        } else if (score >= 70) {
+            playCorrectAnswer(); // Радостный звук для прохождения
+        } else {
+            playWrongAnswer(); // Короткий звук для неудачи
+        }
+    }, 500);
+
+    // Кнопка включения/выключения звуков
+    const toggleSoundBtn = document.getElementById('toggleSound');
+    const soundIcon = document.getElementById('soundIcon');
+    
+    if (toggleSoundBtn) {
+        toggleSoundBtn.addEventListener('click', function() {
+            const isEnabled = toggleQuizSound();
+            if (isEnabled) {
+                soundIcon.className = 'fas fa-volume-up';
+                toggleSoundBtn.title = 'Выключить звуки';
+            } else {
+                soundIcon.className = 'fas fa-volume-mute';
+                toggleSoundBtn.title = 'Включить звуки';
+            }
+        });
+    }
+
+    // Добавляем звуки при нажатии на кнопки
+    const actionButtons = document.querySelectorAll('.btn-home, .btn-retry');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            playAnswerSelect();
+        });
+    });
+});
+</script>
+{% endblock %}

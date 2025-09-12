@@ -1,0 +1,170 @@
+{% extends 'courses/teacher_base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-graduation-cap mr-2"></i>
+                        {{ course.title }}
+                    </h3>
+                    <a href="{% url 'teacher_courses' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад к курсам
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Описание курса</h5>
+                        <p class="text-muted">{{ course.description }}</p>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="text-primary">
+                                        <i class="fas fa-cubes fa-2x"></i>
+                                        <div class="font-weight-bold mt-2">{{ course.modules.count }}</div>
+                                        <small>Модулей</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="text-success">
+                                        <i class="fas fa-book fa-2x"></i>
+                                        <div class="font-weight-bold mt-2">
+                                            {% with total_lessons=0 %}
+                                                {% for module in course.modules.all %}
+                                                    {% with total_lessons=total_lessons|add:module.lessons.count %}{% endwith %}
+                                                {% endfor %}
+                                                {{ total_lessons }}
+                                            {% endwith %}
+                                        </div>
+                                        <small>Уроков</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="text-info">
+                                        <i class="fas fa-users fa-2x"></i>
+                                        <div class="font-weight-bold mt-2">{{ course.students.count }}</div>
+                                        <small>Студентов</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="text-warning">
+                                        <i class="fas fa-star fa-2x"></i>
+                                        <div class="font-weight-bold mt-2">{{ course.stars }}</div>
+                                        <small>Звезд</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        {% if course.image %}
+                            <img src="{{ course.image.url }}" class="img-fluid rounded" alt="{{ course.title }}">
+                        {% else %}
+                            <div class="bg-primary rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-graduation-cap text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h5>Модули курса</h5>
+                {% if course.modules.all %}
+                    <div class="row">
+                        {% for module in course.modules.all %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ module.title }}</h6>
+                                    <p class="card-text text-muted">{{ module.description|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-book"></i> {{ module.lessons.count }} уроков
+                                        </span>
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-question-circle"></i> {{ module.quizzes.count }} квизов
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        В этом курсе пока нет модулей
+                    </div>
+                {% endif %}
+                
+                <hr>
+                
+                <h5>Студенты курса</h5>
+                {% if course.students.all %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Студент</th>
+                                    <th>Email</th>
+                                    <th>Класс</th>
+                                    <th>Дата регистрации</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in course.students.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if student.avatar %}
+                                                <img src="{{ student.avatar.url }}" class="rounded-circle mr-2" width="32" height="32">
+                                            {% else %}
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px;">
+                                                    <span class="text-white font-weight-bold" style="font-size: 0.8rem;">
+                                                        {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                            {{ student.first_name }} {{ student.last_name }}
+                                        </div>
+                                    </td>
+                                    <td>{{ student.email }}</td>
+                                    <td>
+                                        {% if student.is_school_student and student.grade %}
+                                            {{ student.grade }} класс
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ student.user.date_joined|date:"d.m.Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        На этот курс пока не записался ни один студент
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,757 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль - {{ student.user.get_full_name|default:student.user.username }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
+    <style>
+        /* Современная цветовая схема в стиле student_page */
+        .modern-student-body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modern-student-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .profile-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .logout-btn:hover {
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .main-content {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .profile-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 1.5rem;
+        }
+
+        .student-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            user-select: none;
+        }
+
+        .student-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .student-role {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-section {
+            background: white;
+            padding: 2rem;
+        }
+
+        .stats-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stats-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .stat-stars .stat-icon-wrapper {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+        }
+
+        .stat-courses .stat-icon-wrapper {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+        }
+
+        .stat-groups .stat-icon-wrapper {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .info-item-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .action-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0 auto;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-modern {
+            margin-top: 2rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group-modern {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control-modern {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .form-control-modern:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            flex: 1;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: #6c757d;
+            border: 2px solid #6c757d;
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            border: none;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #0d47a1;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            color: #2e7d32;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .profile-hero {
+                padding: 2rem 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="modern-student-body">
+    
+    <header class="modern-student-header">
+        <div class="header-container">
+            <h1 class="profile-title">Мой профиль</h1>
+            <div class="header-actions">
+                <a href="{% url 'student_page' %}" class="action-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад
+                </a>
+                <a href="{% url 'logout' %}" class="action-btn logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Выйти
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        
+        <!-- Профиль студента -->
+        <div class="profile-card">
+            <div class="profile-hero">
+                <div class="profile-avatar-container avatar-with-level">
+                    {% if student.avatar %}
+                        <img src="{{ student.avatar.url }}" class="student-avatar" alt="avatar">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {% if student.user.first_name and student.user.last_name %}
+                                {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                            {% elif student.user.first_name %}
+                                {{ student.user.first_name|first|upper }}{{ student.user.first_name|slice:"1:2"|upper }}
+                            {% else %}
+                                {{ student.user.username|first|upper }}{{ student.user.username|slice:"1:2"|upper }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="level-badge level-{{ student.level_number }} large animate" 
+                         data-tooltip="{{ student.level_name }}">
+                        {{ student.level_number }}
+                    </div>
+                </div>
+                
+                <h2 class="student-name">{{ student.user.get_full_name|default:student.user.username }}</h2>
+                <p class="student-role">Студент</p>
+            </div>
+            
+            <div class="stats-section">
+                <h3 class="stats-title">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    Моя статистика
+                </h3>
+                
+                <div class="stats-grid">
+                    <div class="stat-item stat-stars">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ student.stars }}</div>
+                            <div class="stat-label">Звезд заработано</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item stat-courses">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ student.courses.count }}</div>
+                            <div class="stat-label">Активных курсов</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item stat-groups">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">{{ student.groups.count }}</div>
+                            <div class="stat-label">Групп участия</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Личная информация -->
+        <div class="info-section">
+            <h3 class="info-title">
+                <div class="info-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                Личная информация
+            </h3>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-item-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ student.email|default:'Не указан' }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-item-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Телефон</div>
+                        <div class="info-value">{{ student.phone_number|default:'Не указан' }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-item-icon">
+                        <i class="fas fa-signature"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Имя</div>
+                        <div class="info-value">{{ student.first_name|default:'Не указано' }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-item-icon">
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Фамилия</div>
+                        <div class="info-value">{{ student.last_name|default:'Не указано' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Действия -->
+        <div class="action-section">
+            {% if admin_status %}
+                <div class="alert alert-{{ admin_status }}">
+                    <i class="fas fa-{% if admin_status == 'success' %}check-circle{% elif admin_status == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ admin_response }}
+                </div>
+            {% endif %}
+
+            {% if not student.profile_edited_once %}
+                <button id="edit-button" class="edit-btn">
+                    <i class="fas fa-edit"></i>
+                    Редактировать профиль
+                </button>
+                
+                <form method="post" class="form-modern hidden" id="profile-edit">
+                    {% csrf_token %}
+                    <div class="form-group-modern">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">Имя</label>
+                        {{ form.first_name }}
+                    </div>
+                    
+                    <div class="form-group-modern">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Фамилия</label>
+                        {{ form.last_name }}
+                    </div>
+                    
+                    <div class="form-group-modern">
+                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">Номер телефона</label>
+                        {{ form.phone_number }}
+                    </div>
+                    
+                    <div class="form-group-modern">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i>
+                            Сохранить изменения
+                        </button>
+                        <button type="button" id="cancel-button" class="btn-cancel">
+                            <i class="fas fa-times"></i>
+                            Отменить
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Профиль уже был отредактирован. Для внесения изменений обратитесь к администратору.
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <script>
+        // Добавляем классы к полям формы
+        document.addEventListener('DOMContentLoaded', function() {
+            const formFields = document.querySelectorAll('#profile-edit input');
+            formFields.forEach(field => {
+                field.classList.add('form-control-modern');
+            });
+        });
+
+        const editButton = document.getElementById('edit-button');
+        const profileEdit = document.getElementById('profile-edit');
+        const cancelButton = document.getElementById('cancel-button');
+
+        if (editButton) {
+            editButton.addEventListener('click', function() {
+                editButton.style.display = 'none';
+                profileEdit.classList.remove('hidden');
+            });
+        }
+
+        if (cancelButton) {
+            cancelButton.addEventListener('click', function() {
+                profileEdit.classList.add('hidden');
+                if (editButton) {
+                    editButton.style.display = 'flex';
+                }
+            });
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

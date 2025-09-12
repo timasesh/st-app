@@ -1,0 +1,216 @@
+{% extends 'courses/teacher_base.html' %}
+{% load static %}
+
+{% block title %}{{ homework.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-book-open text-primary"></i>
+                    {{ homework.title }}
+                </h2>
+                <div>
+                    <a href="{% url 'teacher_homework_page' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Назад к заданиям
+                    </a>
+                    <button type="button" class="btn btn-danger ml-2" onclick="deleteHomework()">
+                        <i class="fas fa-trash"></i>
+                        Удалить
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Информация о задании -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                Информация о задании
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Студент:</strong> {{ homework.student.user.get_full_name|default:homework.student.user.username }}</p>
+                                    <p><strong>Создано:</strong> {{ homework.created_at|date:"d.m.Y H:i" }}</p>
+                                    <p><strong>Срок выполнения:</strong> 
+                                        <span class="{% if homework.is_overdue %}text-danger{% endif %}">
+                                            {{ homework.due_date|date:"d.m.Y H:i" }}
+                                        </span>
+                                        {% if homework.is_overdue %}
+                                        <i class="fas fa-exclamation-triangle text-danger ml-1" title="Просрочено"></i>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Статус:</strong> 
+                                        {% if submission %}
+                                            {% if submission.is_completed %}
+                                            <span class="badge badge-success">Завершено</span>
+                                            {% elif submission.is_submitted %}
+                                            <span class="badge badge-warning">Отправлено</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">Не выполнено</span>
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="badge badge-secondary">Не выполнено</span>
+                                        {% endif %}
+                                    </p>
+                                    {% if submission and submission.grade %}
+                                    <p><strong>Оценка:</strong> <span class="badge badge-info">{{ submission.grade }}/10</span></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6><i class="fas fa-align-left"></i> Описание задания:</h6>
+                            <div class="bg-light p-3 rounded">
+                                {{ homework.description|linebreaks }}
+                            </div>
+
+                            {% if homework.pdf_file %}
+                            <hr>
+                            <h6><i class="fas fa-file-pdf text-danger"></i> Прикрепленный PDF:</h6>
+                            <a href="{{ homework.pdf_file.url }}" class="btn btn-outline-danger" target="_blank">
+                                <i class="fas fa-download"></i>
+                                Скачать PDF
+                            </a>
+                            {% endif %}
+
+                            {% if homework.video_url %}
+                            <hr>
+                            <h6><i class="fas fa-video text-primary"></i> Прикрепленное видео:</h6>
+                            <a href="{{ homework.video_url }}" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-external-link-alt"></i>
+                                Открыть видео
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Выполнение задания -->
+                    {% if submission %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle"></i>
+                                Выполнение задания
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if submission.is_submitted %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Задание отправлено {{ submission.submitted_at|date:"d.m.Y H:i" }}
+                            </div>
+
+                            {% if submission.photos.all %}
+                            <h6><i class="fas fa-images"></i> Фотографии выполненной работы:</h6>
+                            <div class="row">
+                                {% for photo in submission.photos.all %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <img src="{{ photo.photo.url }}" class="card-img-top" alt="Фото работы" 
+                                             style="height: 200px; object-fit: cover;">
+                                        <div class="card-body">
+                                            {% if photo.description %}
+                                            <p class="card-text small">{{ photo.description }}</p>
+                                            {% endif %}
+                                            <small class="text-muted">Загружено: {{ photo.uploaded_at|date:"d.m.Y H:i" }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Студент не прикрепил фотографии выполненной работы.
+                            </div>
+                            {% endif %}
+
+                            {% else %}
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-clock"></i>
+                                Студент еще не отправил выполнение задания.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Оценка задания -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star"></i>
+                                Оценка задания
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if submission and submission.is_submitted %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="grade">
+                                
+                                <div class="form-group">
+                                    <label for="grade">Оценка (1-10):</label>
+                                    <select name="grade" id="grade" class="form-control" required>
+                                        <option value="">Выберите оценку...</option>
+                                        {% for i in "12345678910"|make_list %}
+                                        <option value="{{ forloop.counter }}" {% if submission.grade == forloop.counter %}selected{% endif %}>
+                                            {{ forloop.counter }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="comment">Комментарий:</label>
+                                    <textarea name="comment" id="comment" class="form-control" rows="4" 
+                                              placeholder="Ваш комментарий к работе...">{{ submission.teacher_comment|default:'' }}</textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="fas fa-save"></i>
+                                    Сохранить оценку
+                                </button>
+                            </form>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Оценка будет доступна после отправки задания студентом.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteHomework() {
+    if (confirm('Вы уверены, что хотите удалить это домашнее задание? Это действие нельзя отменить.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

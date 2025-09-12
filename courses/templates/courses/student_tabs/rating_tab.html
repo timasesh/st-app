@@ -1,0 +1,266 @@
+{% load course_filters %}
+<!-- Вкладка рейтинга -->
+<div id="rating" class="tab-pane">
+    <!-- Заголовок страницы рейтинга -->
+    <div class="rating-header-modern">
+        <div class="rating-title-section">
+            <h2 class="rating-main-title">
+                <i class="fas fa-trophy animated-trophy"></i>
+                Рейтинг студентов
+            </h2>
+            <p class="rating-subtitle">Соревнуйтесь, зарабатывайте звёзды и поднимайтесь в рейтинге!</p>
+        </div>
+        <div class="rating-stats-overview">
+            <div class="overview-stat">
+                <div class="overview-stat-icon">👥</div>
+                <div class="overview-stat-content">
+                    <span class="overview-stat-number">{{ rating_groups|length }}</span>
+                    <span class="overview-stat-label">Групп</span>
+                </div>
+            </div>
+            <div class="overview-stat">
+                <div class="overview-stat-icon">⭐</div>
+                <div class="overview-stat-content">
+                    <span class="overview-stat-number">{{ user.student.stars }}</span>
+                    <span class="overview-stat-label">Ваши звёзды</span>
+                </div>
+            </div>
+            <div class="overview-stat">
+                <div class="overview-stat-icon">🏆</div>
+                <div class="overview-stat-content">
+                    <span class="overview-stat-number">{{ user.student.level_number }}</span>
+                    <span class="overview-stat-label">Ваш уровень</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if rating_groups %}
+        <div class="rating-groups-container-modern">
+            {% for group in rating_groups %}
+                <div class="group-rating-section">
+                    <!-- Заголовок группы -->
+                    <div class="group-header-modern">
+                        <div class="group-title-section">
+                            <h3 class="group-name">
+                                <i class="fas fa-users group-icon"></i>
+                                {{ group.name }}
+                            </h3>
+                            <span class="group-members-count">{{ group.students_with_rating|length }} участников</span>
+                        </div>
+                        <div class="group-decoration">
+                            <div class="decoration-dot"></div>
+                            <div class="decoration-dot"></div>
+                            <div class="decoration-dot"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Подиум для топ-3 -->
+                    {% if group.students_with_rating|length >= 3 %}
+                    <div class="podium-container">
+                        <div class="podium-stage">
+                            <!-- 2 место -->
+                            {% with group.students_with_rating.1 as silver %}
+                            <div class="podium-place second-place" data-position="2">
+                                <div class="podium-student">
+                                    {% if silver.student.avatar %}
+                                        <img src="{{ silver.student.avatar.url }}" alt="Аватар" class="podium-avatar">
+                                    {% else %}
+                                        <div class="podium-avatar-placeholder">
+                                            {% if silver.student.user.first_name %}{{ silver.student.user.first_name|first }}{% else %}{{ silver.student.user.username|first|upper }}{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="podium-crown silver-crown">🥈</div>
+                                </div>
+                                <div class="podium-info">
+                                    <h4 class="podium-name">
+                                        {% if silver.student.user.first_name and silver.student.user.last_name %}
+                                            {{ silver.student.user.first_name }} {{ silver.student.user.last_name }}
+                                        {% else %}
+                                            {{ silver.student.user.username }}
+                                        {% endif %}
+                                    </h4>
+                                    <div class="podium-stars">⭐ {{ silver.student.stars }}</div>
+                                </div>
+                                <div class="podium-base silver-base">
+                                    <span class="podium-position">2</span>
+                                </div>
+                            </div>
+                            {% endwith %}
+                            
+                            <!-- 1 место -->
+                            {% with group.students_with_rating.0 as gold %}
+                            <div class="podium-place first-place" data-position="1">
+                                <div class="podium-student">
+                                    {% if gold.student.avatar %}
+                                        <img src="{{ gold.student.avatar.url }}" alt="Аватар" class="podium-avatar">
+                                    {% else %}
+                                        <div class="podium-avatar-placeholder">
+                                            {% if gold.student.user.first_name %}{{ gold.student.user.first_name|first }}{% else %}{{ gold.student.user.username|first|upper }}{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="podium-crown gold-crown">👑</div>
+                                </div>
+                                <div class="podium-info">
+                                    <h4 class="podium-name">
+                                        {% if gold.student.user.first_name and gold.student.user.last_name %}
+                                            {{ gold.student.user.first_name }} {{ gold.student.user.last_name }}
+                                        {% else %}
+                                            {{ gold.student.user.username }}
+                                        {% endif %}
+                                    </h4>
+                                    <div class="podium-stars">⭐ {{ gold.student.stars }}</div>
+                                </div>
+                                <div class="podium-base gold-base">
+                                    <span class="podium-position">1</span>
+                                </div>
+                            </div>
+                            {% endwith %}
+                            
+                            <!-- 3 место -->
+                            {% with group.students_with_rating.2 as bronze %}
+                            <div class="podium-place third-place" data-position="3">
+                                <div class="podium-student">
+                                    {% if bronze.student.avatar %}
+                                        <img src="{{ bronze.student.avatar.url }}" alt="Аватар" class="podium-avatar">
+                                    {% else %}
+                                        <div class="podium-avatar-placeholder">
+                                            {% if bronze.student.user.first_name %}{{ bronze.student.user.first_name|first }}{% else %}{{ bronze.student.user.username|first|upper }}{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="podium-crown bronze-crown">🥉</div>
+                                </div>
+                                <div class="podium-info">
+                                    <h4 class="podium-name">
+                                        {% if bronze.student.user.first_name and bronze.student.user.last_name %}
+                                            {{ bronze.student.user.first_name }} {{ bronze.student.user.last_name }}
+                                        {% else %}
+                                            {{ bronze.student.user.username }}
+                                        {% endif %}
+                                    </h4>
+                                    <div class="podium-stars">⭐ {{ bronze.student.stars }}</div>
+                                </div>
+                                <div class="podium-base bronze-base">
+                                    <span class="podium-position">3</span>
+                                </div>
+                            </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Полный список рейтинга -->
+                    <div class="rating-list-modern">
+                        {% for student_data in group.students_with_rating %}
+                            <div class="rating-card-modern {% if student_data.student.id == user.student.id %}current-user-card{% endif %} {% if student_data.position <= 3 %}top-position{% endif %}">
+                                <div class="card-background-effect"></div>
+                                
+                                <!-- Позиция -->
+                                <div class="position-section">
+                                    <div class="position-circle position-{{ student_data.position }}">
+                                        {% if student_data.position == 1 %}
+                                            <i class="fas fa-crown"></i>
+                                        {% elif student_data.position == 2 %}
+                                            <i class="fas fa-medal"></i>
+                                        {% elif student_data.position == 3 %}
+                                            <i class="fas fa-award"></i>
+                                        {% else %}
+                                            {{ student_data.position }}
+                                        {% endif %}
+                                    </div>
+                                    {% if student_data.position <= 3 %}
+                                        <div class="position-glow"></div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Аватар -->
+                                <div class="avatar-section">
+                                    {% if student_data.student.avatar %}
+                                        <img src="{{ student_data.student.avatar.url }}" alt="Аватар" class="student-avatar-modern">
+                                    {% else %}
+                                        <div class="student-avatar-placeholder-modern">
+                                            {% if student_data.student.user.first_name %}
+                                                {{ student_data.student.user.first_name|first }}
+                                            {% else %}
+                                                {{ student_data.student.user.username|first|upper }}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    {% if student_data.student.id == user.student.id %}
+                                        <div class="you-indicator">ВЫ</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Информация о студенте -->
+                                <div class="student-info-section">
+                                    <h4 class="student-name-modern">
+                                        {% if student_data.student.user.first_name and student_data.student.user.last_name %}
+                                            {{ student_data.student.user.first_name }} {{ student_data.student.user.last_name }}
+                                        {% else %}
+                                            {{ student_data.student.user.username }}
+                                        {% endif %}
+                                    </h4>
+                                    <p class="student-level-modern">
+                                        {% if student_data.student.level %}
+                                            <i class="fas fa-trophy level-icon-small"></i>
+                                            {{ student_data.student.level.name }}
+                                        {% else %}
+                                            <i class="fas fa-seedling level-icon-small"></i>
+                                            Новичок
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                
+                                <!-- Статистика -->
+                                <div class="stats-section-modern">
+                                    <div class="stars-display">
+                                        <i class="fas fa-star stars-icon-modern"></i>
+                                        <span class="stars-count">{{ student_data.student.stars }}</span>
+                                    </div>
+                                    {% if student_data.student.level %}
+                                        <div class="level-display">
+                                            <span class="level-number">{{ student_data.student.level.number }}</span>
+                                            <span class="level-label">LVL</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Эффекты для топ позиций -->
+                                {% if student_data.position <= 3 %}
+                                    <div class="sparkle-effect">
+                                        <div class="sparkle sparkle-1"></div>
+                                        <div class="sparkle sparkle-2"></div>
+                                        <div class="sparkle sparkle-3"></div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-groups-container-modern">
+            <div class="no-groups-card-modern">
+                <div class="no-groups-illustration">
+                    <div class="illustration-circle">
+                        <i class="fas fa-users no-groups-icon-modern"></i>
+                    </div>
+                    <div class="floating-elements">
+                        <div class="floating-star">⭐</div>
+                        <div class="floating-trophy">🏆</div>
+                        <div class="floating-crown">👑</div>
+                    </div>
+                </div>
+                <h3 class="no-groups-title-modern">Присоединитесь к группе!</h3>
+                <p class="no-groups-text-modern">Чтобы участвовать в рейтинге и соревноваться с другими студентами, вам нужно быть добавленным в группу.</p>
+                <div class="no-groups-action">
+                    <button class="contact-admin-btn" onclick="switchTab('requests')">
+                        <i class="fas fa-paper-plane"></i>
+                        Связаться с администратором
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

@@ -2,53 +2,163 @@
 # courses/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Lesson, Module, Course, Student
+from .models import User, Lesson, Module, Course, Student, Teacher
 from .models import Question, Answer
 from django.db import transaction
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 import re
 from .models import StudentMessageRequest
+from .models import CourseFeedback
+from .models import CourseAddRequest
 
 
-class StudentRegistrationForm(UserCreationForm):
+class StudentRegistrationForm(forms.Form):
+    GRADE_CHOICES = [
+        (1, '1 класс'),
+        (2, '2 класс'),
+        (3, '3 класс'),
+        (4, '4 класс'),
+        (5, '5 класс'),
+        (6, '6 класс'),
+        (7, '7 класс'),
+        (8, '8 класс'),
+        (9, '9 класс'),
+        (10, '10 класс'),
+        (11, '11 класс'),
+    ]
+    
+    username = forms.CharField(max_length=150, label='Имя пользователя')
     email = forms.EmailField(required=True, label='Email')
-    first_name = forms.CharField(required=False, label='Имя')
-    last_name = forms.CharField(required=False, label='Фамилия')
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+    first_name = forms.CharField(required=True, label='Имя')
+    last_name = forms.CharField(required=True, label='Фамилия')
+    age = forms.IntegerField(min_value=5, max_value=100, required=True, label='Возраст')
+    phone_number = forms.CharField(max_length=20, required=True, label='Номер телефона')
+    is_school_student = forms.BooleanField(required=False, initial=True, label='Я школьник')
+    grade = forms.ChoiceField(choices=[('', 'Выберите класс')] + GRADE_CHOICES, required=False, label='Класс')
+    password1 = forms.CharField(widget=forms.PasswordInput, label='Пароль')
+    password2 = forms.CharField(widget=forms.PasswordInput, label='Подтверждение пароля')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Отключаем встроенные подсказки
-        self.fields['username'].help_text = ''
-        self.fields['password1'].help_text = ''
-        self.fields['password2'].help_text = ''
+        # Добавляем CSS классы и атрибуты для полей
+        self.fields['grade'].widget.attrs.update({
+            'class': 'form-control',
+        })
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username:
+            # Проверяем, есть ли пользователь с таким именем
+            if User.objects.filter(username=username).exists():
+                raise forms.ValidationError(f"Пользователь с именем '{username}' уже существует. Выберите другое имя пользователя.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            # Проверяем, есть ли пользователь с таким email
+            if User.objects.filter(email=email).exists():
+                raise forms.ValidationError(f"Пользователь с email '{email}' уже существует. Используйте другой email адрес.")
+        return email
 
     def clean_password2(self):
-        # Отключаем стандартные проверки
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Пароли не совпадают.")
         return password2
 
+    def clean_grade(self):
+        is_school_student = self.cleaned_data.get('is_school_student')
+        grade = self.cleaned_data.get('grade')
+        
+        if is_school_student and not grade:
+            raise forms.ValidationError("Для школьников обязательно указывать класс")
+        if not is_school_student and grade:
+            raise forms.ValidationError("Для не школьников класс указывать не нужно")
+        
+        return grade
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        # Простая валидация номера телефона
+        if phone_number:
+            # Проверяем, что номер содержит только цифры
+            if not phone_number.isdigit():
+                raise forms.ValidationError("Номер телефона должен содержать только цифры")
+            if len(phone_number) < 10:
+                raise forms.ValidationError("Номер телефона должен содержать минимум 10 цифр")
+            if len(phone_number) > 11:
+                raise forms.ValidationError("Номер телефона должен содержать максимум 11 цифр")
+            
+            # Проверяем уникальность номера телефона
+            if Student.objects.filter(phone_number=phone_number).exists():
+                raise forms.ValidationError("Пользователь с таким номером телефона уже существует.")
+        return phone_number
+
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data.get('first_name', '')
-        user.last_name = self.cleaned_data.get('last_name', '')
-        user.is_student = True
-        if commit:
-            user.save()
-            with transaction.atomic():
-                student = Student.objects.create(user=user)
-                student.email = user.email
-                student.first_name = user.first_name
-                student.last_name = user.last_name
-                student.save()
+        username = self.cleaned_data['username']
+        email = self.cleaned_data['email']
+        first_name = self.cleaned_data.get('first_name', '')
+        last_name = self.cleaned_data.get('last_name', '')
+        age = self.cleaned_data.get('age')
+        phone_number = self.cleaned_data.get('phone_number', '')
+        is_school_student = self.cleaned_data.get('is_school_student', True)
+        grade = self.cleaned_data.get('grade')
+        password = self.cleaned_data['password1']
+        
+        with transaction.atomic():
+            # Пытаемся найти существующего пользователя
+            user = User.objects.filter(username=username).first()
+            
+            if user:
+                # Пользователь существует, обновляем его данные
+                user.email = email
+                user.first_name = first_name
+                user.last_name = last_name
+                user.is_student = True
+                user.set_password(password)
+                if commit:
+                    user.save()
+            else:
+                # Создаем нового пользователя
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                user.is_student = True
+                if commit:
+                    user.save()
+            
+            # Создаем объект Student (если его еще нет)
+            if commit:
+                student, created = Student.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'email': email,
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'phone_number': phone_number,
+                        'is_school_student': is_school_student,
+                        'grade': grade,
+                        'age': age,
+                    }
+                )
+                if not created:
+                    # Если Student уже существует, обновляем его данные
+                    student.email = email
+                    student.first_name = first_name
+                    student.last_name = last_name
+                    student.phone_number = phone_number
+                    student.is_school_student = is_school_student
+                    student.grade = grade
+                    student.age = age
+                    student.save()
+        
         return user
 
 
@@ -68,12 +178,18 @@ class LessonCreationForm(forms.ModelForm):
         cleaned_data = super().clean()
         video = cleaned_data.get('video')
         video_url = cleaned_data.get('video_url')
+        pdf = cleaned_data.get('pdf')
+        convert_pdf_to_slides = cleaned_data.get('convert_pdf_to_slides')
 
-        if not video and not video_url:
-            raise ValidationError('Необходимо указать либо видеофайл, либо URL видео')
+        # Проверяем, что есть хотя бы один тип контента
+        if not video and not video_url and not pdf:
+            raise ValidationError('Необходимо указать либо видеофайл, либо URL видео, либо PDF файл')
+        
+        # Нельзя одновременно загружать видео файл и указывать URL
         if video and video_url:
             raise ValidationError('Нельзя указать одновременно видеофайл и URL видео')
 
+        # Валидация URL видео
         if video_url:
             # Проверка формата URL
             url_validator = URLValidator()
@@ -115,6 +231,10 @@ class LessonCreationForm(forms.ModelForm):
                 if not ('/redir?' in video_url or '/embed?' in video_url):
                     raise ValidationError('Некорректная ссылка на OneDrive')
 
+        # Валидация конвертации PDF в слайды
+        if convert_pdf_to_slides and not pdf:
+            raise ValidationError('Для конвертации в слайды необходимо прикрепить PDF файл')
+
         return cleaned_data
 
 
@@ -139,20 +259,30 @@ class ModuleCreationForm(forms.ModelForm):
 class CourseCreationForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'modules', 'image']
+        fields = ['title', 'description', 'modules', 'teacher', 'image', 'stars']
         widgets = {
             'modules': forms.CheckboxSelectMultiple,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Описание — textarea с placeholder
-        self.fields['description'].widget = forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Краткое описание курса'})
-        # Модули — чекбоксы с прокруткой
-        self.fields['modules'].widget.attrs.update({'style': 'max-height:180px;overflow-y:auto;background:#f8f9fa;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;'})
-        # Картинка — стилизованный input
-        self.fields['image'].widget.attrs.update({'class': 'form-control', 'accept': 'image/*'})
+        
         self.fields['title'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Название курса'})
+        self.fields['description'].widget = forms.Textarea(attrs={
+            'class': 'form-control', 
+            'rows': 3, 
+            'placeholder': 'Краткое описание курса'
+        })
+        self.fields['modules'].widget.attrs.update({
+            'style': 'max-height:180px;overflow-y:auto;background:#f8f9fa;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;'
+        })
+        self.fields['teacher'].widget.attrs.update({'class': 'form-control'})
+        self.fields['teacher'].queryset = Teacher.objects.filter(is_active=True).order_by('last_name', 'first_name')
+        self.fields['image'].widget.attrs.update({'class': 'form-control', 'accept': 'image/*'})
+        self.fields['stars'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Количество звёзд за прохождение'
+        })
 
 
 class QuestionForm(forms.ModelForm):
@@ -201,18 +331,127 @@ from .models import Course, Module, Quiz, Lesson
 
 
 class QuizToModuleForm(forms.Form):
-    course = forms.ModelChoiceField(queryset=Course.objects.all(), required=True)
-    module = forms.ModelChoiceField(queryset=Module.objects.all(), required=True)
-    quiz = forms.ModelChoiceField(queryset=Quiz.objects.all(), required=True)
+    course = forms.ModelChoiceField(queryset=Course.objects.all(), required=True, label='Курс')
+    module = forms.ModelChoiceField(queryset=Module.objects.none(), required=True, label='Модуль')
+    quiz = forms.ModelChoiceField(queryset=Quiz.objects.all(), required=True, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Стили
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control'})
+        # Если есть initial для quiz — ограничим queryset одним квизом
+        quiz_initial = self.initial.get('quiz') if hasattr(self, 'initial') else None
+        if quiz_initial:
+            try:
+                quiz_id = quiz_initial.id if hasattr(quiz_initial, 'id') else int(quiz_initial)
+                self.fields['quiz'].queryset = Quiz.objects.filter(id=quiz_id)
+                self.fields['quiz'].initial = quiz_id
+            except Exception:
+                pass
+        # Фильтрация модулей по выбранному курсу (данные из POST) или initial
+        self.fields['module'].queryset = Module.objects.none()
+        if 'course' in self.data:
+            try:
+                course_id = int(self.data.get('course'))
+                self.fields['module'].queryset = Course.objects.get(id=course_id).modules.all().order_by('title')
+            except (ValueError, TypeError, Course.DoesNotExist):
+                self.fields['module'].queryset = Module.objects.none()
+        elif self.initial.get('course'):
+            course_obj = self.initial.get('course')
+            try:
+                self.fields['module'].queryset = course_obj.modules.all().order_by('title')
+            except Exception:
+                self.fields['module'].queryset = Module.objects.none()
 
 
 class StudentProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=False, label='Имя')
+    last_name = forms.CharField(max_length=30, required=False, label='Фамилия')
+    age = forms.IntegerField(min_value=5, max_value=100, required=False, label='Возраст')
+    grade = forms.ChoiceField(
+        choices=[('', 'Выберите класс')] + [
+            (1, '1 класс'),
+            (2, '2 класс'),
+            (3, '3 класс'),
+            (4, '4 класс'),
+            (5, '5 класс'),
+            (6, '6 класс'),
+            (7, '7 класс'),
+            (8, '8 класс'),
+            (9, '9 класс'),
+            (10, '10 класс'),
+            (11, '11 класс'),
+        ],
+        required=False,
+        label='Класс'
+    )
+    
     class Meta:
         model = Student
-        fields = ['avatar', 'phone_number', 'email']
+        fields = ['avatar', 'phone_number', 'email', 'age', 'grade']
         widgets = {
             'department': forms.NumberInput(attrs={'min': 1, 'max': 12}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем CSS классы для всех полей
+        self.fields['avatar'].widget.attrs.update({
+            'class': 'form-control-file',
+            'accept': 'image/*'
+        })
+        self.fields['phone_number'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Номер телефона'
+        })
+        self.fields['email'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Email адрес'
+        })
+        self.fields['first_name'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Ваше имя'
+        })
+        self.fields['last_name'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Ваша фамилия'
+        })
+        
+        self.fields['age'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Ваш возраст'
+        })
+        
+        self.fields['grade'].widget.attrs.update({
+            'class': 'form-control',
+        })
+        
+        # Заполняем поля именем и фамилией из связанного User объекта
+        if self.instance and self.instance.user:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+    
+    def save(self, commit=True):
+        student = super().save(commit=False)
+        
+        # Обновляем имя и фамилию в связанном User объекте
+        if student.user:
+            student.user.first_name = self.cleaned_data.get('first_name', '')
+            student.user.last_name = self.cleaned_data.get('last_name', '')
+            if commit:
+                student.user.save()
+        
+        # Обновляем возраст
+        student.age = self.cleaned_data.get('age')
+        
+        # Обновляем класс, если пользователь школьник
+        if student.is_school_student:
+            student.grade = self.cleaned_data.get('grade')
+        
+        if commit:
+            student.save()
+        return student
 
 
 class StudentExcelUploadForm(forms.Form):
@@ -225,6 +464,70 @@ class StudentMessageRequestForm(forms.ModelForm):
         fields = ['message']
         widgets = {
             'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Введите ваше сообщение...'}),
+        }
+
+
+class CourseFeedbackForm(forms.ModelForm):
+    """Форма для ввода отзывов о курсе"""
+    
+    class Meta:
+        model = CourseFeedback
+        fields = ['rating', 'comment', 'what_liked', 'what_to_improve', 'would_recommend']
+        widgets = {
+            'rating': forms.RadioSelect(attrs={
+                'class': 'feedback-rating',
+                'required': True
+            }),
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Поделитесь своими впечатлениями о курсе...',
+                'maxlength': 1000
+            }),
+            'what_liked': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Что вам больше всего понравилось в курсе?',
+                'maxlength': 500
+            }),
+            'what_to_improve': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Что можно было бы улучшить?',
+                'maxlength': 500
+            }),
+            'would_recommend': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+        labels = {
+            'rating': 'Оцените курс',
+            'comment': 'Общий отзыв',
+            'what_liked': 'Что понравилось',
+            'what_to_improve': 'Что улучшить',
+            'would_recommend': 'Рекомендую этот курс другим студентам'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['rating'].required = True
+        self.fields['comment'].required = True
+
+
+class CourseAddRequestForm(forms.ModelForm):
+    class Meta:
+        model = CourseAddRequest
+        fields = ['course_name', 'comment']
+        widgets = {
+            'course_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Введите название курса, который хотите изучать'
+            }),
+            'comment': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control',
+                'placeholder': 'Дополнительная информация (необязательно)'
+            }),
         }
 
 

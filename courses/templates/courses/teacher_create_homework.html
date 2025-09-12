@@ -1,0 +1,147 @@
+{% extends 'courses/teacher_base.html' %}
+{% load static %}
+
+{% block title %}Создать домашнее задание{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-plus text-primary"></i>
+                    Создать домашнее задание
+                </h2>
+                <a href="{% url 'teacher_homework_page' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад к заданиям
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        Форма создания задания
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="student_id" class="form-label">
+                                        <i class="fas fa-user-graduate"></i>
+                                        Студент *
+                                    </label>
+                                    <select name="student_id" id="student_id" class="form-control" required>
+                                        <option value="">Выберите студента...</option>
+                                        {% for student in students %}
+                                        <option value="{{ student.id }}" {% if request.GET.student_id == student.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ student.user.get_full_name|default:student.user.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title" class="form-label">
+                                        <i class="fas fa-heading"></i>
+                                        Заголовок задания *
+                                    </label>
+                                    <input type="text" name="title" id="title" class="form-control" required 
+                                           placeholder="Введите заголовок задания">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-align-left"></i>
+                                Описание задания *
+                            </label>
+                            <textarea name="description" id="description" class="form-control" rows="5" required
+                                      placeholder="Подробно опишите задание..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="due_date" class="form-label">
+                                        <i class="fas fa-calendar"></i>
+                                        Дата выполнения *
+                                    </label>
+                                    <input type="date" name="due_date" id="due_date" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="due_time" class="form-label">
+                                        <i class="fas fa-clock"></i>
+                                        Время выполнения *
+                                    </label>
+                                    <input type="time" name="due_time" id="due_time" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="pdf_file" class="form-label">
+                                        <i class="fas fa-file-pdf"></i>
+                                        PDF файл (необязательно)
+                                    </label>
+                                    <input type="file" name="pdf_file" id="pdf_file" class="form-control-file" 
+                                           accept=".pdf">
+                                    <small class="form-text text-muted">
+                                        Поддерживаются только PDF файлы
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="video_url" class="form-label">
+                                        <i class="fas fa-video"></i>
+                                        URL видео (необязательно)
+                                    </label>
+                                    <input type="url" name="video_url" id="video_url" class="form-control" 
+                                           placeholder="https://youtube.com/watch?v=...">
+                                    <small class="form-text text-muted">
+                                        Поддерживаются YouTube, Vimeo и другие платформы
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i>
+                                Создать задание
+                            </button>
+                            <a href="{% url 'teacher_homework_page' %}" class="btn btn-secondary btn-lg ml-2">
+                                <i class="fas fa-times"></i>
+                                Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Устанавливаем минимальную дату как сегодня
+document.getElementById('due_date').min = new Date().toISOString().split('T')[0];
+
+// Устанавливаем время по умолчанию (23:59)
+document.getElementById('due_time').value = '23:59';
+</script>
+{% endblock %}

@@ -153,7 +153,7 @@
     <header class="admin-header">
         <span class="admin-title"><i class="fas fa-link"></i>Привязать квиз к модулю</span>
         <div>
-            <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+            <a href="{% url 'admin_students_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
             <a href="{% url 'logout' %}" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </header>
@@ -165,6 +165,17 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <!-- Отображение выбранного квиза -->
+                    {% if quiz %}
+                        <div class="alert alert-info" role="alert" style="border-radius: 10px;">
+                            <i class="fas fa-question-circle"></i> Квиз: <strong>{{ quiz.title }}</strong>
+                        </div>
+                    {% endif %}
+
                     {% for field in form.visible_fields %}
                         <div class="form-group">
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -185,4 +196,63 @@
         </div>
     </div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const courseSelect = document.getElementById('id_course');
+        const moduleSelect = document.getElementById('id_module');
+
+        function resetModules() {
+            moduleSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Сначала выберите курс';
+            moduleSelect.appendChild(opt);
+        }
+
+        if (courseSelect && moduleSelect) {
+            if (!courseSelect.value) {
+                resetModules();
+                moduleSelect.disabled = true;
+            }
+
+            courseSelect.addEventListener('change', function() {
+                const courseId = this.value;
+                if (!courseId) {
+                    resetModules();
+                    moduleSelect.disabled = true;
+                    return;
+                }
+                moduleSelect.disabled = true;
+                fetch(`/api/courses/${courseId}/modules/`)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        moduleSelect.innerHTML = '';
+                        if (data.modules && data.modules.length) {
+                            const firstOpt = document.createElement('option');
+                            firstOpt.value = '';
+                            firstOpt.textContent = 'Выберите модуль';
+                            moduleSelect.appendChild(firstOpt);
+                            data.modules.forEach(m => {
+                                const opt = document.createElement('option');
+                                opt.value = m.id;
+                                opt.textContent = m.title;
+                                moduleSelect.appendChild(opt);
+                            });
+                            moduleSelect.disabled = false;
+                        } else {
+                            const opt = document.createElement('option');
+                            opt.value = '';
+                            opt.textContent = 'В этом курсе нет модулей';
+                            moduleSelect.appendChild(opt);
+                            moduleSelect.disabled = true;
+                        }
+                    })
+                    .catch(() => {
+                        resetModules();
+                        moduleSelect.disabled = true;
+                    });
+            });
+        }
+    });
+</script>
 </html>

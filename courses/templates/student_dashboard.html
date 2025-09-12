@@ -2,28 +2,47 @@
 {% load static %}
 {% load math_filters %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'avatar_level_styles.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Student Info Card -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-                    {{ student.user.username|first|upper }}
+                <div class="avatar-with-level">
+                    {% if student.avatar %}
+                        <img src="{{ student.avatar.url }}" alt="Avatar" class="w-16 h-16 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+                            {{ student.user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="level-badge level-{{ student.level_number }} medium animate" 
+                         data-tooltip="{{ student.level_name }}">
+                        {{ student.level_number }}
+                    </div>
                 </div>
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">{{ student.user.username }}</h2>
-                    <p class="text-gray-600">Level {{ student.level }}</p>
+                    <p class="text-gray-600">{{ student.level_name }} (Уровень {{ student.level_number }})</p>
                 </div>
             </div>
             <div class="mt-4">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm text-gray-600">Experience</span>
-                    <span class="text-sm font-medium text-gray-800">{{ student.experience }}/{{ student.level|multiply:1000 }}</span>
+                    <span class="text-sm text-gray-600">Звезды</span>
+                    <span class="text-sm font-medium text-gray-800">{{ student.stars }} ⭐</span>
                 </div>
+                {% if student.get_level %}
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: {{ student.experience|multiply:100|div:student.level|div:1000 }}%"></div>
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: {{ student|level_progress }}%"></div>
                 </div>
+                <div class="mt-1 text-xs text-gray-500">
+                    Прогресс до следующего уровня: {{ student|level_progress|floatformat:0 }}%
+                </div>
+                {% endif %}
             </div>
             <div class="mt-4">
                 <div class="flex items-center space-x-2">

@@ -1,0 +1,271 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление уровнями{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ levels.count }}</div>
+            <div class="stats-label">Всего уровней</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ levels.first.min_stars|default:0 }}</div>
+            <div class="stats-label">Мин. звезд для 1 уровня</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ levels.last.max_stars|default:0 }}</div>
+            <div class="stats-label">Макс. звезд для последнего</div>
+        </div>
+    </div>
+</div>
+
+<!-- Управление уровнями -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-star mr-2"></i>Управление уровнями
+                </h5>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#addLevelModal">
+                    <i class="fas fa-plus mr-2"></i>Добавить уровень
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Изображение</th>
+                                <th>Номер</th>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Мин. звезд</th>
+                                <th>Макс. звезд</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for level in levels %}
+                            <tr>
+                                <td>{{ level.id }}</td>
+                                <td>
+                                    {% if level.image %}
+                                        <img src="{{ level.image.url }}" alt="Level {{ level.number }}" class="rounded" width="50" height="50" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ level.number }}</td>
+                                <td>{{ level.name }}</td>
+                                <td>{{ level.description|truncatechars:50 }}</td>
+                                <td>{{ level.min_stars }}</td>
+                                <td>{{ level.max_stars }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-warning" onclick="editLevel({{ level.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        {% if level.image %}
+                                        <button class="btn btn-sm btn-outline-info" onclick="removeLevelImage({{ level.id }})">
+                                            <i class="fas fa-image"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLevel({{ level.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Уровни не найдены</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно добавления уровня -->
+<div class="modal fade" id="addLevelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить уровень</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_levels_page' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Номер уровня</label>
+                        <input type="number" class="form-control" name="number" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Минимальное количество звезд</label>
+                        <input type="number" class="form-control" name="min_stars" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Максимальное количество звезд</label>
+                        <input type="number" class="form-control" name="max_stars" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Изображение уровня</label>
+                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" name="add_level" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования уровня -->
+<div class="modal fade" id="editLevelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать уровень</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_levels_page' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="level_id" id="edit_level_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Номер уровня</label>
+                        <input type="number" class="form-control" name="number" id="edit_number" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea class="form-control" name="description" id="edit_description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Минимальное количество звезд</label>
+                        <input type="number" class="form-control" name="min_stars" id="edit_min_stars" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Максимальное количество звезд</label>
+                        <input type="number" class="form-control" name="max_stars" id="edit_max_stars" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Новое изображение уровня</label>
+                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                        <small class="form-text text-muted">Оставьте пустым, чтобы сохранить текущее изображение</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" name="edit_level" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления уровня -->
+<div class="modal fade" id="deleteLevelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот уровень? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'admin_levels_page' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="level_id" id="delete_level_id">
+                    <button type="submit" name="delete_level" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editLevel(levelId) {
+    // Здесь можно добавить AJAX запрос для получения данных уровня
+    // Пока что просто показываем модальное окно
+    $('#edit_level_id').val(levelId);
+    $('#editLevelModal').modal('show');
+}
+
+function deleteLevel(levelId) {
+    if (confirm('Вы уверены, что хотите удалить этот уровень?')) {
+        $('#delete_level_id').val(levelId);
+        $('#deleteLevelModal').modal('show');
+    }
+}
+
+function removeLevelImage(levelId) {
+    if (confirm('Вы уверены, что хотите удалить изображение этого уровня?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "admin_levels_page" %}';
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        
+        const levelIdInput = document.createElement('input');
+        levelIdInput.type = 'hidden';
+        levelIdInput.name = 'level_id';
+        levelIdInput.value = levelId;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'remove_image';
+        actionInput.value = '1';
+        
+        form.appendChild(csrfToken);
+        form.appendChild(levelIdInput);
+        form.appendChild(actionInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

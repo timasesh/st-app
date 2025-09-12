@@ -1,0 +1,248 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление достижениями{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ achievements.count }}</div>
+            <div class="stats-label">Всего достижений</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ students.count }}</div>
+            <div class="stats-label">Студентов</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ achievements|length }}</div>
+            <div class="stats-label">Активных достижений</div>
+        </div>
+    </div>
+</div>
+
+<!-- Управление достижениями -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy mr-2"></i>Управление достижениями
+                </h5>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#addAchievementModal">
+                    <i class="fas fa-plus mr-2"></i>Создать достижение
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Изображение</th>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Условие получения</th>
+                                <th>Количество получений</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for achievement in achievements %}
+                            <tr>
+                                <td>{{ achievement.id }}</td>
+                                <td>
+                                    {% if achievement.image %}
+                                        <img src="{{ achievement.image.url }}" alt="Achievement" class="rounded" width="50" height="50" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-trophy"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ achievement.name }}</td>
+                                <td>{{ achievement.description|truncatechars:50 }}</td>
+                                <td>{{ achievement.condition|truncatechars:50 }}</td>
+                                <td>{{ achievement.students.count }}</td>
+                                <td>{{ achievement.created_at|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewAchievement({{ achievement.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" onclick="editAchievement({{ achievement.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAchievement({{ achievement.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Достижения не найдены</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно создания достижения -->
+<div class="modal fade" id="addAchievementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать достижение</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_achievements_page' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Название достижения</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Условие получения</label>
+                        <textarea class="form-control" name="condition" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Изображение достижения</label>
+                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" name="add_achievement" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования достижения -->
+<div class="modal fade" id="editAchievementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать достижение</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'admin_achievements_page' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="achievement_id" id="edit_achievement_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Название достижения</label>
+                        <input type="text" class="form-control" name="name" id="edit_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea class="form-control" name="description" id="edit_description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Условие получения</label>
+                        <textarea class="form-control" name="condition" id="edit_condition" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Новое изображение достижения</label>
+                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                        <small class="form-text text-muted">Оставьте пустым, чтобы сохранить текущее изображение</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" name="edit_achievement" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно просмотра достижения -->
+<div class="modal fade" id="viewAchievementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Детали достижения</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="achievementContent">
+                <!-- Содержимое будет загружено через AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления достижения -->
+<div class="modal fade" id="deleteAchievementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить это достижение? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'admin_achievements_page' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="achievement_id" id="delete_achievement_id">
+                    <button type="submit" name="delete_achievement" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewAchievement(achievementId) {
+    // Здесь можно добавить AJAX запрос для получения деталей достижения
+    $('#achievementContent').html('<p>Загрузка...</p>');
+    $('#viewAchievementModal').modal('show');
+}
+
+function editAchievement(achievementId) {
+    // Здесь можно добавить AJAX запрос для получения данных достижения
+    $('#edit_achievement_id').val(achievementId);
+    $('#editAchievementModal').modal('show');
+}
+
+function deleteAchievement(achievementId) {
+    if (confirm('Вы уверены, что хотите удалить это достижение?')) {
+        $('#delete_achievement_id').val(achievementId);
+        $('#deleteAchievementModal').modal('show');
+    }
+}
+</script>
+{% endblock %}

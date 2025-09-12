@@ -1,0 +1,380 @@
+{% extends 'courses/teacher_base.html' %}
+
+{% block title %}Дашборд преподавателя{% endblock %}
+{% block page_title %}Дашборд{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-chalkboard-teacher mr-2"></i>
+                    Добро пожаловать, {{ teacher.full_name }}!
+                </h2>
+            </div>
+            <div class="card-body">
+                <!-- Статистика -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-icon primary">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="stats-number">{{ courses.count }}</div>
+                            <div class="stats-label">Ваших курсов</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-icon success">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div class="stats-number">{{ total_modules }}</div>
+                            <div class="stats-label">Модулей</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-icon warning">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stats-number">{{ total_lessons }}</div>
+                            <div class="stats-label">Уроков</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-icon info">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-number">{{ total_students }}</div>
+                            <div class="stats-label">Студентов</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Навигационные карточки -->
+                <h4 class="mb-4">
+                    <i class="fas fa-compass mr-2"></i>
+                    Навигация по панели
+                </h4>
+                
+                <div class="row">
+                    <!-- Курсы -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_courses' %}" class="dashboard-card-link">
+                            <div class="dashboard-card courses-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Курсы</h5>
+                                    <p>Управление вашими курсами</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-primary">{{ courses.count }} курсов</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Модули -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_modules' %}" class="dashboard-card-link">
+                            <div class="dashboard-card modules-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-cubes"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Модули</h5>
+                                    <p>Структура обучения</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-success">{{ total_modules }} модулей</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Уроки -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_lessons' %}" class="dashboard-card-link">
+                            <div class="dashboard-card lessons-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Уроки</h5>
+                                    <p>Учебные материалы</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-warning">{{ total_lessons }} уроков</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Квизы -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_quizzes' %}" class="dashboard-card-link">
+                            <div class="dashboard-card quizzes-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Квизы</h5>
+                                    <p>Тесты и проверки</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-info">{{ total_quizzes|default:0 }} квизов</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Студенты -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_students' %}" class="dashboard-card-link">
+                            <div class="dashboard-card students-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Студенты</h5>
+                                    <p>Ваши ученики</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-secondary">{{ total_students }} студентов</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- Профиль -->
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'teacher_profile' %}" class="dashboard-card-link">
+                            <div class="dashboard-card profile-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h5>Профиль</h5>
+                                    <p>Личные настройки</p>
+                                    <div class="card-stats">
+                                        <span class="badge badge-dark">Настройки</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Последние курсы -->
+                <h4 class="mb-3">
+                    <i class="fas fa-clock mr-2"></i>
+                    Ваши курсы
+                </h4>
+                {% if courses %}
+                    <div class="row">
+                        {% for course in courses %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text">{{ course.description|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-users"></i> {{ course.students.count }} студентов
+                                        </p>
+                                        <a href="{% url 'teacher_course_detail' course.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Просмотр
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        У вас пока нет назначенных курсов. Обратитесь к администратору.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.dashboard-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.dashboard-card:hover::before {
+    opacity: 1;
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover .card-icon {
+    transform: scale(1.1);
+}
+
+.card-content h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.card-content p {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.card-stats {
+    margin-top: auto;
+}
+
+/* Цветовые схемы для карточек */
+.courses-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.courses-card .card-content h5,
+.courses-card .card-content p {
+    color: white;
+}
+
+.modules-card {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.modules-card .card-content h5,
+.modules-card .card-content p {
+    color: white;
+}
+
+.lessons-card {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+}
+
+.lessons-card .card-content h5,
+.lessons-card .card-content p {
+    color: white;
+}
+
+.quizzes-card {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+    color: white;
+}
+
+.quizzes-card .card-content h5,
+.quizzes-card .card-content p {
+    color: white;
+}
+
+.students-card {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+
+.students-card .card-content h5,
+.students-card .card-content p {
+    color: white;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+    color: white;
+}
+
+.profile-card .card-content h5,
+.profile-card .card-content p {
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .dashboard-card {
+        height: 180px;
+        padding: 1.5rem;
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .card-content h5 {
+        font-size: 1.1rem;
+    }
+    
+    .card-content p {
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

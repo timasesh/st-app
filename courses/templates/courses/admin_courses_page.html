@@ -1,0 +1,496 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление курсами{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ courses.count }}</div>
+            <div class="stats-label">Всего курсов</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ modules.count }}</div>
+            <div class="stats-label">Модулей</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ lessons.count }}</div>
+            <div class="stats-label">Уроков</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ quizzes.count }}</div>
+            <div class="stats-label">Тестов</div>
+        </div>
+    </div>
+</div>
+
+<!-- Секции управления -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="coursesTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="courses-tab" data-toggle="tab" href="#courses" role="tab">
+                            <i class="fas fa-graduation-cap mr-2"></i>Курсы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="modules-tab" data-toggle="tab" href="#modules" role="tab">
+                            <i class="fas fa-cubes mr-2"></i>Модули
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="lessons-tab" data-toggle="tab" href="#lessons" role="tab">
+                            <i class="fas fa-book mr-2"></i>Уроки
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="quizzes-tab" data-toggle="tab" href="#quizzes" role="tab">
+                            <i class="fas fa-question-circle mr-2"></i>Тесты
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="coursesTabContent">
+                    <!-- Секция курсов -->
+                    <div class="tab-pane fade show active" id="courses" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Список курсов</h5>
+                            <a href="{% url 'create_course' %}" class="btn btn-primary">
+                                <i class="fas fa-plus mr-2"></i>Создать курс
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Изображение</th>
+                                        <th>Название</th>
+                                        <th>Описание</th>
+                                        <th>Модули</th>
+                                        <th>Студенты</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for course in courses %}
+                                    <tr>
+                                        <td>{{ course.id }}</td>
+                                        <td>
+                                            {% if course.image %}
+                                                <img src="{{ course.image.url }}" alt="Course" class="rounded" width="50" height="50" style="object-fit: cover;">
+                                            {% else %}
+                                                <div class="rounded bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ course.title }}</td>
+                                        <td>{{ course.description|truncatechars:50 }}</td>
+                                        <td>{{ course.modules.count }}</td>
+                                        <td>{{ course.students.count }}</td>
+                                        <td>{{ course.created_at|date:"d.m.Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-info" onclick="toggleModules({{ course.id }})">
+                                                    <i class="fas fa-list"></i> Модули
+                                                </button>
+                                                <a href="{% url 'add_module_to_course' course.id %}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-plus"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse({{ course.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Раскрывающийся список модулей -->
+                                    <tr class="modules-row" id="modules-{{ course.id }}" style="display: none;">
+                                        <td colspan="8">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Модули курса "{{ course.title }}"</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    {% if course.modules.all %}
+                                                        <div class="row">
+                                                            {% for module in course.modules.all %}
+                                                            <div class="col-md-6 mb-3">
+                                                                <div class="card">
+                                                                    <div class="card-body">
+                                                                        <h6 class="card-title">{{ module.title }}</h6>
+                                                                        <p class="card-text">{{ module.description|truncatechars:100 }}</p>
+                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                            <small class="text-muted">
+                                                                                Уроков: {{ module.lessons.count }} | 
+                                                                                Тестов: {{ module.quizzes.count }}
+                                                                            </small>
+                                                                            <div class="btn-group btn-group-sm">
+                                                                                <a href="{% url 'module_details' module.id %}" class="btn btn-outline-primary btn-sm">
+                                                                                    <i class="fas fa-eye"></i>
+                                                                                </a>
+                                                                                <a href="{% url 'edit_module' module.id %}" class="btn btn-outline-warning btn-sm">
+                                                                                    <i class="fas fa-edit"></i>
+                                                                                </a>
+                                                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteModule({{ module.id }})">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% else %}
+                                                        <p class="text-muted text-center">В этом курсе пока нет модулей</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Курсы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция модулей -->
+                    <div class="tab-pane fade" id="modules" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Список модулей</h5>
+                            <a href="{% url 'create_module' %}" class="btn btn-primary">
+                                <i class="fas fa-plus mr-2"></i>Создать модуль
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название</th>
+                                        <th>Описание</th>
+                                        <th>Курс</th>
+                                        <th>Уроки</th>
+                                        <th>Тесты</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for module in modules %}
+                                    <tr>
+                                        <td>{{ module.id }}</td>
+                                        <td>{{ module.title }}</td>
+                                        <td>{{ module.description|truncatechars:50 }}</td>
+                                        <td>{{ module.course.title|default:"Не привязан" }}</td>
+                                        <td>{{ module.lessons.count }}</td>
+                                        <td>{{ module.quizzes.count }}</td>
+                                        <td>{{ module.created_at|date:"d.m.Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'module_details' module.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'edit_module' module.id %}" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteModule({{ module.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Модули не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция уроков -->
+                    <div class="tab-pane fade" id="lessons" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Список уроков</h5>
+                            <a href="{% url 'create_lesson' %}" class="btn btn-primary">
+                                <i class="fas fa-plus mr-2"></i>Создать урок
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название</th>
+                                        <th>Описание</th>
+                                        <th>Модуль</th>
+                                        <th>Тип контента</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lesson in lessons %}
+                                    <tr>
+                                        <td>{{ lesson.id }}</td>
+                                        <td>{{ lesson.title }}</td>
+                                        <td>{{ lesson.description|truncatechars:50 }}</td>
+                                        <td>{{ lesson.module.title|default:"Не привязан" }}</td>
+                                        <td>
+                                            {% if lesson.video %}
+                                                <span class="badge badge-primary">Видео</span>
+                                            {% elif lesson.pdf %}
+                                                <span class="badge badge-info">PDF</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Текст</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ lesson.created_at|date:"d.m.Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'view_lesson' lesson.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'edit_lesson' lesson.id %}" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteLesson({{ lesson.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Уроки не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция тестов -->
+                    <div class="tab-pane fade" id="quizzes" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Список тестов</h5>
+                            <a href="{% url 'create_quiz' %}" class="btn btn-primary">
+                                <i class="fas fa-plus mr-2"></i>Создать тест
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название</th>
+                                        <th>Описание</th>
+                                        <th>Модуль</th>
+                                        <th>Вопросов</th>
+                                        <th>Время (мин)</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quiz in quizzes %}
+                                    <tr>
+                                        <td>{{ quiz.id }}</td>
+                                        <td>{{ quiz.title }}</td>
+                                        <td>{{ quiz.description|truncatechars:50 }}</td>
+                                        <td>{{ quiz.module.title|default:"Не привязан" }}</td>
+                                        <td>{{ quiz.questions.count }}</td>
+                                        <td>{{ quiz.time_limit|default:"-" }}</td>
+                                        <td>{{ quiz.created_at|date:"d.m.Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'quiz_detail' quiz.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteQuiz({{ quiz.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Тесты не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно удаления курса -->
+<div class="modal fade" id="deleteCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот курс? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteCourseForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления модуля -->
+<div class="modal fade" id="deleteModuleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот модуль? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteModuleForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления урока -->
+<div class="modal fade" id="deleteLessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот урок? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteLessonForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления теста -->
+<div class="modal fade" id="deleteQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот тест? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteQuizForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleModules(courseId) {
+    var modulesRow = $('#modules-' + courseId);
+    if (modulesRow.is(':visible')) {
+        modulesRow.hide();
+    } else {
+        // Скрываем все другие раскрытые модули
+        $('.modules-row').hide();
+        // Показываем модули для выбранного курса
+        modulesRow.show();
+    }
+}
+
+function deleteCourse(courseId) {
+    if (confirm('Вы уверены, что хотите удалить этот курс?')) {
+        $('#deleteCourseForm').attr('action', '/delete_course/' + courseId + '/');
+        $('#deleteCourseModal').modal('show');
+    }
+}
+
+function deleteModule(moduleId) {
+    if (confirm('Вы уверены, что хотите удалить этот модуль?')) {
+        $('#deleteModuleForm').attr('action', '/delete/module/' + moduleId + '/');
+        $('#deleteModuleModal').modal('show');
+    }
+}
+
+function deleteLesson(lessonId) {
+    if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+        $('#deleteLessonForm').attr('action', '/delete/lesson/' + lessonId + '/');
+        $('#deleteLessonModal').modal('show');
+    }
+}
+
+function deleteQuiz(quizId) {
+    if (confirm('Вы уверены, что хотите удалить этот тест?')) {
+        $('#deleteQuizForm').attr('action', '/delete/quiz/' + quizId + '/');
+        $('#deleteQuizModal').modal('show');
+    }
+}
+</script>
+{% endblock %}

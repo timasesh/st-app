@@ -1,0 +1,127 @@
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+                
+                <h4>{{ student.user.first_name }} {{ student.user.last_name }}</h4>
+                <p class="text-muted">@{{ student.user.username }}</p>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="stats-item">
+                            <div class="stats-number text-warning">{{ student.stars }}</div>
+                            <div class="stats-label">Звезд</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-item">
+                            <div class="stats-number text-info">{{ student.level_number }}</div>
+                            <div class="stats-label">Уровень</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <span class="badge badge-success badge-pill">
+                        <i class="fas fa-trophy"></i> Место в рейтинге: {{ student_rank }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    Прогресс по курсам
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if course_progress %}
+                    {% for item in course_progress %}
+                        <div class="mb-4">
+                            <h6>{{ item.course.title }}</h6>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-success" style="width: {{ item.progress }}%">
+                                    {{ item.progress }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ item.course.description|truncatewords:20 }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Студент не записан ни на один курс</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    Результаты квизов
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if quiz_attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Квиз</th>
+                                    <th>Результат</th>
+                                    <th>Дата</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in quiz_attempts %}
+                                <tr>
+                                    <td>{{ attempt.quiz.title }}</td>
+                                    <td>{{ attempt.score }}/{{ attempt.total_questions }}</td>
+                                    <td>{{ attempt.attempt_date|date:"d.m.Y H:i" }}</td>
+                                    <td>
+                                        {% if attempt.passed %}
+                                            <span class="badge badge-success">Сдан</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Не сдан</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Студент еще не проходил квизы</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-item {
+    padding: 0.5rem;
+}
+
+.stats-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.stats-label {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+</style>

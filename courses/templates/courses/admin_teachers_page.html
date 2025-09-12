@@ -1,0 +1,223 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление преподавателями{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-chalkboard-teacher mr-2"></i>
+                    Управление преподавателями
+                </h2>
+                <button class="btn btn-success" data-toggle="collapse" data-target="#addTeacherForm">
+                    <i class="fas fa-plus mr-2"></i>Добавить преподавателя
+                </button>
+            </div>
+            
+            <!-- Форма добавления преподавателя -->
+            <div class="collapse" id="addTeacherForm">
+                <div class="card-body">
+                    <form method="post" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherFirstName">Имя *</label>
+                                    <input type="text" class="form-control" name="first_name" id="teacherFirstName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherLastName">Фамилия *</label>
+                                    <input type="text" class="form-control" name="last_name" id="teacherLastName" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherEmail">Email *</label>
+                                    <input type="email" class="form-control" name="email" id="teacherEmail" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherPhone">Номер телефона</label>
+                                    <input type="tel" class="form-control" name="phone_number" id="teacherPhone">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="teacherSpecialization">Специализация</label>
+                                    <input type="text" class="form-control" name="specialization" id="teacherSpecialization" placeholder="Например: Математика, Физика">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="teacherBio">О преподавателе</label>
+                                    <textarea class="form-control" name="bio" id="teacherBio" rows="3" placeholder="Краткая биография преподавателя"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherAvatar">Фото профиля</label>
+                                    <input type="file" class="form-control-file" name="avatar" id="teacherAvatar" accept="image/*">
+                                    <small class="form-text text-muted">Необязательно. Поддерживаются PNG, JPG, JPEG</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="teacherPassword">Пароль *</label>
+                                    <input type="password" class="form-control" name="password" id="teacherPassword" required>
+                                    <small class="form-text text-muted">Пароль для входа в систему</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" name="add_teacher" class="btn btn-primary">
+                            <i class="fas fa-plus mr-2"></i>Добавить преподавателя
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Таблица преподавателей -->
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th style="width: 80px;">Фото</th>
+                                <th style="width: 150px;">Имя</th>
+                                <th style="width: 200px;">Email</th>
+                                <th style="width: 120px;">Телефон</th>
+                                <th style="width: 150px;">Специализация</th>
+                                <th style="width: 80px;">Курсы</th>
+                                <th style="width: 80px;">Статус</th>
+                                <th style="width: 150px;">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for teacher in teachers %}
+                            <tr>
+                                <td class="text-center">
+                                    {% if teacher.avatar %}
+                                        <img src="{{ teacher.avatar.url }}" alt="{{ teacher.full_name }}" 
+                                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #007bff;">
+                                    {% else %}
+                                        <i class="fas fa-user text-muted" style="font-size: 32px;" title="Нет фото"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ teacher.full_name }}</td>
+                                <td>{{ teacher.email }}</td>
+                                <td>{{ teacher.phone_number|default:"-" }}</td>
+                                <td>{{ teacher.specialization|default:"-" }}</td>
+                                <td>{{ teacher.courses_count }}</td>
+                                <td>
+                                    {% if teacher.is_active %}
+                                        <span class="badge badge-success">Активен</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Неактивен</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                                        <button type="submit" name="toggle_teacher_status" 
+                                                class="btn btn-sm {% if teacher.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                            {% if teacher.is_active %}
+                                                <i class="fas fa-pause"></i> Деактивировать
+                                            {% else %}
+                                                <i class="fas fa-play"></i> Активировать
+                                            {% endif %}
+                                        </button>
+                                        <button type="submit" name="delete_teacher" class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('Удалить преподавателя? Это действие нельзя отменить.')">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">
+                                    <i class="fas fa-chalkboard-teacher fa-3x mb-3"></i>
+                                    <p class="h5">Преподаватели не найдены</p>
+                                    <p>Добавьте первого преподавателя, нажав кнопку "Добавить преподавателя"</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ teachers.count }}</div>
+            <div class="stats-label">Всего преподавателей</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ active_teachers_count }}</div>
+            <div class="stats-label">Активных преподавателей</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ total_courses_count }}</div>
+            <div class="stats-label">Курсов у преподавателей</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ total_teachers_count }}</div>
+            <div class="stats-label">Всего преподавателей</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .teacher-avatar {
+        transition: transform 0.3s ease;
+    }
+    
+    .teacher-avatar:hover {
+        transform: scale(1.1);
+    }
+    
+    .stats-card {
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

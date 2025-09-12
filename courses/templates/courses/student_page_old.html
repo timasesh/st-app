@@ -1,0 +1,2102 @@
+{% load static %}
+{% load course_extras %}
+{% load math_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница студента</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'student_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
+    <meta name="student-page-url" content="{% url 'student_page' %}">
+</head>
+<body class="modern-student-body">
+    
+    <header class="modern-student-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+            </div>
+            <div class="student-profile-section">
+                <div class="student-avatar-modern">
+                    {% if student.avatar %}
+                        <img src="{{ student.avatar.url }}" alt="Avatar" class="avatar-image">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="student-info">
+                    <h1 class="student-name-modern">{{ student.first_name }} {{ student.last_name }}</h1>
+                    <p class="student-role">Студент</p>
+                </div>
+            </div>
+            
+            <div class="stats-modern">
+                <div class="stat-item stat-stars">
+                    <div class="stat-icon-wrapper">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ student.stars }}</div>
+                        <div class="stat-label" style="text-align: center;">Звезд</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-courses">
+                    <div class="stat-icon-wrapper">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ student.courses.count }}</div>
+                        <div class="stat-label" style="text-align: center;">Курсов</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-groups">
+                    <div class="stat-icon-wrapper">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ student.groups.count }}</div>
+                        <div class="stat-label" style="text-align: center;">Групп</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="{% url 'student_profile' %}" class="action-btn profile-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </a>
+                <a href="{% url 'logout' %}" class="action-btn logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Выйти</span>
+                </a>
+            </div>
+        </div>
+        
+    </header>
+    
+    
+    <!-- Основной контент -->
+    <div class="main-content">
+        
+        <div class="content-card">
+            
+            <!-- Скрытый CSRF токен для JavaScript запросов -->
+            {% csrf_token %}
+            
+            <div class="tab-content" id="studentTabContent">
+                <div class="nav-tabs-modern">
+                    <button class="nav-tab active" data-tab="courses">
+                        <i class="fas fa-book-open"></i>
+                        <span>Мои курсы</span>
+                    </button>
+                    <button class="nav-tab" data-tab="levels">
+                        <i class="fas fa-medal"></i>
+                        <span>Уровни</span>
+                    </button>
+                    <button class="nav-tab" data-tab="rating">
+                        <i class="fas fa-trophy"></i>
+                        <span>Рейтинг</span>
+                    </button>
+                    <button class="nav-tab" data-tab="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Уведомления</span>
+                        {% if unread_count > 0 %}
+                        <span class="notification-badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </button>
+                    <button class="nav-tab" data-tab="requests">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Запросы</span>
+                    </button>
+                </div>
+                <div class="tab-pane active" id="courses">
+                    <div class="courses-modern-grid">
+                        {% for course in courses %}
+                        <div class="course-card-modern">
+                            <div class="course-card-header">
+                                <div class="course-image-container">
+                                    {% if course.image %}
+                                        <img src="{{ course.image.url }}" class="course-card-image" alt="{{ course.title }}">
+                                    {% else %}
+                                        <div class="course-card-image-placeholder">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="course-progress-overlay">
+                                        <div class="progress-circle" data-progress="{{ progress_data|get_item:course.id }}">
+                                            <svg class="progress-ring" width="60" height="60">
+                                                <circle class="progress-ring-circle" stroke="#fff" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+                                            </svg>
+                                            <div class="progress-text">{{ progress_data|get_item:course.id }}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="course-card-body">
+                                <h5 class="course-card-title">{{ course.title }}</h5>
+                                <div class="course-stats">
+                                    <div class="course-stat">
+                                        <i class="fas fa-book-open"></i>
+                                        <span>{{ course.modules.count }} модулей</span>
+                                    </div>
+                                    <div class="course-stat">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Обновлено</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="course-progress-modern">
+                                    <div class="progress-info">
+                                        <span class="progress-label">Прогресс обучения</span>
+                                        <span class="progress-percentage">{{ progress_data|get_item:course.id }}%</span>
+                                    </div>
+                                    <div class="progress-bar-modern">
+                                        <div class="progress-fill" style="width: {{ progress_data|get_item:course.id }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="course-card-footer">
+                                <a href="{% url 'course_detail' course.id %}" class="course-continue-btn">
+                                    {% if progress_data|get_item:course.id == 100 %}
+                                        <i class="fas fa-trophy mr-2"></i>Посмотреть курс
+                                    {% elif progress_data|get_item:course.id > 0 %}
+                                        <i class="fas fa-play mr-2"></i>Продолжить обучение
+                                    {% else %}
+                                        <i class="fas fa-rocket mr-2"></i>Начать обучение
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="no-courses-container">
+                            <div class="no-courses-card">
+                                <div class="no-courses-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <h4 class="no-courses-title">У вас пока нет активных курсов</h4>
+                                <p class="no-courses-text">Присоединитесь к курсу, чтобы начать свое обучение!</p>
+                                <div class="no-courses-animation">
+                                    <div class="floating-book">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div class="floating-book">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="floating-book">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if not show_course_notification %}
+                    <div class="join-course-section fade-in mt-5">
+                        <div class="join-course-card">
+                            <div class="join-course-header">
+                                <div class="join-course-icon">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <h4 class="join-course-title">Присоединиться к новому курсу</h4>
+                                <p class="join-course-subtitle">Введите код курса, полученный от преподавателя</p>
+                            </div>
+                            
+                            <form method="post" class="join-course-form">
+                                {% csrf_token %}
+                                <div class="form-group-modern">
+                                    <div class="input-container">
+                                        <i class="fas fa-key input-icon"></i>
+                                        <input type="text" class="form-control-modern" name="course_code" placeholder="Код курса" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="join-course-btn">
+                                    <i class="fas fa-rocket mr-2"></i>Присоединиться к курсу
+                                </button>
+                            </form>
+                            
+                            <div class="join-course-help">
+                                <div class="help-item">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Код курса обычно состоит из 6-8 символов</span>
+                                </div>
+                                <div class="help-item">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span>Не знаете код? Обратитесь к преподавателю</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+
+                
+                <div class="tab-pane" id="requests">
+                    <div class="course-request-section fade-in">
+                        <h3 class="mb-4">Запросы на добавление курсов</h3>
+                        {% if add_course_requests %}
+                        <div class="request-list">
+                            {% for request in add_course_requests %}
+                            <div class="card mb-3 shadow-sm border-0 request-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-book text-primary mr-2 fa-lg"></i>
+                                                <h5 class="mb-0 font-weight-bold">{{ request.course.title }}</h5>
+                                            </div>
+                                            <p class="text-muted mb-2">
+                                                <i class="far fa-clock mr-1"></i>
+                                                <small>Отправлен: {{ request.created_at|date:"d.m.Y H:i" }}</small>
+                                            </p>
+                                            {% if request.admin_response %}
+                                            <div class="alert alert-info py-2 px-3 mt-2 mb-0">
+                                                <i class="fas fa-reply mr-1"></i>
+                                                <strong>Ответ администратора:</strong><br>
+                                                <span style="white-space: pre-line;">{{ request.admin_response }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ml-3">
+                                            <span class="badge badge-pill px-3 py-2 status-{{ request.status }}">
+                                                {% if request.status == 'pending' %}
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                {% elif request.status == 'approved' %}
+                                                    <i class="fas fa-check mr-1"></i>
+                                                {% elif request.status == 'rejected' %}
+                                                    <i class="fas fa-times mr-1"></i>
+                                                {% endif %}
+                                                {{ request.get_status_display }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">У вас пока нет запросов на добавление курсов</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4 text-center">
+                            <button type="button" class="btn btn-primary btn-lg shadow-sm" data-toggle="modal" data-target="#addCourseRequestModal">
+                                <i class="fas fa-plus mr-2"></i>Запросить новый курс
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-5">
+
+                    <div class="message-request-section fade-in">
+                        <h3 class="mb-4">Произвольные запросы</h3>
+                        {% if message_requests %}
+                        <div class="request-list">
+                            {% for request in message_requests %}
+                            <div class="request-item card mb-3 p-3 shadow-sm border-left-{{ request.status }} position-relative">
+                                {% if request.status == 'pending' or request.status == 'rejected' %}
+                                <form method="post" style="position:absolute; top:10px; right:10px; z-index:2;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete_message_request" value="{{ request.id }}">
+                                    <button type="submit" class="btn btn-link p-0 m-0 text-danger" title="Удалить запрос" onclick="return confirm('Удалить этот запрос?');">
+                                        <i class="fas fa-times fa-lg"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="mr-3">
+                                        <i class="fas fa-envelope-open-text fa-2x text-{{ request.status }}"></i>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-secondary">№ {{ request.unique_code }}</span>
+                                        <span class="ml-2 text-muted"><i class="far fa-clock"></i> {{ request.created_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span class="request-status status-{{ request.status }}">
+                                            {{ request.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Сообщение:</strong><br>
+                                    <span style="white-space: pre-line;">{{ request.message }}</span>
+                                </div>
+                                {% if request.admin_response %}
+                                <div class="alert alert-info py-2 px-3 mt-2 mb-0">
+                                    <strong>Ответ администратора:</strong><br>
+                                    <span style="white-space: pre-line;">{{ request.admin_response }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">У вас пока нет произвольных запросов</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4 text-center">
+                            <button type="button" class="btn btn-success btn-lg shadow-sm" data-toggle="modal" data-target="#messageRequestModal">
+                                <i class="fas fa-paper-plane mr-2"></i>Отправить произвольный запрос
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Уровни -->
+                <div class="tab-pane" id="levels">
+                    <div class="levels-container">
+                        <div class="levels-header text-center mb-4">
+                            <h2 class="levels-title" style="font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem;">
+                                <i class="fas fa-trophy"></i>
+                                Ваш прогресс
+                            </h2>
+                            <p style="font-size: 1.1rem; color: #6c757d;">Зарабатывайте звезды, проходя квизы, и повышайте свой уровень!</p>
+                        </div>
+                        
+                        <div class="current-level-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 2rem; color: white; margin-bottom: 3rem; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+                            <div class="current-level-info" style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                                <div class="current-level-badge">
+                                    <div class="level-badge level-{{ student.level_number }}" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; border: 3px solid rgba(255,255,255,0.3);">
+                                        {{ student.level_number }}
+                                    </div>
+                                </div>
+                                <div class="current-level-details">
+                                    <h4 style="font-size: 1.5rem; margin-bottom: 0.5rem;">{{ student.level_name }}</h4>
+                                    <p style="opacity: 0.9; margin-bottom: 1rem;">Ваш текущий уровень</p>
+                                    <div class="stars-count" style="font-size: 1.2rem;">
+                                        <i class="fas fa-star" style="color: #ffd700;"></i>
+                                        {{ student.stars }} звезд
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if student.get_level %}
+                            <div class="level-progress-section">
+                                <div class="progress-info" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Прогресс до следующего уровня</span>
+                                    <span>{{ student|level_progress|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress-bar-container" style="background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 1rem;">
+                                    <div class="progress-bar-fill" style="background: #ffd700; height: 100%; width: {{ student|level_progress }}%; transition: width 0.5s ease;"></div>
+                                </div>
+                                <p class="next-level-info" style="opacity: 0.9; font-size: 0.9rem;">
+                                    Нужно еще {{ student|stars_to_next_level }} звезд для достижения следующего уровня
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="levels-header text-center mb-4">
+                            <h3 style="font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem;">
+                                <i class="fas fa-layer-group"></i>
+                                Все уровни
+                            </h3>
+                            <p style="color: #6c757d;">Изучите все доступные уровни и их требования</p>
+                        </div>
+                        
+                        <div class="all-levels-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                            {% for level in all_levels %}
+                            <div class="level-card {% if level.number == student.level_number %}current{% elif level.number < student.level_number %}completed{% else %}locked{% endif %}" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 2px solid {% if level.number == student.level_number %}#667eea{% elif level.number < student.level_number %}#28a745{% else %}#e9ecef{% endif %};">
+                                <div class="level-card-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                    {% if level.image %}
+                                    <img src="{{ level.image.url }}" alt="{{ level.name }}" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
+                                    {% else %}
+                                    <div style="width: 50px; height: 50px; border-radius: 10px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                        {{ level.number }}
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h5 style="margin: 0; font-weight: 600; color: {% if level.number == student.level_number %}#667eea{% elif level.number < student.level_number %}#28a745{% else %}#6c757d{% endif %};">{{ level.name }}</h5>
+                                        <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">Уровень {{ level.number }}</p>
+                                    </div>
+                                    {% if level.number > student.level_number %}
+                                    <div class="locked-icon" style="margin-left: auto; color: black; font-size: 1.2rem;">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    {% elif level.number == student.level_number %}
+                                    <div style="margin-left: auto; color: #667eea; font-size: 1.2rem;">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    {% else %}
+                                    <div style="margin-left: auto; color: #28a745; font-size: 1.2rem;">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="level-requirements" style="margin-bottom: 1rem;">
+                                    <p style="margin: 0; font-size: 0.9rem; color: #495057;">
+                                        <i class="fas fa-star" style="color: #ffd700;"></i>
+                                        {{ level.min_stars }} - {{ level.max_stars }} звезд
+                                    </p>
+                                </div>
+                                {% if level.description %}
+                                <div class="level-description" style="font-size: 0.85rem; color: #6c757d; line-height: 1.4;">
+                                    {{ level.description }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка Уведомления -->
+                <div class="tab-pane" id="notifications">
+                    <div class="notifications-container">
+                        <div class="text-center mb-4">
+                            <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem;">
+                                <i class="fas fa-bell"></i>
+                                Уведомления
+                            </h2>
+                            <p style="font-size: 1.1rem; color: #6c757d;">Все ваши уведомления и важные сообщения</p>
+                        </div>
+
+                        {% if notifications %}
+                        <div class="notifications-list-modern">
+                            {% for notification in notifications %}
+                            <div class="notification-card {% if not notification.is_read %}unread{% endif %}">
+                                <div class="notification-icon-wrapper">
+                                    <span class="notification-icon">{{ notification.get_icon }}</span>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-message">
+                                        {{ notification.message }}
+                                    </div>
+                                    <div class="notification-meta">
+                                        <span class="notification-time">
+                                            <i class="fas fa-clock"></i>
+                                            {{ notification.created_at|date:"d.m.Y H:i" }}
+                                        </span>
+                                        <span class="notification-type">{{ notification.get_type_display_name }}</span>
+                                    </div>
+                                </div>
+                                {% if not notification.is_read %}
+                                <div class="notification-status">
+                                    <span class="unread-indicator"></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            
+                            {% if notifications|length >= 20 %}
+                            <div class="text-center mt-4">
+                                <p class="text-muted">Показаны последние 20 уведомлений</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="no-notifications-container">
+                            <div class="no-notifications-card">
+                                <div class="no-notifications-icon">
+                                    <i class="fas fa-bell-slash"></i>
+                                </div>
+                                <h4 class="no-notifications-title">У вас пока нет уведомлений</h4>
+                                <p class="no-notifications-text">Здесь будут появляться важные сообщения и обновления</p>
+                                <div class="no-notifications-animation">
+                                    <div class="floating-bell">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="floating-bell">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="floating-bell">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Вкладка Рейтинг -->
+                <div class="tab-pane" id="rating">
+                    <div class="rating-container">
+                        <div class="text-center mb-4">
+                            <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem;">
+                                <i class="fas fa-trophy"></i>
+                                Рейтинг студентов
+                            </h2>
+                            <p style="font-size: 1.1rem; color: #6c757d;">Соревнуйтесь с другими студентами и поднимайтесь в рейтинге!</p>
+                        </div>
+
+                        <div class="rating-groups-container">
+                            {% for group in groups %}
+                            <div class="group-rating-wrapper">
+                                <div class="group-rating-card-full">
+                                    <h4 style="color: #333; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fas fa-users" style="color: #667eea;"></i>
+                                        {{ group.name }}
+                                    </h4>
+                                    <div class="modern-rating-list">
+                                        {% for student_item in group.students.all|dictsortreversed:"stars" %}
+                                        <div class="modern-rating-card {% if student_item == student %}current-user{% endif %}">
+                                            <!-- Место в рейтинге -->
+                                            <div class="rating-position-modern">
+                                                <div class="position-badge position-{{ forloop.counter }}">
+                                                {{ forloop.counter }}
+                                            </div>
+                                            </div>
+                                            
+                                            <!-- Аватарка -->
+                                            <div class="student-avatar-section">
+                                                {% if student_item.avatar %}
+                                                <img src="{{ student_item.avatar.url }}" alt="{{ student_item.get_full_name }}" class="modern-avatar">
+                                                {% else %}
+                                                <div class="modern-avatar-placeholder">
+                                                    {{ student_item.first_name|first|upper }}{{ student_item.last_name|first|upper }}
+                                                </div>
+                                                {% endif %}
+                                                </div>
+                                            
+                                            <!-- Информация о студенте -->
+                                            <div class="student-main-info">
+                                                <a href="{% url 'student_public_profile' student_item.id %}" class="student-name-link">
+                                                    <h4 class="student-full-name">
+                                                        {{ student_item.first_name }} {{ student_item.last_name }}
+                                                    {% if student_item == student %}
+                                                        <span class="you-badge">Вы</span>
+                                                    {% endif %}
+                                                    </h4>
+                                                </a>
+                                                <p class="student-level-info">{{ student_item.level_name }}</p>
+                                                </div>
+                                            
+                                            <!-- Статистика -->
+                                            <div class="student-stats-section">
+                                                <div class="stat-item">
+                                                    <div class="stat-icon level-icon">{{ student_item.level_number }}</div>
+                                                    <span class="stat-label">Уровень</span>
+                                            </div>
+                                                <div class="stat-item">
+                                                    <div class="stat-icon stars-icon">
+                                                <i class="fas fa-star"></i>
+                                                {{ student_item.stars }}
+                                                    </div>
+                                                    <span class="stat-label">Звезд</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для запроса на добавление курса -->
+    <div class="modal fade" id="addCourseRequestModal" tabindex="-1" role="dialog" aria-labelledby="addCourseRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCourseRequestModalLabel">Запросить новый курс</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="course-select">Выберите курс:</label>
+                            <select class="form-control" id="course-select" name="course_id" required>
+                                <option value="">Выберите курс...</option>
+                                {% for course in all_courses %}
+                                {% if course not in courses %}
+                                <option value="{{ course.id }}">{{ course.title }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-text">Комментарий (необязательно):</label>
+                            <textarea class="form-control" id="comment-text" name="comment" rows="3" placeholder="Укажите причину запроса..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" name="add_course_request" class="btn btn-profile">
+                            <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для произвольного запроса -->
+    <div class="modal fade" id="messageRequestModal" tabindex="-1" role="dialog" aria-labelledby="messageRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageRequestModalLabel">Отправить произвольный запрос</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="message-text">Ваше сообщение:</label>
+                            <textarea class="form-control" id="message-text" name="message" rows="4" placeholder="Введите ваше сообщение..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                        <button type="submit" name="message_request" class="btn btn-profile">
+                            <i class="fas fa-paper-plane mr-2"></i>Отправить запрос
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // JS для современных вкладок
+    document.querySelectorAll('.nav-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+            
+            // Если открыли вкладку уведомлений, маркируем все как прочитанные
+            if (tab.getAttribute('data-tab') === 'notifications') {
+                // Отправляем POST запрос для маркирования уведомлений как прочитанные
+                fetch('{% url "student_page" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: 'mark_notifications_read=1'
+                }).then(response => {
+                    if (response.ok) {
+                        // Убираем визуальные индикаторы непрочитанных уведомлений
+                        document.querySelectorAll('.notification-card.unread').forEach(card => {
+                            card.classList.remove('unread');
+                        });
+                        document.querySelectorAll('.unread-indicator').forEach(indicator => {
+                            indicator.style.display = 'none';
+                        });
+                        // Убираем badge с количеством уведомлений
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Ошибка при маркировании уведомлений:', error);
+                });
+            }
+        });
+    });
+    
+    // Функция для обновления прогресс-баров звезд
+    function updateStarsProgressBars() {
+        document.querySelectorAll('.rating-group-card-modern').forEach(function(groupCard) {
+            const progressBars = groupCard.querySelectorAll('.stars-progress-bar');
+            let maxStars = 0;
+            
+            // Находим максимальное количество звезд в группе
+            progressBars.forEach(function(bar) {
+                const stars = parseInt(bar.getAttribute('data-stars')) || 0;
+                if (stars > maxStars) {
+                    maxStars = stars;
+                }
+            });
+            
+            // Устанавливаем ширину прогресс-баров
+            progressBars.forEach(function(bar) {
+                const stars = parseInt(bar.getAttribute('data-stars')) || 0;
+                const percentage = maxStars > 0 ? (stars / maxStars) * 100 : 0;
+                bar.style.width = percentage + '%';
+            });
+        });
+    }
+    
+    // Инициализируем прогресс-бары при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStarsProgressBars();
+        initCourseProgressCircles();
+    });
+    
+    // Функция для анимации круговых прогресс-баров курсов
+    function initCourseProgressCircles() {
+        document.querySelectorAll('.progress-circle').forEach(function(circle) {
+            const progress = parseInt(circle.getAttribute('data-progress')) || 0;
+            const progressRing = circle.querySelector('.progress-ring-circle');
+            const circumference = 2 * Math.PI * 26; // r=26
+            
+            progressRing.style.strokeDasharray = circumference;
+            progressRing.style.strokeDashoffset = circumference;
+            
+            // Анимация с задержкой
+            setTimeout(function() {
+                const offset = circumference - (progress / 100) * circumference;
+                progressRing.style.strokeDashoffset = offset;
+            }, 500);
+        });
+    }
+    </script>
+    <style>
+        /* Стили для карточек запросов */
+        .request-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 15px !important;
+            overflow: hidden;
+        }
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+            color: white !important;
+            font-weight: 600;
+        }
+        .status-approved {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            color: white !important;
+            font-weight: 600;
+        }
+        .status-rejected {
+            background: linear-gradient(135deg, #dc3545, #e74c3c) !important;
+            color: white !important;
+            font-weight: 600;
+        }
+        .border-left-pending { border-left: 5px solid #ffc107 !important; }
+        .border-left-approved { border-left: 5px solid #28a745 !important; }
+        .border-left-rejected { border-left: 5px solid #dc3545 !important; }
+        .text-pending { color: #ffc107 !important; }
+        .text-approved { color: #28a745 !important; }
+        .text-rejected { color: #dc3545 !important; }
+        /* Современный дизайн рейтинга с палитрой MediaMonks */
+        .rating-group-card-modern {
+            background: linear-gradient(135deg, #116466 0%, #2C3531 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(44, 53, 49, 0.25);
+            padding: 0;
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(209, 232, 226, 0.2);
+        }
+        .rating-group-card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        .rating-group-header {
+            background: rgba(255,255,255,0.95);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .rating-group-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        .rating-group-stats .badge {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .rating-table th, .rating-table td {
+            vertical-align: middle !important;
+        }
+        .rating-student-row {
+            transition: box-shadow 0.2s, background 0.2s;
+            border-radius: 12px;
+        }
+        .rating-student-row:hover {
+            background: #eaf3ff;
+            box-shadow: 0 2px 12px rgba(0,123,255,0.08);
+        }
+        .rating-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 8px #e3e3e3;
+            background: #e3f2fd;
+            display: block;
+        }
+        .rating-student-link {
+            font-weight: 600;
+            color: #22347a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .rating-student-link:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .rating-place {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+        /* Стили для подиума */
+        .rating-podium {
+            background: rgba(255,255,255,0.95);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .podium-place {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 140px;
+        }
+        .podium-place:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .podium-place-1 {
+            order: 2;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            transform: scale(1.1);
+        }
+        .podium-place-2 {
+            order: 1;
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A);
+            color: white;
+        }
+        .podium-place-3 {
+            order: 3;
+            background: linear-gradient(135deg, #7BB3F0, #4A90E2);
+            color: white;
+        }
+        .current-student {
+            border: 3px solid #007bff !important;
+            box-shadow: 0 0 20px rgba(0,123,255,0.5) !important;
+        }
+        .podium-medal {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .podium-avatar {
+            margin: 1rem 0;
+        }
+        .podium-avatar-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        .podium-avatar-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 1.5rem;
+        }
+        .podium-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .podium-stars {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .podium-rank {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        /* Стили для списка остальных участников */
+        .rating-table-container {
+            background: rgba(255,255,255,0.95);
+            padding: 1.5rem 2rem 2rem;
+        }
+        .rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .rating-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .rating-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .rating-item-current {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-color: #2196f3;
+            box-shadow: 0 3px 10px rgba(33,150,243,0.3);
+        }
+        .rating-item-rank {
+            background: #6c757d;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .rating-item-avatar-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .rating-item-avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        /* Стили для неселектируемого текста */
+        .non-selectable {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Стили для ссылок на подиуме */
+        .podium-place-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .podium-place-link:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .podium-place-link:hover .podium-place {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+        
+        /* Обновляем стили для аватарок с буквами */
+        .podium-avatar-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+        }
+        .rating-item-info {
+            flex-grow: 1;
+        }
+        .rating-item-name {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .rating-item-name:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .rating-item-stars {
+            text-align: right;
+            min-width: 100px;
+        }
+        .stars-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .stars-container i {
+            color: #ffc107;
+        }
+        .stars-count {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .stars-progress {
+            width: 80px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .stars-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffc107, #ff9800);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Стили для сообщения об отсутствии групп */
+        .no-groups-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            padding: 2rem;
+        }
+        .no-groups-card {
+            background: linear-gradient(135deg, #116466 0%, #2C3531 100%);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #D1E8E2;
+            box-shadow: 0 15px 35px rgba(44, 53, 49, 0.3);
+            position: relative;
+            overflow: hidden;
+            max-width: 500px;
+            border: 1px solid rgba(209, 232, 226, 0.2);
+        }
+        .no-groups-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        .no-groups-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+        .no-groups-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .no-groups-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .no-groups-animation {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .floating-icon {
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+        .floating-icon:nth-child(1) {
+            animation-delay: 0s;
+            color: #376E6F;
+        }
+        .floating-icon:nth-child(2) {
+            animation-delay: 1s;
+            color: #D9B08C;
+        }
+        .floating-icon:nth-child(3) {
+            animation-delay: 2s;
+            color: #D1E8E2;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Современные стили для карточек курсов */
+        .courses-modern-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+        .course-card-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(74, 144, 226, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid rgba(135, 206, 250, 0.3);
+        }
+        .course-card-modern:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(74, 144, 226, 0.3);
+            border-color: rgba(74, 144, 226, 0.6);
+        }
+        .course-card-header {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        .course-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .course-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .course-card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #116466 0%, #2C3531 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #D1E8E2;
+        }
+        .course-progress-overlay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .progress-circle {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            stroke-dasharray: 164;
+            stroke-dashoffset: 164;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .course-card-body {
+            padding: 1.5rem;
+        }
+        .course-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        .course-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .course-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .course-stat i {
+            color: #007bff;
+        }
+        .course-progress-modern {
+            margin-top: 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .progress-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .progress-percentage {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+        .progress-bar-modern {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #116466, #2C3531);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .course-card-footer {
+            padding: 0 1.5rem 1.5rem;
+        }
+        .course-continue-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+        .course-continue-btn:hover {
+            background: linear-gradient(135deg, #1E3A8A, #4A90E2);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.5);
+        }
+        
+        /* Стили для сообщения об отсутствии курсов */
+        .no-courses-container {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            padding: 2rem;
+        }
+        .no-courses-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            max-width: 500px;
+        }
+        .no-courses-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        .no-courses-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.8;
+        }
+        .no-courses-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        .no-courses-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .no-courses-animation {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .floating-book {
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+        .floating-book:nth-child(1) {
+            animation-delay: 0s;
+            color: #FFD700;
+        }
+        .floating-book:nth-child(2) {
+            animation-delay: 1s;
+            color: #87CEEB;
+        }
+        .floating-book:nth-child(3) {
+            animation-delay: 2s;
+            color: #98FB98;
+        }
+        
+        /* Стили для формы присоединения к курсу */
+        .join-course-section {
+            display: flex;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .join-course-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .join-course-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 15px 40px rgba(0,123,255,0.15);
+        }
+        .join-course-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .join-course-icon {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 1rem;
+        }
+        .join-course-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .join-course-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0;
+        }
+        .join-course-form {
+            margin-bottom: 2rem;
+        }
+        .form-group-modern {
+            margin-bottom: 1.5rem;
+        }
+        .input-container {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 2;
+        }
+        .form-control-modern {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .form-control-modern:focus {
+            outline: none;
+            border-color: #007bff;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .join-course-btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .join-course-btn:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+        }
+        .join-course-help {
+            border-top: 1px solid #e9ecef;
+            padding-top: 1.5rem;
+        }
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .help-item:last-child {
+            margin-bottom: 0;
+        }
+        .help-item i {
+            color: #007bff;
+            font-size: 1rem;
+        }
+        
+        /* Современный дизайн рейтинга */
+        .modern-rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+        
+        .modern-rating-card {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 2px solid #f1f3f4;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modern-rating-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-color: #e3f2fd;
+        }
+        
+        .modern-rating-card.current-user {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-color: #2196f3;
+            box-shadow: 0 4px 16px rgba(33,150,243,0.15);
+        }
+        
+        .modern-rating-card.current-user::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #2196f3, #9c27b0);
+        }
+        
+        /* Позиция в рейтинге */
+        .rating-position-modern {
+            margin-right: 1rem;
+        }
+        
+        .position-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .position-badge.position-1 {
+            background: linear-gradient(135deg, #ffd700, #ffa000);
+        }
+        
+        .position-badge.position-2 {
+            background: linear-gradient(135deg, #c0c0c0, #9e9e9e);
+        }
+        
+        .position-badge.position-3 {
+            background: linear-gradient(135deg, #cd7f32, #8d6e63);
+        }
+        
+        .position-badge:not(.position-1):not(.position-2):not(.position-3) {
+            background: linear-gradient(135deg, #607d8b, #455a64);
+        }
+        
+        /* Аватарка студента */
+        .student-avatar-section {
+            margin-right: 1rem;
+            position: relative;
+        }
+        
+        .modern-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .modern-avatar-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Информация о студенте */
+        .student-main-info {
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .student-name-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .student-name-link:hover {
+            text-decoration: none;
+        }
+        
+        .student-full-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 0.25rem 0;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .student-name-link:hover .student-full-name {
+            color: #3498db;
+        }
+        
+        .you-badge {
+            background: linear-gradient(135deg, #3498db, #9b59b6);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .student-level-info {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        /* Статистика студента */
+        .student-stats-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .level-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .stars-icon {
+            background: linear-gradient(135deg, #ffd700, #ffa000);
+            color: white;
+            gap: 0.25rem;
+        }
+        
+        .stars-icon i {
+            font-size: 0.7rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #95a5a6;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .modern-rating-card {
+                padding: 0.75rem;
+            }
+            
+            .student-stats-section {
+                gap: 0.5rem;
+            }
+            
+            .stat-item {
+                gap: 0.2rem;
+            }
+            
+            .stat-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            
+            .stat-label {
+                font-size: 0.65rem;
+            }
+            
+                         .student-full-name {
+                 font-size: 1rem;
+             }
+         }
+         
+         /* Контейнер групп на всю ширину */
+         .rating-groups-container {
+             display: flex;
+             flex-direction: column;
+             gap: 2rem;
+             width: 100%;
+         }
+         
+         .group-rating-wrapper {
+             width: 100%;
+         }
+         
+         .group-rating-card-full {
+             background: white;
+             border-radius: 20px;
+             padding: 2rem;
+             box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+             border: 2px solid #f1f3f4;
+             width: 100%;
+         }
+         
+         .group-rating-card-full h4 {
+             color: #2c3e50 !important;
+             margin-bottom: 1.5rem !important;
+             display: flex !important;
+             align-items: center !important;
+             gap: 0.75rem !important;
+             font-size: 1.3rem !important;
+             font-weight: 700 !important;
+         }
+         
+                  .group-rating-card-full h4 i {
+             color: #667eea !important;
+             font-size: 1.1rem !important;
+         }
+         
+         /* Стили для вкладки уведомлений */
+         .notification-badge {
+             background: #dc3545;
+             color: white;
+             border-radius: 10px;
+             padding: 0.2rem 0.5rem;
+             font-size: 0.7rem;
+             font-weight: 600;
+             margin-left: 0.5rem;
+             animation: pulse 2s infinite;
+         }
+         
+         @keyframes pulse {
+             0% { transform: scale(1); }
+             50% { transform: scale(1.1); }
+             100% { transform: scale(1); }
+         }
+         
+         .notifications-list-modern {
+             display: flex;
+             flex-direction: column;
+             gap: 1rem;
+         }
+         
+         .notification-card {
+             background: white;
+             border-radius: 15px;
+             padding: 1.5rem;
+             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+             border: 2px solid #f1f3f4;
+             display: flex;
+             align-items: flex-start;
+             gap: 1rem;
+             transition: all 0.3s ease;
+             position: relative;
+         }
+         
+         .notification-card:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+             border-color: #e3f2fd;
+         }
+         
+         .notification-card.unread {
+             background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 5%, white 15%);
+             border-color: #2196f3;
+             box-shadow: 0 4px 15px rgba(33,150,243,0.15);
+         }
+         
+         .notification-card.unread::before {
+             content: '';
+             position: absolute;
+             top: 0;
+             left: 0;
+             width: 4px;
+             height: 100%;
+             background: linear-gradient(135deg, #2196f3, #9c27b0);
+             border-radius: 15px 0 0 15px;
+         }
+         
+         .notification-icon-wrapper {
+             width: 50px;
+             height: 50px;
+             border-radius: 50%;
+             background: linear-gradient(135deg, #667eea, #764ba2);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             font-size: 1.5rem;
+             color: white;
+             box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+             flex-shrink: 0;
+         }
+         
+         .notification-content {
+             flex: 1;
+         }
+         
+         .notification-message {
+             font-size: 1rem;
+             color: #2c3e50;
+             margin-bottom: 0.75rem;
+             line-height: 1.5;
+             font-weight: 500;
+         }
+         
+         .notification-meta {
+             display: flex;
+             align-items: center;
+             gap: 1rem;
+             flex-wrap: wrap;
+         }
+         
+         .notification-time {
+             display: flex;
+             align-items: center;
+             gap: 0.4rem;
+             color: #6c757d;
+             font-size: 0.85rem;
+         }
+         
+         .notification-time i {
+             font-size: 0.8rem;
+             color: #95a5a6;
+         }
+         
+         .notification-type {
+             background: #f8f9fa;
+             color: #495057;
+             padding: 0.25rem 0.75rem;
+             border-radius: 20px;
+             font-size: 0.75rem;
+             font-weight: 500;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+         }
+         
+         .notification-status {
+             position: absolute;
+             top: 1rem;
+             right: 1rem;
+         }
+         
+         .unread-indicator {
+             width: 12px;
+             height: 12px;
+             background: #dc3545;
+             border-radius: 50%;
+             display: block;
+             animation: pulse 2s infinite;
+         }
+         
+         /* Стили для пустого состояния */
+         .no-notifications-container {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             min-height: 400px;
+             padding: 2rem;
+         }
+         
+         .no-notifications-card {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             border-radius: 20px;
+             padding: 3rem 2rem;
+             text-align: center;
+             color: white;
+             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+             position: relative;
+             overflow: hidden;
+             max-width: 500px;
+         }
+         
+         .no-notifications-card::before {
+             content: '';
+             position: absolute;
+             top: 0;
+             left: 0;
+             right: 0;
+             bottom: 0;
+             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+             pointer-events: none;
+         }
+         
+         .no-notifications-icon {
+             font-size: 4rem;
+             margin-bottom: 1.5rem;
+             opacity: 0.8;
+         }
+         
+         .no-notifications-title {
+             font-size: 1.5rem;
+             font-weight: 700;
+             margin-bottom: 1rem;
+             color: white;
+         }
+         
+         .no-notifications-text {
+             font-size: 1.1rem;
+             opacity: 0.9;
+             margin-bottom: 2rem;
+             line-height: 1.6;
+         }
+         
+         .no-notifications-animation {
+             display: flex;
+             justify-content: center;
+             gap: 2rem;
+             margin-top: 2rem;
+         }
+         
+         .floating-bell {
+             font-size: 2rem;
+             opacity: 0.6;
+             animation: float 3s ease-in-out infinite;
+         }
+         
+         .floating-bell:nth-child(1) {
+             animation-delay: 0s;
+             color: #FFD700;
+         }
+         
+         .floating-bell:nth-child(2) {
+             animation-delay: 1s;
+             color: #87CEEB;
+         }
+         
+         .floating-bell:nth-child(3) {
+             animation-delay: 2s;
+             color: #98FB98;
+         }
+    </style>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // JS для современных вкладок
+    document.querySelectorAll('.nav-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+            
+            // Если открыли вкладку уведомлений, маркируем все как прочитанные
+            if (tab.getAttribute('data-tab') === 'notifications') {
+                // Отправляем POST запрос для маркирования уведомлений как прочитанные
+                fetch('{% url "student_page" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: 'mark_notifications_read=1'
+                }).then(response => {
+                    if (response.ok) {
+                        // Убираем визуальные индикаторы непрочитанных уведомлений
+                        document.querySelectorAll('.notification-card.unread').forEach(card => {
+                            card.classList.remove('unread');
+                        });
+                        document.querySelectorAll('.unread-indicator').forEach(indicator => {
+                            indicator.style.display = 'none';
+                        });
+                        // Убираем badge с количеством уведомлений
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Ошибка при маркировании уведомлений:', error);
+                });
+            }
+        });
+    });
+    
+    // Функция для обновления прогресс-баров звезд
+    function updateStarsProgressBars() {
+        document.querySelectorAll('.rating-group-card-modern').forEach(function(groupCard) {
+            const progressBars = groupCard.querySelectorAll('.stars-progress-bar');
+            let maxStars = 0;
+            
+            // Находим максимальное количество звезд в группе
+            progressBars.forEach(function(bar) {
+                const stars = parseInt(bar.getAttribute('data-stars')) || 0;
+                if (stars > maxStars) {
+                    maxStars = stars;
+                }
+            });
+            
+            // Устанавливаем ширину прогресс-баров
+            progressBars.forEach(function(bar) {
+                const stars = parseInt(bar.getAttribute('data-stars')) || 0;
+                const percentage = maxStars > 0 ? (stars / maxStars) * 100 : 0;
+                bar.style.width = percentage + '%';
+            });
+        });
+    }
+    
+    // Инициализируем прогресс-бары при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStarsProgressBars();
+        initCourseProgressCircles();
+    });
+    
+    // Функция для анимации круговых прогресс-баров курсов
+    function initCourseProgressCircles() {
+        document.querySelectorAll('.progress-circle').forEach(function(circle) {
+            const progress = parseInt(circle.getAttribute('data-progress')) || 0;
+            const progressRing = circle.querySelector('.progress-ring-circle');
+            const circumference = 2 * Math.PI * 26; // r=26
+            
+            progressRing.style.strokeDasharray = circumference;
+            progressRing.style.strokeDashoffset = circumference;
+            
+            // Анимация с задержкой
+            setTimeout(function() {
+                const offset = circumference - (progress / 100) * circumference;
+                progressRing.style.strokeDashoffset = offset;
+            }, 500);
+        });
+    }
+    </script>
+    
+    <!-- Уведомления теперь встроены как вкладка -->
+
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

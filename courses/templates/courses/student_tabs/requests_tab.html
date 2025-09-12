@@ -1,0 +1,213 @@
+{% load course_filters %}
+<!-- Вкладка запросов -->
+<div id="requests" class="tab-pane">
+    
+    <!-- Формы для отправки новых запросов -->
+    <div class="requests-forms-section mb-4">
+        <div class="row">
+            <!-- Форма запроса на добавление курса -->
+            <div class="col-lg-6 mb-3">
+                <div class="request-form-card">
+                    <div class="form-card-header">
+                        <div class="form-icon course-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="form-header-text">
+                            <h5 class="form-title">Запрос на курс</h5>
+                            <p class="form-subtitle">Отправить запрос на добавление к курсу</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="request-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_course_request" value="1">
+                        
+                        <div class="form-group mb-3">
+                            <label for="course_name" class="form-label">
+                                <i class="fas fa-book"></i>
+                                Название курса
+                            </label>
+                            <input type="text" name="course_name" id="course_name" class="form-control" required placeholder="Введите название курса, который хотите изучать">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="course_comment" class="form-label">
+                                <i class="fas fa-comment"></i>
+                                Комментарий (необязательно)
+                            </label>
+                            <textarea name="comment" id="course_comment" class="form-control custom-textarea" 
+                                    rows="3" placeholder="Почему вы хотите изучать этот курс?"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-request-course">
+                            <i class="fas fa-paper-plane"></i>
+                            Отправить запрос
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Форма произвольного запроса -->  
+            <div class="col-lg-6 mb-3">
+                <div class="request-form-card">
+                    <div class="form-card-header">
+                        <div class="form-icon message-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="form-header-text">
+                            <h5 class="form-title">Произвольный запрос</h5>
+                            <p class="form-subtitle">Отправить сообщение администратору</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" class="request-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="message_request" value="1">
+                        
+                        <div class="form-group mb-3">
+                            <label for="message_text" class="form-label">
+                                <i class="fas fa-edit"></i>
+                                Ваше сообщение
+                            </label>
+                            <textarea name="message" id="message_text" class="form-control custom-textarea" 
+                                    rows="4" placeholder="Опишите ваш вопрос или запрос..." required></textarea>
+                            <small class="form-text text-muted">
+                                Администратор рассмотрит ваш запрос и свяжется с вами
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-request-message">
+                            <i class="fas fa-send"></i>
+                            Отправить сообщение
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Разделитель -->
+    <div class="requests-divider">
+        <h6 class="divider-text">
+            <i class="fas fa-history"></i>
+            История запросов
+        </h6>
+    </div>
+    
+    <!-- Существующие запросы -->
+    <div class="requests-history-section">
+        <!-- Запросы на курсы -->
+        {% if course_requests %}
+            <div class="requests-group mb-4">
+                <h6 class="requests-group-title">
+                    <i class="fas fa-book"></i>
+                    Запросы на курсы
+                </h6>
+                <div class="row">
+                    {% for request in course_requests %}
+                        <div class="col-md-6 mb-3">
+                            <div class="request-history-card request-course-card border-left-{{ request.status }}">
+                                <div class="request-card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="request-card-title mb-0">{{ request.course_name }}</h6>
+                                        <span class="badge status-{{ request.status }}">
+                                            {% if request.status == 'pending' %}
+                                                <i class="fas fa-clock me-1"></i> На рассмотрении
+                                            {% elif request.status == 'approved' %}
+                                                <i class="fas fa-check me-1"></i> Одобрено
+                                            {% elif request.status == 'rejected' %}
+                                                <i class="fas fa-times me-1"></i> Отклонено
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                
+                                    <p class="request-card-date text-muted mb-2">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ request.created_at|date:"d.m.Y H:i" }}
+                                    </p>
+                                    
+                                    {% if request.comment %}
+                                        <p class="request-comment">
+                                            <i class="fas fa-comment me-1"></i>
+                                            {{ request.comment }}
+                                        </p>
+                                    {% endif %}
+                                    
+                                    {% if request.status == 'approved' %}
+                                        <div class="request-status-info text-approved">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Вы можете приступить к изучению курса
+                                        </div>
+                                    {% elif request.status == 'rejected' %}
+                                        <div class="request-status-info text-rejected">
+                                            <i class="fas fa-times-circle me-1"></i>
+                                            К сожалению, запрос был отклонен
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Произвольные запросы -->
+        {% if message_requests %}
+            <div class="requests-group mb-4">
+                <h6 class="requests-group-title">
+                    <i class="fas fa-envelope"></i>
+                    Произвольные запросы
+                </h6>
+                <div class="row">
+                    {% for request in message_requests %}
+                        <div class="col-md-6 mb-3">
+                            <div class="request-history-card request-message-card">
+                                <div class="request-card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="request-card-title mb-0">
+                                            <i class="fas fa-envelope me-1"></i>
+                                            Сообщение #{{ request.id }}
+                                        </h6>
+                                        <span class="badge status-{{ request.status|default:'pending' }}">
+                                            {% if request.is_read %}
+                                                <i class="fas fa-eye me-1"></i> Прочитано
+                                            {% else %}
+                                                <i class="fas fa-clock me-1"></i> Ожидает
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="request-card-date text-muted mb-2">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ request.created_at|date:"d.m.Y H:i" }}
+                                    </p>
+                                    
+                                    <div class="request-message-content">
+                                        <p class="request-message-text">{{ request.message|truncatewords:20 }}</p>
+                                        {% if request.message|length > 100 %}
+                                            <a href="#" class="show-full-message text-primary" data-message="{{ request.message }}">
+                                                <i class="fas fa-expand me-1"></i>Показать полностью
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="request-actions mt-2">
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="delete_message_request" value="{{ request.id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="return confirm('Удалить этот запрос?')">
+                                                <i class="fas fa-trash me-1"></i>Удалить
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -4,3 +4,7 @@ pandas
 Pillow
 PyMuPDF
 python-pptx 
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary

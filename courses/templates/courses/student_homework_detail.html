@@ -1,0 +1,1022 @@
+{% extends 'courses/student_base.html' %}
+{% load static %}
+
+{% block title %}{{ homework.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Заголовок с навигацией -->
+            <div class="homework-detail-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="header-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{% url 'student_homework_page' %}">
+                                        <i class="fas fa-book-open"></i> Домашние задания
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ homework.title }}</li>
+                            </ol>
+                        </nav>
+                        <h2 class="mb-0">{{ homework.title }}</h2>
+                        <p class="text-muted mb-0">Детали задания и выполнение</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="{% url 'student_homework_page' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Назад к заданиям
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Основная информация о задании -->
+                <div class="col-lg-8">
+                    <!-- Информация о задании -->
+                    <div class="homework-info-card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                Информация о задании
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-user-tie"></i>
+                                        Преподаватель
+                                    </div>
+                                    <div class="info-value">{{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        Создано
+                                    </div>
+                                    <div class="info-value">{{ homework.created_at|date:"d.m.Y H:i" }}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Срок выполнения
+                                    </div>
+                                    <div class="info-value {% if homework.is_overdue %}text-danger{% endif %}">
+                                        {{ homework.due_date|date:"d.m.Y H:i" }}
+                                        {% if homework.is_overdue %}
+                                        <i class="fas fa-exclamation-triangle text-danger ml-1" title="Просрочено"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-tasks"></i>
+                                        Статус
+                                    </div>
+                                    <div class="info-value">
+                                        {% if submission %}
+                                            {% if submission.is_completed %}
+                                            <span class="status-badge completed">
+                                                <i class="fas fa-check-circle"></i> Завершено
+                                            </span>
+                                            {% elif submission.is_submitted %}
+                                            <span class="status-badge submitted">
+                                                <i class="fas fa-paper-plane"></i> Отправлено
+                                            </span>
+                                            {% else %}
+                                            <span class="status-badge pending">
+                                                <i class="fas fa-clock"></i> Не выполнено
+                                            </span>
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="status-badge pending">
+                                            <i class="fas fa-clock"></i> Не выполнено
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if submission and submission.grade %}
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-star"></i>
+                                        Оценка
+                                    </div>
+                                    <div class="info-value">
+                                        <span class="grade-badge">{{ submission.grade }}/10</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <hr>
+
+                            <div class="description-section">
+                                <h6><i class="fas fa-align-left"></i> Описание задания:</h6>
+                                <div class="description-content">
+                                    {{ homework.description|linebreaks }}
+                                </div>
+                            </div>
+
+                            <!-- Прикрепленные файлы -->
+                            {% if homework.pdf_file or homework.video_url %}
+                            <hr>
+                            <div class="attachments-section">
+                                <h6><i class="fas fa-paperclip"></i> Прикрепленные материалы:</h6>
+                                <div class="attachments-grid">
+                                    {% if homework.pdf_file %}
+                                    <div class="attachment-item">
+                                        <div class="attachment-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <div class="attachment-info">
+                                            <div class="attachment-name">PDF файл</div>
+                                            <div class="attachment-meta">Дополнительные материалы</div>
+                                        </div>
+                                        <div class="attachment-actions">
+                                            <a href="{{ homework.pdf_file.url }}" class="btn btn-sm btn-outline-danger" target="_blank">
+                                                <i class="fas fa-download"></i>
+                                                Скачать
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if homework.video_url %}
+                                    <div class="attachment-item">
+                                        <div class="attachment-icon">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div class="attachment-info">
+                                            <div class="attachment-name">Видео материал</div>
+                                            <div class="attachment-meta">Дополнительное видео</div>
+                                        </div>
+                                        <div class="attachment-actions">
+                                            <a href="{{ homework.video_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i>
+                                                Открыть
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Комментарий учителя -->
+                    {% if submission and submission.teacher_comment %}
+                    <div class="teacher-comment-card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-comment"></i>
+                                Комментарий учителя
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="comment-content">
+                                {{ submission.teacher_comment|linebreaks }}
+                            </div>
+                            <div class="comment-meta">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i>
+                                    Оставлен {{ submission.updated_at|date:"d.m.Y H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Загруженные фотографии -->
+                    {% if submission and submission.photos.all %}
+                    <div class="photos-section mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-images"></i>
+                                Загруженные фотографии
+                                <span class="badge badge-info ml-2">{{ submission.photos.count }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="photos-grid">
+                                {% for photo in submission.photos.all %}
+                                <div class="photo-item" data-photo-id="{{ photo.id }}">
+                                    <div class="photo-container">
+                                        <img src="{{ photo.photo.url }}" alt="Фото работы" class="photo-image">
+                                        <div class="photo-overlay">
+                                            <button class="btn btn-sm btn-light" onclick="openPhotoModal('{{ photo.photo.url }}', '{{ photo.description|default:"" }}')">
+                                                <i class="fas fa-expand"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="photo-info">
+                                        {% if photo.description %}
+                                        <div class="photo-description">{{ photo.description }}</div>
+                                        {% endif %}
+                                        <div class="photo-meta">
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock"></i>
+                                                {{ photo.uploaded_at|date:"d.m.Y H:i" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Боковая панель -->
+                <div class="col-lg-4">
+                    <!-- Статус выполнения -->
+                    <div class="status-card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-tasks"></i>
+                                Статус выполнения
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if not submission or not submission.is_submitted %}
+                            <div class="status-content pending">
+                                <div class="status-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h6>Задание не выполнено</h6>
+                                    <p>Загрузите фотографии выполненной работы для отправки задания</p>
+                                </div>
+                            </div>
+                            {% elif submission.is_submitted and not submission.is_completed %}
+                            <div class="status-content submitted">
+                                <div class="status-icon">
+                                    <i class="fas fa-paper-plane"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h6>Задание отправлено</h6>
+                                    <p>Ожидайте проверки преподавателем</p>
+                                    <small class="text-muted">
+                                        Отправлено: {{ submission.submitted_at|date:"d.m.Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% elif submission.is_completed %}
+                            <div class="status-content completed">
+                                <div class="status-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h6>Задание завершено</h6>
+                                    {% if submission.grade %}
+                                    <div class="grade-display">
+                                        <span class="grade-number">{{ submission.grade }}</span>
+                                        <span class="grade-max">/10</span>
+                                    </div>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        Завершено: {{ submission.completed_at|date:"d.m.Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Форма отправки -->
+                    {% if not submission or not submission.is_submitted %}
+                    <div class="submit-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-upload"></i>
+                                Отправить выполнение
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data" id="homework-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="submit">
+                                
+                                <div class="form-group">
+                                    <label for="photos" class="form-label">
+                                        <i class="fas fa-camera"></i>
+                                        Фотографии выполненной работы
+                                    </label>
+                                    <div class="file-upload-area" id="file-upload-area">
+                                        <div class="upload-placeholder">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>Перетащите фотографии сюда или нажмите для выбора</p>
+                                            <small class="text-muted">Поддерживаются форматы: JPG, PNG, GIF</small>
+                                        </div>
+                                        <input type="file" name="photos" id="photos" class="file-input" multiple accept="image/*" required>
+                                    </div>
+                                    <div id="selected-files" class="selected-files"></div>
+                                </div>
+
+                                <div id="photo-descriptions" class="form-group">
+                                    <!-- Здесь будут появляться поля для описаний фотографий -->
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                        Отправить задание
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="submission-info-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle"></i>
+                                Задание отправлено
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="submission-info">
+                                <div class="info-row">
+                                    <span class="info-label">Дата отправки:</span>
+                                    <span class="info-value">{{ submission.submitted_at|date:"d.m.Y H:i" }}</span>
+                                </div>
+                                {% if submission.photos.all %}
+                                <div class="info-row">
+                                    <span class="info-label">Фотографий:</span>
+                                    <span class="info-value">{{ submission.photos.count }}</span>
+                                </div>
+                                {% endif %}
+                                {% if submission.grade %}
+                                <div class="info-row">
+                                    <span class="info-label">Оценка:</span>
+                                    <span class="info-value grade">{{ submission.grade }}/10</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Прогресс выполнения -->
+                    <div class="progress-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-line"></i>
+                                Прогресс
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress-item">
+                                <div class="progress-label">Задание получено</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill completed"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-label">Выполнение</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill {% if submission and submission.is_submitted %}completed{% endif %}"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-label">Проверка</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill {% if submission and submission.is_completed %}completed{% endif %}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра фотографий -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Просмотр фотографии</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalPhoto" src="" alt="Фото работы" class="img-fluid">
+                <div id="modalDescription" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для предварительного просмотра -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye"></i>
+                    Предварительный просмотр
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('homework-form').submit()">
+                    <i class="fas fa-paper-plane"></i>
+                    Отправить задание
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для страницы детального просмотра */
+.homework-detail-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: white;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255,255,255,0.6);
+}
+
+/* Карточки */
+.homework-info-card,
+.teacher-comment-card,
+.photos-section,
+.status-card,
+.submit-card,
+.submission-info-card,
+.progress-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1.5rem;
+}
+
+.card-header h5 {
+    color: #343a40;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Информационная сетка */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #343a40;
+    font-weight: 600;
+}
+
+/* Статусные бейджи */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.submitted {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.grade-badge {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Описание */
+.description-section {
+    margin-top: 1.5rem;
+}
+
+.description-content {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+/* Прикрепленные файлы */
+.attachments-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.attachment-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.attachment-item:first-child .attachment-icon {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.attachment-item:last-child .attachment-icon {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.attachment-info {
+    flex: 1;
+}
+
+.attachment-name {
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 0.25rem;
+}
+
+.attachment-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Фотографии */
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.photo-item {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.photo-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.photo-container {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+}
+
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.photo-container:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-info {
+    padding: 0.75rem;
+}
+
+.photo-description {
+    font-size: 0.875rem;
+    color: #343a40;
+    margin-bottom: 0.5rem;
+}
+
+.photo-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Статус выполнения */
+.status-content {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.status-content.pending {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+}
+
+.status-content.submitted {
+    background: #d1ecf1;
+    border: 1px solid #b8e6f3;
+}
+
+.status-content.completed {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.status-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.status-content.pending .status-icon {
+    background: #ffc107;
+}
+
+.status-content.submitted .status-icon {
+    background: #17a2b8;
+}
+
+.status-content.completed .status-icon {
+    background: #28a745;
+}
+
+.status-info h6 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.status-info p {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+}
+
+.grade-display {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.grade-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.grade-max {
+    font-size: 1.5rem;
+    color: #6c757d;
+}
+
+/* Загрузка файлов */
+.file-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: #667eea;
+    background: #f8f9fa;
+}
+
+.file-upload-area.dragover {
+    border-color: #667eea;
+    background: #e3f2fd;
+}
+
+.upload-placeholder i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.selected-files {
+    margin-top: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.file-item i {
+    margin-right: 0.5rem;
+    color: #6c757d;
+}
+
+.file-item .file-name {
+    flex: 1;
+    font-size: 0.875rem;
+}
+
+.file-item .file-remove {
+    color: #dc3545;
+    cursor: pointer;
+}
+
+/* Прогресс */
+.progress-item {
+    margin-bottom: 1rem;
+}
+
+.progress-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #e9ecef;
+    transition: background 0.3s ease;
+}
+
+.progress-fill.completed {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+/* Информация о отправке */
+.submission-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.info-value.grade {
+    color: #28a745;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .photos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .status-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .status-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<script>
+// Функционал загрузки файлов
+document.addEventListener('DOMContentLoaded', function() {
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const fileInput = document.getElementById('photos');
+    const selectedFiles = document.getElementById('selected-files');
+    const photoDescriptions = document.getElementById('photo-descriptions');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+    
+    // Клик по области загрузки
+    fileUploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // Выбор файлов
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+    
+    function handleFiles(files) {
+        selectedFiles.innerHTML = '';
+        photoDescriptions.innerHTML = '';
+        
+        if (files.length > 0) {
+            submitBtn.disabled = false;
+            
+            Array.from(files).forEach((file, index) => {
+                // Добавляем файл в список
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-image"></i>
+                    <span class="file-name">${file.name}</span>
+                    <i class="fas fa-times file-remove" onclick="removeFile(${index})"></i>
+                `;
+                selectedFiles.appendChild(fileItem);
+                
+                // Добавляем поле для описания
+                const descriptionDiv = document.createElement('div');
+                descriptionDiv.className = 'form-group';
+                descriptionDiv.innerHTML = `
+                    <label for="photo_description_${index}">Описание фото ${index + 1}:</label>
+                    <input type="text" name="photo_descriptions" id="photo_description_${index}" 
+                           class="form-control" placeholder="Краткое описание...">
+                `;
+                photoDescriptions.appendChild(descriptionDiv);
+            });
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+    
+    // Удаление файла
+    window.removeFile = function(index) {
+        const dt = new DataTransfer();
+        const files = fileInput.files;
+        
+        for (let i = 0; i < files.length; i++) {
+            if (i !== index) {
+                dt.items.add(files[i]);
+            }
+        }
+        
+        fileInput.files = dt.files;
+        handleFiles(fileInput.files);
+    };
+    
+    // Валидация формы
+    document.getElementById('homework-form').addEventListener('submit', function(e) {
+        const photos = fileInput.files;
+        if (photos.length === 0) {
+            e.preventDefault();
+            alert('Пожалуйста, загрузите хотя бы одну фотографию выполненной работы.');
+            return false;
+        }
+    });
+});
+
+// Модальное окно для просмотра фотографий
+function openPhotoModal(photoUrl, description) {
+    document.getElementById('modalPhoto').src = photoUrl;
+    document.getElementById('modalDescription').textContent = description;
+    $('#photoModal').modal('show');
+}
+
+// Анимация появления элементов
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.homework-info-card, .status-card, .submit-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление тестами{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ quizzes.count }}</div>
+            <div class="stats-label">Всего тестов</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ modules.count }}</div>
+            <div class="stats-label">Модулей</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ courses.count }}</div>
+            <div class="stats-label">Курсов</div>
+        </div>
+    </div>
+</div>
+
+<!-- Управление тестами -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle mr-2"></i>Управление тестами
+                </h5>
+                <a href="{% url 'create_quiz' %}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>Создать тест
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>Описание</th>
+                                <th>Модуль</th>
+                                <th>Вопросов</th>
+                                <th>Время (мин)</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quiz in quizzes %}
+                            <tr>
+                                <td>{{ quiz.id }}</td>
+                                <td>{{ quiz.title }}</td>
+                                <td>{{ quiz.description|truncatechars:50 }}</td>
+                                <td>{{ quiz.module.title|default:"Не привязан" }}</td>
+                                <td>{{ quiz.questions.count }}</td>
+                                <td>{{ quiz.time_limit|default:"-" }}</td>
+                                <td>{{ quiz.created_at|date:"d.m.Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'quiz_detail' quiz.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteQuiz({{ quiz.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">Тесты не найдены</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно удаления теста -->
+<div class="modal fade" id="deleteQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот тест? Это действие нельзя отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <form method="post" action="" id="deleteQuizForm" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteQuiz(quizId) {
+    if (confirm('Вы уверены, что хотите удалить этот тест?')) {
+        $('#deleteQuizForm').attr('action', '/delete/quiz/' + quizId + '/');
+        $('#deleteQuizModal').modal('show');
+    }
+}
+</script>
+{% endblock %}

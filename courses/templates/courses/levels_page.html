@@ -1,0 +1,263 @@
+{% load static %}
+{% load math_filters %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уровни - Study Task</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
+    <style>
+        /* Основные стили */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Хедер */
+        .levels-header-main {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        /* Основной контент */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .levels-page-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Переопределяем стили для отдельной страницы */
+        .levels-container {
+            padding: 3rem 2rem;
+        }
+        
+        .levels-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .levels-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .levels-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            font-weight: 400;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .levels-container {
+                padding: 2rem 1rem;
+            }
+            
+            .levels-title {
+                font-size: 2rem;
+            }
+            
+            .header-container {
+                padding: 0 1rem;
+            }
+            
+            .header-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Хедер -->
+    <header class="levels-header-main">
+        <div class="header-container">
+            <h1 class="header-title">
+                <i class="fas fa-medal"></i>
+                Система уровней
+            </h1>
+            <div class="header-actions">
+                <a href="{% url 'student_page' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Назад к курсам
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <div class="levels-page-container">
+            <div class="levels-container">
+                <div class="levels-header">
+                    <h2 class="levels-title">
+                        <i class="fas fa-trophy"></i>
+                        Ваш прогресс
+                    </h2>
+                    <p class="levels-subtitle">Зарабатывайте звезды, проходя квизы, и повышайте свой уровень!</p>
+                </div>
+                
+                <div class="current-level-card">
+                    <div class="current-level-info">
+                        <div class="current-level-badge">
+                            <div class="level-badge level-{{ student.level_number }} extra-large">
+                                {{ student.level_number }}
+                            </div>
+                        </div>
+                        <div class="current-level-details">
+                            <h4>{{ student.level_name }}</h4>
+                            <p>Ваш текущий уровень</p>
+                            <div class="stars-count">
+                                <i class="fas fa-star"></i>
+                                {{ student.stars }} звезд
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if student.get_level %}
+                    <div class="level-progress-section">
+                        <div class="progress-info">
+                            <span>Прогресс до следующего уровня</span>
+                            <span>{{ student|level_progress|floatformat:0 }}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: {{ student|level_progress }}%"></div>
+                        </div>
+                        <p class="next-level-info">
+                            Нужно еще {{ student|stars_to_next_level }} звезд для достижения следующего уровня
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="levels-header" style="margin-top: 4rem;">
+                    <h3 class="levels-title" style="font-size: 2rem;">
+                        <i class="fas fa-layer-group"></i>
+                        Все уровни
+                    </h3>
+                    <p class="levels-subtitle">Изучите все доступные уровни и их требования</p>
+                </div>
+                
+                <div class="all-levels-grid">
+                    {% for level in all_levels %}
+                    <div class="level-card {% if level.number == student.level_number %}current{% elif level.number < student.level_number %}completed{% else %}locked{% endif %}">
+                        <div class="level-card-header">
+                            {% if level.image %}
+                                <img src="{{ level.image.url }}" alt="{{ level.name }}" class="level-image">
+                            {% else %}
+                                <div class="level-image-placeholder">
+                                    <div class="level-badge level-{{ level.number }} large">
+                                        {{ level.number }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="level-status-icon">
+                                {% if level.number == student.level_number %}
+                                    <i class="fas fa-crown current-icon"></i>
+                                {% elif level.number < student.level_number %}
+                                    <i class="fas fa-check completed-icon"></i>
+                                {% else %}
+                                    <i class="fas fa-lock locked-icon"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="level-card-body">
+                            <h5 class="level-name">{{ level.name }}</h5>
+                            <div class="level-requirements">
+                                <i class="fas fa-star"></i>
+                                {{ level.min_stars }}-{{ level.max_stars }} звезд
+                            </div>
+                            {% if level.description %}
+                            <p class="level-description">{{ level.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-levels-message">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Уровни еще не настроены</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

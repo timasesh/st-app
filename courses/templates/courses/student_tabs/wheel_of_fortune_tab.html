@@ -1,0 +1,93 @@
+{% load course_filters %}
+
+<div id="wheel" class="tab-pane">
+    <div class="wheel-tab-container">
+        <!-- Hero Section -->
+        <div class="wheel-hero">
+            <div class="wheel-hero-content">
+                <h1 class="wheel-hero-title">
+                    <i class="fas fa-star"></i>
+                    Колесо Фортуны
+                    <i class="fas fa-star"></i>
+                </h1>
+                <p class="wheel-hero-subtitle">Испытай удачу и получи звезды! Крути колесо и выигрывай призы</p>
+                <div class="wheel-hero-stats">
+                    <div class="wheel-stat-item">
+                        <i class="fas fa-star"></i>
+                        <span>1-4 звезды за спин</span>
+                    </div>
+                    <div class="wheel-stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="wheelAvailability">Проверяем...</span>
+                    </div>
+                    <div class="wheel-stat-item">
+                        <i class="fas fa-gift"></i>
+                        <span>Обмен на призы</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="wheel-main-content">
+            <div class="wheel-info-section">
+                <div class="wheel-info-card">
+                    <div class="wheel-info-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Как это работает?</h3>
+                    </div>
+                    <div class="wheel-info-content">
+                        <ul>
+                            <li><strong>Крутите колесо</strong> - нажмите кнопку и наблюдайте за вращением</li>
+                            <li><strong>Выигрывайте звезды</strong> - от 1 до 4 звезд за каждый спин</li>
+                            <li><strong>Накопите звезды</strong> - собирайте звезды для обмена на призы</li>
+                            <li><strong>Ограничение</strong> - крутить можно только 1 раз в 24 часа</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="wheel-prizes-card">
+                    <div class="wheel-prizes-header">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Возможные призы</h3>
+                    </div>
+                    <div class="wheel-prizes-content">
+                        <div class="prize-item">
+                            <span class="prize-stars">1 ⭐</span>
+                            <span class="prize-text">1 звезда</span>
+                        </div>
+                        <div class="prize-item">
+                            <span class="prize-stars">2 ⭐</span>
+                            <span class="prize-text">2 звезды</span>
+                        </div>
+                        <div class="prize-item">
+                            <span class="prize-stars">3 ⭐</span>
+                            <span class="prize-text">3 звезды</span>
+                        </div>
+                        <div class="prize-item">
+                            <span class="prize-stars">4 ⭐</span>
+                            <span class="prize-text">4 звезды</span>
+                        </div>
+                        <div class="prize-item empty">
+                            <span class="prize-stars">0 ⭐</span>
+                            <span class="prize-text">Ничего</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wheel-action-section">
+                <div class="wheel-action-card">
+                    <div class="wheel-action-content">
+                        <h3>Готовы испытать удачу?</h3>
+                        <p>Нажмите кнопку ниже, чтобы перейти к колесу фортуны и начать игру!</p>
+                        <a href="{% url 'wheel_of_fortune_page' %}" class="wheel-play-button">
+                            <i class="fas fa-play"></i>
+                            <span>Играть в Колесо Фортуны</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

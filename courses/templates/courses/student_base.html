@@ -1,0 +1,106 @@
+{% load static %}
+{% load course_extras %}
+{% load math_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Study Task{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
+    <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="modern-student-body">
+    
+    <header class="modern-student-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+            </div>
+            
+            <div class="student-profile-section">
+                <div class="student-avatar-modern">
+                    {% if user.student.avatar %}
+                        <img src="{{ user.student.avatar.url }}" alt="Аватар" class="avatar-image">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {% if user.first_name %}{{ user.first_name|first }}{% else %}{{ user.username|first|upper }}{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="student-info">
+                    <h2 class="student-name-modern">
+                        {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                    </h2>
+                    <p class="student-role">Студент</p>
+                </div>
+            </div>
+            
+            <div class="stats-modern">
+                <div class="stat-item stat-stars" title="Всего звёзд">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#ffb300,#ff8f00);color:#fff;border-radius:50%;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ user.student.stars|default:0 }}</div>
+                        <div class="stat-label">Звёзды</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-courses" title="Количество курсов">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#4dabf7,#1976d2);color:#fff;border-radius:50%;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ user.student.courses.count }}</div>
+                        <div class="stat-label">Курсы</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-groups" title="Группы">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#ba68c8,#6a1b9a);color:#fff;border-radius:50%;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ groups_count|default:0 }}</div>
+                        <div class="stat-label">Группы</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="{% url 'student_page' %}" class="action-btn profile-btn">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+                <a href="{% url 'student_profile' %}" class="action-btn profile-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn logout-btn" style="background: transparent; border: 1px solid #dc3545;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Выйти</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <div class="content-card">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

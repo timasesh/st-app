@@ -1,6 +1,8 @@
 import os
 from django.conf import settings
 from PIL import Image
+from django.db.models import Count, Sum
+from .models import Achievement, Student, StudentAchievement, QuizAttempt, CourseResult, Notification, Level
 import fitz  # PyMuPDF for PDF processing
 from pptx import Presentation
 
@@ -74,3 +76,90 @@ def handle_lesson_file_conversion(lesson_instance):
             print(f"Converting PPTX: {lesson_instance.pdf.path}")
             return convert_pptx_to_images(lesson_instance.pdf.path, lesson_instance.id)
     return [] 
+
+
+def _get_student_achievement_metrics(student: Student) -> dict:
+    """Возвращает ключевые метрики для расчёта достижений."""
+    try:
+        total_passed_quizzes = QuizAttempt.objects.filter(student=student, passed=True).count()
+        total_perfect_quizzes = QuizAttempt.objects.filter(student=student, score=100).count()
+        total_completed_courses = CourseResult.objects.filter(user=student.user, stars_given=True).count()
+        total_stars = student.stars
+        current_level = student.calculate_level()
+
+        return {
+            'passed_quizzes': total_passed_quizzes,
+            'perfect_quizzes': total_perfect_quizzes,
+            'completed_courses': total_completed_courses,
+            'total_stars': total_stars,
+            'level_reached': current_level,
+        }
+    except Exception as e:
+        print(f"Ошибка при расчёте метрик достижений для студента {student.username}: {e}")
+        return {
+            'passed_quizzes': 0,
+            'perfect_quizzes': 0,
+            'completed_courses': 0,
+            'total_stars': 0,
+            'level_reached': 1,
+        }
+
+
+def get_achievement_progress(student: Student, achievement: Achievement) -> dict:
+    """Возвращает прогресс по конкретному достижению."""
+    try:
+        metrics = _get_student_achievement_metrics(student)
+        current_value = metrics.get(achievement.condition_type, 0)
+        target = achievement.condition_value or 1
+        percentage = int(min(100, (current_value / target) * 100)) if target > 0 else 100
+        return {
+            'current': current_value,
+            'target': target,
+            'percentage': percentage,
+        }
+    except Exception as e:
+        print(f"Ошибка при расчёте прогресса достижения {achievement.title}: {e}")
+        return {
+            'current': 0,
+            'target': achievement.condition_value or 1,
+            'percentage': 0,
+        }
+
+
+def evaluate_and_unlock_achievements(student: Student):
+    """Пересчитывает прогресс и открывает доступные достижения.
+    Вызывает уведомления для новых достижений.
+    """
+    if not isinstance(student, Student):
+        return []
+
+    try:
+        newly_unlocked = []
+        metrics = _get_student_achievement_metrics(student)
+
+        for ach in Achievement.objects.filter(is_active=True):
+            try:
+                value = metrics.get(ach.condition_type, 0)
+                if value >= ach.condition_value:
+                    sa, created = StudentAchievement.objects.get_or_create(student=student, achievement=ach)
+                    if created:
+                        newly_unlocked.append(ach)
+                        # Уведомление
+                        try:
+                            Notification.objects.create(
+                                student=student,
+                                type='achievement_unlocked',
+                                message=f'{ach.reward_icon} Достижение открыто: "{ach.title}" — награда: {ach.reward}',
+                                priority=2,
+                                extra_data={'achievement_code': ach.code}
+                            )
+                        except Exception as e:
+                            print(f"Ошибка при создании уведомления о достижении {ach.title}: {e}")
+            except Exception as e:
+                print(f"Ошибка при проверке достижения {ach.title}: {e}")
+                continue
+                
+        return newly_unlocked
+    except Exception as e:
+        print(f"Ошибка при пересчёте достижений для студента {student.username}: {e}")
+        return []

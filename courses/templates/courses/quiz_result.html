@@ -1,382 +1,582 @@
-<<<<<<< HEAD
-=======
 {% load static %}
 {% load math_filters %}
 
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Результаты квиза</title>
-<<<<<<< HEAD
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
+        /* Основные стили */
+        * {
+            box-sizing: border-box;
         }
-        .logo-container {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        /* Современный header */
+        .result-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        .result-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .header-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        .header-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        /* Основной контент */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Карточка результатов */
+        .result-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        /* Заголовок результатов */
+        .result-header-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        .quiz-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+        .result-status {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            padding-right: 4px;
-            margin-left: 30px;
+            gap: 0.5rem;
         }
-        .header-logo-stretch {
-            height: 150px;
-            width: auto;
-            object-fit: contain;
-            background: transparent;
-            align-self: center;
+        .status-passed {
+            color: #d1f2eb;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
         }
-        .header-flex-row {
-            display: flex;
-            align-items: stretch;
+        .status-failed {
+            color: #fadbd8;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
         }
-        .quiz-header {
-            background: linear-gradient(90deg, #1e88e5, #e53935);
-            padding: 2rem 0 1rem 0;
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(30, 136, 229, 0.13);
-            margin-bottom: 2rem;
+        
+        /* Прогресс-круг */
+        .progress-section {
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
         .progress-circle {
-            width: 150px;
-            height: 150px;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 1px 8px rgba(0,0,0,0.2);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        .progress-ring-bg {
+            stroke: #f1f3f4;
+            stroke-width: 8;
+        }
+        .progress-ring-bar {
+            stroke: url(#progressGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            fill: none;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .progress-percentage {
+            position: absolute;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+        .progress-label {
+            font-size: 1.25rem;
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        
+        /* Статистики */
+        .stats-section {
+            padding: 2rem;
+            background: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 2px solid #f1f3f4;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: transparent;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-accent, #007bff);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--icon-bg, rgba(0,123,255,0.1));
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            background: #f8f9fa;
-            border: 10px solid #e9ecef;
+            margin: 0 auto 1rem;
+            color: var(--icon-color, #007bff);
         }
-        .progress-circle.passed {
-            border-color: #28a745;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
         }
-        .progress-circle.failed {
-            border-color: #dc3545;
-        }
-        .progress-circle-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #495057;
-        }
-        .quiz-details .card {
-            transition: transform 0.2s;
-        }
-        .quiz-details .card:hover {
-            transform: translateY(-5px);
-        }
-        .btn {
-            padding: 0.5rem 1.5rem;
+        .stat-label {
+            font-size: 0.95rem;
+            color: #6c757d;
             font-weight: 500;
         }
-        .alert {
-            border-radius: 10px;
-=======
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <style>
-        .quiz-header {
-            background: linear-gradient(90deg, #1e88e5, #e53935);
-            color: #fff;
-            padding: 2.2rem 0 1.2rem 0;
-            margin-bottom: 2.2rem;
-            box-shadow: 0 4px 16px rgba(30,136,229,0.13);
-            min-height: 110px;
+        .stat-correct {
+            --card-accent: #28a745;
+            --icon-color: #28a745;
+            --icon-bg: rgba(40,167,69,0.1);
+        }
+        .stat-incorrect {
+            --card-accent: #dc3545;
+            --icon-color: #dc3545;
+            --icon-bg: rgba(220,53,69,0.1);
+        }
+        .stat-time {
+            --card-accent: #007bff;
+            --icon-color: #007bff;
+            --icon-bg: rgba(0,123,255,0.1);
+        }
+        .stat-stars {
+            --card-accent: #ffc107;
+            --icon-color: #ffc107;
+            --icon-bg: rgba(255,193,7,0.1);
+        }
+        
+        /* Кнопки действий */
+        .actions-section {
+            padding: 2rem;
+            background: #f8f9fa;
             display: flex;
-            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
         }
-        .quiz-header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 2rem;
-            width: 100%;
-        }
-        .quiz-header-title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            letter-spacing: 0.01em;
-            color: #fff;
-            text-shadow: 0 2px 8px rgba(30,136,229,0.13);
-        }
-        .quiz-header-btns {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            height: 100%;
-        }
-        .btn-logout.btn-logout-large {
-            background: #e53935;
-            color: #fff;
+        .btn-modern {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
             border: none;
-            border-radius: 40px;
-            font-size: 0.7 rem;
-            font-weight: 700;
-            padding: 0.9rem 2.5rem;
-            box-shadow: 0 2px 12px rgba(229,57,53,0.13);
-            transition: all 0.18s;
-            display: inline-flex;
+            cursor: pointer;
+            display: flex;
             align-items: center;
-            gap: 0.7rem;
+            gap: 0.75rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .btn-logout.btn-logout-large:hover, .btn-logout.btn-logout-large:focus {
-            background: #c62828;
-            color: #fff;
-            transform: translateY(-2px) scale(1.04);
-            box-shadow: 0 4px 18px rgba(229,57,53,0.18);
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
         }
-        @media (max-width: 700px) {
-            .quiz-header-content {
-                flex-direction: column;
-                align-items: flex-start;
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #218838, #1aa179);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40,167,69,0.4);
+            color: white;
+            text-decoration: none;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800, #e8590c);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,193,7,0.4);
+            color: #212529;
+            text-decoration: none;
+        }
+        
+        /* Уведомления */
+        .alert-modern {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0.75rem 1rem;
                 gap: 1rem;
             }
-            .quiz-header-title {
-                font-size: 1.3rem;
+            .result-title {
+                font-size: 1rem;
             }
-        }
-        .progress-circle-animated {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.2rem auto;
-        }
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-        .progress-ring-bg {
-            stroke: #e3f2fd;
-        }
-        .progress-ring-bar {
-            stroke: #1e88e5;
-            stroke-width: 16;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1.2s cubic-bezier(.77,0,.18,1);
-        }
-        .progress-circle-value-animated {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.7rem;
-            font-weight: 700;
-            color: #222;
-            letter-spacing: 0.01em;
-            pointer-events: none;
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
+            .header-btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .result-header-section {
+                padding: 1.5rem;
+            }
+            .quiz-name {
+                font-size: 1.25rem;
+            }
+            .progress-section {
+                padding: 1.5rem;
+            }
+            .progress-circle {
+                width: 150px;
+                height: 150px;
+            }
+            .progress-percentage {
+                font-size: 2rem;
+            }
+            .stats-section {
+                padding: 0 1rem 1.5rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .actions-section {
+                padding: 0 1rem 1.5rem;
+                flex-direction: column;
+            }
+            .btn-modern {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-<<<<<<< HEAD
-    
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-lg border-0 rounded-lg">
-                    <div class="card-header bg-primary text-white text-center py-4">
-                        <h3 class="mb-0">Результаты квиза "{{ quiz.title }}"</h3>
-                    </div>
-                    <div class="card-body p-5">
-                        {% if result %}
-                            <div class="text-center mb-4">
-                                <div class="progress-circle {% if result.passed %}passed{% else %}failed{% endif %} mx-auto mb-4">
-                                    <span class="progress-circle-value">{{ percent }}%</span>
-                                </div>
-                                <h4 class="mb-3">
-                                    {% if result.passed %}
-                                        <span class="text-success">Поздравляем! Вы прошли квиз!</span>
-                                    {% else %}
-                                        <span class="text-danger">Квиз не пройден</span>
-                                    {% endif %}
-                                </h4>
-                                <p class="text-muted">Попытка #{{ result.attempt_number }}</p>
-=======
-<header class="quiz-header">
-    <div class="container quiz-header-content">
-        <div class="quiz-header-title">Результаты квиза: {{ quiz.title }}</div>
-        <div class="quiz-header-btns">
-            <a href="{% url 'course_detail' course.id %}" class="btn btn-profile"><i class="fas fa-arrow-left mr-1"></i>Назад к курсу</a>
-            <a href="{% url 'logout' %}" class="btn btn-logout btn-logout-large"><i class="fas fa-sign-out-alt"></i> Выйти</a>
-        </div>
-    </div>
-</header>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="text-center py-4">
-                    <h3 class="mb-0" style="font-weight:700;letter-spacing:0.01em;color:#1976d2;">Результаты квиза "{{ quiz.title }}"</h3>
-                </div>
-                <div class="card-body p-5 bg-light">
-                    {% if result %}
-                        <div class="text-center mb-4">
-                            <div class="progress-circle-animated mx-auto mb-4">
-                                <svg class="progress-ring" width="160" height="160">
-                                    <circle class="progress-ring-bg" cx="80" cy="80" r="70" fill="none" stroke="#e3f2fd" stroke-width="16"/>
-                                    <circle class="progress-ring-bar" cx="80" cy="80" r="70" fill="none" stroke="#1e88e5" stroke-width="16" stroke-linecap="round"/>
-                                </svg>
-                                <span class="progress-circle-value-animated" id="quiz-percent-value">{{ percent }}%</span>
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
-                            </div>
-
-<<<<<<< HEAD
-                            <div class="quiz-details">
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Детали попытки</h5>
-                                                <p class="mb-1"><strong>Дата:</strong> {{ result.created_at|date:"d.m.Y H:i" }}</p>
-                                                <p class="mb-1"><strong>Результат:</strong> {{ result.score }}%</p>
-                                                {% if result.stars_penalty > 0 %}
-                                                    <p class="mb-1 text-danger"><strong>Штраф:</strong> -{{ result.stars_penalty }} звёзд</p>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% if show_stars_notification %}
-                                    <div class="col-md-6">
-                                        <div class="card bg-success text-white">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Награда</h5>
-                                                <p class="mb-0">Вы получили {{ stars_awarded }} звёзд за успешное прохождение квиза!</p>
-                                            </div>
-=======
-                        <div class="quiz-details">
-                            <div class="row mb-4">
-                                <div class="col-md-6 mb-3 mb-md-0">
-                                    <div class="card quiz-detail-card">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Детали попытки</h5>
-                                            <p class="mb-1"><strong>Дата:</strong> {{ result.created_at|date:"d.m.Y H:i" }}</p>
-                                            <p class="mb-1"><strong>Результат:</strong> {{ result.score }}%</p>
-                                            {% if result.stars_penalty > 0 %}
-                                                <p class="mb-1 text-danger"><strong>Штраф:</strong> -{{ result.stars_penalty }} звёзд</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                {% if show_stars_notification %}
-                                <div class="col-md-6">
-                                    <div class="card quiz-reward-card">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Награда</h5>
-                                            <p class="mb-0">Вы получили {{ stars_awarded }} звёзд за успешное прохождение квиза!</p>
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            {% if not result.passed %}
-                                <div class="alert alert-warning">
-                                    <h5 class="alert-heading">Не сдано</h5>
-                                    <p class="mb-0">Для успешного прохождения квиза необходимо набрать 70% или более. Попробуйте ещё раз!</p>
-                                </div>
-                            {% endif %}
-
-                            <div class="text-center mt-4">
-                                {% if course %}
-                                    <a href="{% url 'course_detail' course.id %}" class="btn btn-primary me-2">
-                                        <i class="fas fa-arrow-left me-2"></i>Вернуться к курсу
-                                    </a>
-                                {% endif %}
-                                {% if not result.passed %}
-                                    <a href="{% url 'start_quiz' quiz.id %}" class="btn btn-warning">
-                                        <i class="fas fa-redo me-2"></i>Попробовать снова
-                                    </a>
-                                {% endif %}
-                            </div>
-<<<<<<< HEAD
-                        {% else %}
-                            <div class="alert alert-info">
-                                <h5 class="alert-heading">Нет результатов</h5>
-                                <p class="mb-0">У вас пока нет попыток прохождения этого квиза.</p>
-                            </div>
-                            <div class="text-center mt-4">
-                                <a href="{% url 'start_quiz' quiz.id %}" class="btn btn-primary">
-                                    <i class="fas fa-play me-2"></i>Начать квиз
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-=======
-                        </div>
-
-                        {% if not result.passed %}
-                            <div class="alert alert-warning rounded-3">
-                                <h5 class="alert-heading">Не сдано</h5>
-                                <p class="mb-0">Для успешного прохождения квиза необходимо набрать 70% или более. Попробуйте ещё раз!</p>
-                            </div>
-                        {% endif %}
-
-                        <div class="text-center mt-4">
-                            {% if course %}
-                                <a href="{% url 'course_detail' course.id %}" class="btn btn-modern btn-profile me-2">
-                                    <i class="fas fa-arrow-left me-2"></i>Вернуться к курсу
-                                </a>
-                            {% endif %}
-                            {% if not result.passed %}
-                                <a href="{% url 'start_quiz' quiz.id %}" class="btn btn-modern btn-secondary">
-                                    <i class="fas fa-redo me-2"></i>Попробовать снова
-                                </a>
-                            {% endif %}
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info rounded-3">
-                            <h5 class="alert-heading">Нет результатов</h5>
-                            <p class="mb-0">У вас пока нет попыток прохождения этого квиза.</p>
-                        </div>
-                        <div class="text-center mt-4">
-                            <a href="{% url 'start_quiz' quiz.id %}" class="btn btn-modern btn-profile">
-                                <i class="fas fa-play me-2"></i>Начать квиз
-                            </a>
-                        </div>
-                    {% endif %}
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
-                </div>
+    <header class="result-header">
+        <div class="header-container">
+            <h1 class="result-title">Результаты квиза</h1>
+            <div class="header-actions">
+                <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" class="header-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    К курсу
+                </a>
             </div>
         </div>
-    </div>
-<<<<<<< HEAD
-    <footer class="bg-light py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Study Task. Все права защищены.</p>
+    </header>
+    
+    <div class="main-content">
+        <div class="result-card">
+            <!-- Заголовок результатов -->
+            <div class="result-header-section">
+                <div class="quiz-name">{{ quiz.title }}</div>
+                {% if result %}
+                    <div class="result-status {% if result.passed %}status-passed{% else %}status-failed{% endif %}">
+                        {% if result.passed %}
+                            <i class="fas fa-check-circle"></i> Квиз пройден успешно!
+                        {% else %}
+                            <i class="fas fa-times-circle"></i> Квиз не пройден
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if result %}
+                <!-- Прогресс-круг -->
+                <div class="progress-section">
+                    <div class="progress-circle">
+                        <svg class="progress-ring" width="200" height="200">
+                            <defs>
+                                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="progress-ring-bg" cx="100" cy="100" r="70" />
+                            <circle class="progress-ring-bar" cx="100" cy="100" r="70" id="progress-bar" />
+                        </svg>
+                        <div class="progress-percentage" id="percentage-text">{{ percent|default:0 }}%</div>
+                    </div>
+                    <div class="progress-label">Ваш результат</div>
+                </div>
+                
+                <!-- Статистики -->
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon stat-correct">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="stat-value">{{ result.correct_answers }}</div>
+                            <div class="stat-label">Правильных ответов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-incorrect">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="stat-value">{{ result.incorrect_answers }}</div>
+                            <div class="stat-label">Неправильных ответов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-time">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value">{{ result.time_taken|default:"Н/Д" }}</div>
+                            <div class="stat-label">Время прохождения</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-time">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="stat-value">{{ result.created_at|date:"d.m.Y" }}</div>
+                            <div class="stat-label">Дата прохождения</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-time">
+                                <i class="fas fa-redo"></i>
+                            </div>
+                            <div class="stat-value">{{ result.attempt_number }}</div>
+                            <div class="stat-label">Попытка №</div>
+                        </div>
+                        {% if result.passed and stars_awarded %}
+                            <div class="stat-card">
+                                <div class="stat-icon stat-stars">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-value">{{ stars_awarded }}</div>
+                                <div class="stat-label">Получено звёзд</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Уведомления -->
+                {% if result.passed and stars_awarded %}
+                    <div class="alert-modern alert-success">
+                        <i class="fas fa-trophy"></i>
+                        <div>
+                            <strong>Поздравляем!</strong> Вы успешно прошли квиз и получили {{ stars_awarded }} звёзд!
+                        </div>
+                    </div>
+                {% elif not result.passed %}
+                    <div class="alert-modern alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Квиз не пройден.</strong> Попробуйте ещё раз, чтобы улучшить свой результат.
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Кнопки действий -->
+                <div class="actions-section">
+                    <a href="{% url 'course_detail' quiz.module_set.first.course_set.first.id %}" class="btn-modern btn-success">
+                        <i class="fas fa-arrow-left"></i>
+                        Продолжить обучение
+                    </a>
+                    {% if not result.passed %}
+                        <a href="{% url 'start_quiz' quiz.id %}" class="btn-modern btn-warning">
+                            <i class="fas fa-redo"></i>
+                            Попробовать снова
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="alert-modern alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Нет результатов</strong><br>
+                        Вы ещё не проходили этот квиз.
+                    </div>
+                </div>
+                <div class="actions-section">
+                    <a href="{% url 'start_quiz' quiz.id %}" class="btn-modern btn-success">
+                        <i class="fas fa-play"></i>
+                        Начать квиз
+                    </a>
+                </div>
+            {% endif %}
         </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-=======
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var percent = {{ percent|default:0 }};
-    var circle = document.querySelector('.progress-ring-bar');
-    var radius = circle.r.baseVal.value;
-    var circumference = 2 * Math.PI * radius;
-    circle.style.strokeDasharray = `${circumference}`;
-    circle.style.strokeDashoffset = `${circumference}`;
-    setTimeout(function() {
-        var offset = circumference - percent / 100 * circumference;
-        circle.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.77,0,.18,1)';
-        circle.style.strokeDashoffset = offset;
-    }, 200);
-});
-</script>
->>>>>>> 183dfa0248c37f3942309b11103b72706fcd0bd0
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация прогресс-круга
+            const percent = parseInt('{{ percent|default:0 }}');
+            const circle = document.getElementById('progress-bar');
+            if (circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                const offset = circumference - (percent / 100) * circumference;
+                
+                circle.style.strokeDasharray = circumference;
+                circle.style.strokeDashoffset = circumference;
+                
+                // Анимация с задержкой
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = offset;
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>
+        

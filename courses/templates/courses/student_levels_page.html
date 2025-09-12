@@ -1,0 +1,367 @@
+{% load static %}
+{% load course_extras %}
+{% load math_filters %}
+{% load course_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уровни - Study Task</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
+    <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/student_page_mobile.css' %}">
+    <style>
+        /* Принудительное выделение активной вкладки "Уровни" */
+        .sidebar-nav-link[href*="student_levels_page"] {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        .sidebar-nav-link[href*="student_levels_page"]:hover {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+        
+        /* Дополнительные стили для гарантии */
+        .sidebar-nav-link[href*="student_levels_page"].active {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        /* Стили для всех состояний */
+        .sidebar-nav-link[href*="student_levels_page"]:active,
+        .sidebar-nav-link[href*="student_levels_page"]:focus,
+        .sidebar-nav-link[href*="student_levels_page"]:visited {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="modern-student-body">
+    
+    <!-- Сайдбар -->
+    <div class="student-sidebar" id="studentSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="sidebar-logo">
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}'">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_courses_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_courses_page' %}'">
+                    <i class="fas fa-book"></i>
+                    <span>Мои курсы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_rating_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_rating_page' %}'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Рейтинг</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_levels_page' %}" class="nav-link sidebar-nav-link active">
+                    <i class="fas fa-medal"></i>
+                    <span>Уровни</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_quizzes_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_quizzes_page' %}'">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Квизы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_homework_standalone_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_homework_standalone_page' %}'">
+                    <i class="fas fa-book-open"></i>
+                    <span>Домашние задания</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_requests_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_requests_page' %}'">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Запросы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#achievements" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#achievements'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Достижения</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#notifications" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#notifications'">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведомления</span>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="sidebar-notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#wheel" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#wheel'">
+                    <i class="fas fa-dice"></i>
+                    <span>Колесо фортуны</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оверлей для сайдбара -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <header class="modern-student-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+            </div>
+            
+            <!-- Кнопка открытия сайдбара -->
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-actions">
+                <div class="user-dropdown">
+                    <button class="user-dropdown-btn" id="userDropdownBtn">
+                        {% if user.student.avatar %}
+                            <img src="{{ user.student.avatar.url }}" alt="Аватар" class="user-avatar">
+                        {% else %}
+                            <div class="user-avatar-placeholder">
+                                {% if user.first_name %}{{ user.first_name|first }}{% else %}{{ user.username|first|upper }}{% endif %}
+                            </div>
+                        {% endif %}
+                        <span class="user-name">
+                            {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown-content" id="userDropdown">
+                        <a href="{% url 'student_profile' %}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Кнопка "Назад" для мобильной версии -->
+    <button class="mobile-back-btn" id="mobileBackBtn" onclick="window.location.href='{% url 'student_page' %}'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <main class="modern-student-main">
+        <div class="main-container">
+            <!-- Контент уровней -->
+            <div class="levels-container">
+                <div class="levels-header">
+                    <h2 class="levels-title">
+                        <i class="fas fa-trophy"></i>
+                        Ваш прогресс по уровням
+                    </h2>
+                    <p class="levels-subtitle">Зарабатывайте звезды, проходя квизы, и повышайте свой уровень!</p>
+                </div>
+                
+                <div class="current-level-card">
+                    {% if user.student.level and user.student.level.image %}
+                        <div class="current-level-image">
+                            <img src="{{ user.student.level.image.url }}" alt="{{ user.student.level.name }}" class="level-image-top-right">
+                        </div>
+                    {% endif %}
+                    <div class="current-level-info">
+                        <div class="current-level-badge">
+                            <div class="level-badge level-{{ user.student.level.number|default:1 }} extra-large">
+                                {{ user.student.level.number|default:1 }}
+                            </div>
+                        </div>
+                        <div class="current-level-details">
+                            <h4>{{ user.student.level.name|default:"Новичок" }}</h4>
+                            <p>Ваш текущий уровень</p>
+                            <div class="stars-count">
+                                <i class="fas fa-star"></i>
+                                {{ user.student.stars|default:0 }} звезд
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.student.level %}
+                        <div class="level-progress-section">
+                            <div class="progress-info">
+                                <span>Прогресс до следующего уровня</span>
+                                <span>{{ user.student|level_progress|floatformat:0 }}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: {{ user.student|level_progress }}%"></div>
+                            </div>
+                            <p class="next-level-info">
+                                Нужно еще {{ user.student|stars_to_next_level }} звезд для достижения следующего уровня
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="levels-header" style="margin-top: 3rem;">
+                    <h3 class="levels-title" style="font-size: 1.8rem;">
+                        <i class="fas fa-layer-group"></i>
+                        Все уровни
+                    </h3>
+                    <p class="levels-subtitle">Изучите все доступные уровни и их требования</p>
+                </div>
+                
+                <div class="all-levels-grid">
+                    {% for level in all_levels %}
+                        <div class="level-card {% if level.number == user.student.level.number|default:1 %}current{% elif level.number < user.student.level.number|default:1 %}completed{% else %}locked{% endif %}">
+                            <div class="level-card-header">
+                                {% if level.image %}
+                                    <img src="{{ level.image.url }}" alt="{{ level.name }}" class="level-image">
+                                {% else %}
+                                    <div class="level-image-placeholder">
+                                        <div class="level-badge level-{{ level.number }} large">
+                                            {{ level.number }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="level-status-icon">
+                                    {% if level.number == user.student.level.number|default:1 %}
+                                        <i class="fas fa-crown current-icon"></i>
+                                    {% elif level.number < user.student.level.number|default:1 %}
+                                        <i class="fas fa-check completed-icon"></i>
+                                    {% else %}
+                                        <i class="fas fa-lock locked-icon"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="level-card-body">
+                                <h5 class="level-name">{{ level.name }}</h5>
+                                <div class="level-requirements">
+                                    <i class="fas fa-star"></i>
+                                    {{ level.min_stars }}-{{ level.max_stars }} звезд
+                                </div>
+                                {% if level.description %}
+                                    <p class="level-description">{{ level.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="no-levels-message">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Уровни еще не настроены</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/student_page_mobile.js' %}"></script>
+    
+    <!-- CSRF Token -->
+    {% csrf_token %}
+    
+    <script>
+        // Dropdown функциональность
+        const userDropdownBtn = document.getElementById('userDropdownBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userDropdownBtn && userDropdown) {
+            userDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+        }
+        
+        // Закрытие dropdown'ов при клике вне их
+        document.addEventListener('click', function(e) {
+            if (!userDropdownBtn?.contains(e.target) && !userDropdown?.contains(e.target)) {
+                userDropdown?.classList.remove('show');
+            }
+        });
+        
+        // Сайдбар функциональность
+        const sidebar = document.getElementById('studentSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            });
+        }
+        
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Инициализируем функции при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Принудительно устанавливаем активное состояние для вкладки "Уровни"
+            const levelsLink = document.querySelector('.sidebar-nav-link[href*="student_levels_page"]');
+            if (levelsLink) {
+                // Убираем активный класс у всех ссылок
+                document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                // Добавляем активный класс к вкладке "Уровни"
+                levelsLink.classList.add('active');
+            }
+            
+            // Отключаем стандартную инициализацию вкладок из student_page.js
+            // Переопределяем функцию switchTab, чтобы она не мешала
+            if (window.switchTab) {
+                const originalSwitchTab = window.switchTab;
+                window.switchTab = function(tabName) {
+                    // Если пытаются переключить на вкладку, которая не существует на этой странице,
+                    // просто игнорируем это
+                    if (tabName === 'home' || tabName === 'courses' || tabName === 'rating' || tabName === 'levels') {
+                        return;
+                    }
+                    // Для остальных вкладок используем оригинальную функцию
+                    return originalSwitchTab.call(this, tabName);
+                };
+            }
+            
+            // Постоянно поддерживаем активное состояние вкладки "Уровни"
+            setInterval(function() {
+                const levelsLink = document.querySelector('.sidebar-nav-link[href*="student_levels_page"]');
+                if (levelsLink && !levelsLink.classList.contains('active')) {
+                    // Убираем активный класс у всех ссылок
+                    document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    // Добавляем активный класс к вкладке "Уровни"
+                    levelsLink.classList.add('active');
+                }
+            }, 100); // Проверяем каждые 100мс
+        });
+    </script>
+</body>
+</html>

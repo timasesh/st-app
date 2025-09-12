@@ -1,0 +1,410 @@
+{% load static %}
+{% load course_extras %}
+{% load math_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои курсы - Study Task</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
+    <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/student_page_mobile.css' %}">
+    <style>
+        /* Принудительное выделение активной вкладки "Мои курсы" */
+        .sidebar-nav-link[href*="student_courses_page"] {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        .sidebar-nav-link[href*="student_courses_page"]:hover {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+        
+        /* Дополнительные стили для гарантии */
+        .sidebar-nav-link[href*="student_courses_page"].active {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3) !important;
+        }
+        
+        /* Стили для всех состояний */
+        .sidebar-nav-link[href*="student_courses_page"]:active,
+        .sidebar-nav-link[href*="student_courses_page"]:focus,
+        .sidebar-nav-link[href*="student_courses_page"]:visited {
+            background: linear-gradient(135deg, #4A90E2, #1E3A8A) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="modern-student-body">
+    
+    <!-- Сайдбар -->
+    <div class="student-sidebar" id="studentSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="sidebar-logo">
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}'">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_courses_page' %}" class="nav-link sidebar-nav-link active">
+                    <i class="fas fa-book"></i>
+                    <span>Мои курсы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_rating_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_rating_page' %}'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Рейтинг</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_levels_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_levels_page' %}'">
+                    <i class="fas fa-medal"></i>
+                    <span>Уровни</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_quizzes_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_quizzes_page' %}'">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Квизы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_homework_standalone_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_homework_standalone_page' %}'">
+                    <i class="fas fa-book-open"></i>
+                    <span>Домашние задания</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_requests_page' %}" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_requests_page' %}'">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Запросы</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#achievements" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#achievements'">
+                    <i class="fas fa-trophy"></i>
+                    <span>Достижения</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#notifications" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#notifications'">
+                    <i class="fas fa-bell"></i>
+                    <span>Уведомления</span>
+                    {% if unread_notifications_count > 0 %}
+                        <span class="sidebar-notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'student_page' %}#wheel" class="nav-link sidebar-nav-link" onclick="window.location.href='{% url 'student_page' %}#wheel'">
+                    <i class="fas fa-dice"></i>
+                    <span>Колесо фортуны</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оверлей для сайдбара -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <header class="modern-student-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+            </div>
+            
+            <!-- Кнопка открытия сайдбара -->
+            <button class="sidebar-toggle-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-actions">
+                <div class="user-dropdown">
+                    <button class="user-dropdown-btn" id="userDropdownBtn">
+                        {% if user.student.avatar %}
+                            <img src="{{ user.student.avatar.url }}" alt="Аватар" class="user-avatar">
+                        {% else %}
+                            <div class="user-avatar-placeholder">
+                                {% if user.first_name %}{{ user.first_name|first }}{% else %}{{ user.username|first|upper }}{% endif %}
+                            </div>
+                        {% endif %}
+                        <span class="user-name">
+                            {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown-content" id="userDropdown">
+                        <a href="{% url 'student_profile' %}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Кнопка "Назад" для мобильной версии -->
+    <button class="mobile-back-btn" id="mobileBackBtn" onclick="window.location.href='{% url 'student_page' %}'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <main class="modern-student-main">
+        <div class="main-container">
+            <!-- Контент курсов -->
+            <div class="courses-modern-grid">
+                {% for course in courses %}
+                    <div class="course-card-modern">
+                        <div class="course-card-header">
+                            <div class="course-image-container">
+                                {% if course.image %}
+                                    <img src="{{ course.image.url }}" alt="{{ course.title }}" class="course-card-image">
+                                {% else %}
+                                    <div class="course-card-image-placeholder">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="course-progress-overlay">
+                                <div class="progress-circle" data-progress="{{ progress_data|get_item:course.id|default:0 }}">
+                                    <svg class="progress-ring" width="60" height="60">
+                                        <circle class="progress-ring-circle" 
+                                                stroke="#4A90E2" 
+                                                stroke-width="4" 
+                                                fill="transparent" 
+                                                r="26" 
+                                                cx="30" 
+                                                cy="30"/>
+                                    </svg>
+                                    <div class="progress-text">{{ progress_data|get_item:course.id|default:0 }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-card-body">
+                            <h3 class="course-card-title">{{ course.title }}</h3>
+                            <div class="course-stats">
+                                <div class="course-stat">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>{{ course.modules.count }} модулей</span>
+                                </div>
+                                <div class="course-stat">
+                                    <i class="fas fa-tasks"></i>
+                                    <span>{{ course.get_total_lessons_count }} уроков</span>
+                                </div>
+                                <div class="course-stat course-stars">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{ course.stars }} звёзд за курс</span>
+                                </div>
+                            </div>
+                            <div class="course-progress-modern">
+                                <div class="progress-info">
+                                    <span class="progress-label">Прогресс</span>
+                                    <span class="progress-percentage">{{ progress_data|get_item:course.id|default:0 }}%</span>
+                                </div>
+                                <div class="progress-bar-modern">
+                                    <div class="progress-fill" style="width: {{ progress_data|get_item:course.id|default:0 }}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-card-footer">
+                            <a href="{% url 'course_detail' course.id %}" class="course-continue-btn">
+                                {% if course_completed_data|get_item:course.id %}
+                                    <i class="fas fa-eye"></i>
+                                    Посмотреть курс
+                                {% else %}
+                                    <i class="fas fa-play"></i>
+                                    Продолжить обучение
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="no-courses-container">
+                        <div class="no-courses-card">
+                            <div class="no-courses-icon">📚</div>
+                            <h3 class="no-courses-title">Пока нет курсов</h3>
+                            <p class="no-courses-text">Вы ещё не записались ни на один курс. Обратитесь к администратору для получения доступа к курсам.</p>
+                            <div class="no-courses-animation">
+                                <i class="floating-book fas fa-book"></i>
+                                <i class="floating-book fas fa-graduation-cap"></i>
+                                <i class="floating-book fas fa-lightbulb"></i>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Форма присоединения к курсу -->
+            <div class="join-course-section">
+                <div class="join-course-card">
+                    <div class="join-course-header">
+                        <div class="join-course-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3 class="join-course-title">Присоединиться к курсу</h3>
+                        <p class="join-course-subtitle">Введите код курса, чтобы записаться</p>
+                    </div>
+                    
+                    <form method="post" class="join-course-form">
+                        {% csrf_token %}
+                        <div class="form-group-modern">
+                            <div class="input-container">
+                                <i class="input-icon fas fa-key"></i>
+                                <input type="text" name="course_code" class="form-control-modern" placeholder="Код курса" required>
+                            </div>
+                        </div>
+                        <button type="submit" name="join_course" class="join-course-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Отправить запрос
+                        </button>
+                    </form>
+                    
+                    <div class="join-course-help">
+                        <div class="help-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Код курса можно получить у преподавателя</span>
+                        </div>
+                        <div class="help-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Запрос будет рассмотрен администратором</span>
+                        </div>
+                        <div class="help-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Вы получите уведомление о результате</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/student_page_mobile.js' %}"></script>
+    
+    <!-- CSRF Token -->
+    {% csrf_token %}
+    
+    <script>
+        // Dropdown функциональность
+        const userDropdownBtn = document.getElementById('userDropdownBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (userDropdownBtn && userDropdown) {
+            userDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+        }
+        
+        // Закрытие dropdown'ов при клике вне их
+        document.addEventListener('click', function(e) {
+            if (!userDropdownBtn?.contains(e.target) && !userDropdown?.contains(e.target)) {
+                userDropdown?.classList.remove('show');
+            }
+        });
+        
+        // Сайдбар функциональность
+        const sidebar = document.getElementById('studentSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            });
+        }
+        
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Функция для анимации круговых прогресс-баров курсов
+        function initCourseProgressCircles() {
+            document.querySelectorAll('.progress-circle').forEach(function(circle) {
+                const progress = parseInt(circle.getAttribute('data-progress')) || 0;
+                const progressRing = circle.querySelector('.progress-ring-circle');
+                const circumference = 2 * Math.PI * 26; // r=26
+                
+                progressRing.style.strokeDasharray = circumference;
+                progressRing.style.strokeDashoffset = circumference;
+                
+                // Анимация с задержкой
+                setTimeout(function() {
+                    const offset = circumference - (progress / 100) * circumference;
+                    progressRing.style.strokeDashoffset = offset;
+                }, 500);
+            });
+        }
+        
+        // Инициализируем функции при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initCourseProgressCircles();
+            
+            // Принудительно устанавливаем активное состояние для вкладки "Мои курсы"
+            const coursesLink = document.querySelector('.sidebar-nav-link[href*="student_courses_page"]');
+            if (coursesLink) {
+                // Убираем активный класс у всех ссылок
+                document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                // Добавляем активный класс к вкладке "Мои курсы"
+                coursesLink.classList.add('active');
+            }
+            
+            // Отключаем стандартную инициализацию вкладок из student_page.js
+            // Переопределяем функцию switchTab, чтобы она не мешала
+            if (window.switchTab) {
+                const originalSwitchTab = window.switchTab;
+                window.switchTab = function(tabName) {
+                    // Если пытаются переключить на вкладку, которая не существует на этой странице,
+                    // просто игнорируем это
+                    if (tabName === 'home' || tabName === 'courses') {
+                        return;
+                    }
+                    // Для остальных вкладок используем оригинальную функцию
+                    return originalSwitchTab.call(this, tabName);
+                };
+            }
+            
+            // Постоянно поддерживаем активное состояние вкладки "Мои курсы"
+            setInterval(function() {
+                const coursesLink = document.querySelector('.sidebar-nav-link[href*="student_courses_page"]');
+                if (coursesLink && !coursesLink.classList.contains('active')) {
+                    // Убираем активный класс у всех ссылок
+                    document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    // Добавляем активный класс к вкладке "Мои курсы"
+                    coursesLink.classList.add('active');
+                }
+            }, 100); // Проверяем каждые 100мс
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отзыв о курсе {{ course.title }} - Study Task</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .feedback-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .course-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .course-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .course-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .feedback-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .rating-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .rating-option {
+            display: none;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .star {
+            cursor: pointer;
+            font-size: 2.5rem;
+            color: #ddd;
+            opacity: 0.4;
+            transition: all 0.2s ease;
+            user-select: none;
+            transform-origin: center;
+        }
+        
+        .star:hover {
+            transform: scale(1.15);
+            opacity: 0.8;
+        }
+        
+        .star.active {
+            color: #ffd700;
+            opacity: 1;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            transform: scale(1.1);
+        }
+        
+        .star.hover {
+            color: #ffd700;
+            opacity: 1;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        
+        .rating-text-display {
+            text-align: center;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #ratingText {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+        
+        .checkbox-label {
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        .submit-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            color: #764ba2;
+            transform: translateX(-5px);
+        }
+        
+        .existing-feedback {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .existing-feedback h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'course_detail' course.id %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Вернуться к курсу
+        </a>
+        
+        <div class="feedback-card">
+            <div class="header">
+                <div class="course-info">
+                    <div class="course-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="course-title">{{ course.title }}</h1>
+                    </div>
+                </div>
+                <p class="feedback-subtitle">
+                    {% if existing_feedback %}
+                        Редактирование отзыва о курсе
+                    {% else %}
+                        Поделитесь впечатлениями о пройденном курсе
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if existing_feedback %}
+            <div class="existing-feedback">
+                <h3><i class="fas fa-edit"></i> Ваш текущий отзыв</h3>
+                <p><strong>Оценка:</strong> {{ existing_feedback.stars_display }}</p>
+                {% if existing_feedback.comment %}
+                <p><strong>Отзыв:</strong> {{ existing_feedback.comment }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label">{{ form.rating.label }}</label>
+                    <div class="rating-container">
+                        <!-- Скрытое поле для отправки рейтинга -->
+                        <input type="hidden" name="rating" id="id_rating" 
+                               value="{% if existing_feedback %}{{ existing_feedback.rating }}{% endif %}" required>
+                        
+                        <!-- Интерактивные звездочки -->
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-rating="1">⭐</span>
+                            <span class="star" data-rating="2">⭐</span>
+                            <span class="star" data-rating="3">⭐</span>
+                            <span class="star" data-rating="4">⭐</span>
+                            <span class="star" data-rating="5">⭐</span>
+                        </div>
+                        
+                        <div class="rating-text-display">
+                            <span id="ratingText"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>
+                    {{ form.comment }}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.what_liked.id_for_label }}">{{ form.what_liked.label }}</label>
+                    {{ form.what_liked }}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="{{ form.what_to_improve.id_for_label }}">{{ form.what_to_improve.label }}</label>
+                    {{ form.what_to_improve }}
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-container">
+                        {{ form.would_recommend }}
+                        <label for="{{ form.would_recommend.id_for_label }}" class="checkbox-label">
+                            {{ form.would_recommend.label }}
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-paper-plane"></i>
+                    {% if existing_feedback %}Обновить отзыв{% else %}Отправить отзыв{% endif %}
+                </button>
+            </form>
+        </div>
+        </div>
+    
+    <script>
+        // Интерактивные звездочки
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.getElementById('ratingText');
+        const hiddenRatingInput = document.getElementById('id_rating');
+        
+        const ratingTexts = {
+            1: 'Очень плохо',
+            2: 'Плохо',
+            3: 'Нормально', 
+            4: 'Хорошо',
+            5: 'Отлично'
+        };
+        
+        let currentRating = 0;
+        
+        // Инициализация - проверяем существующее значение (для редактирования)
+        const existingRating = hiddenRatingInput.value;
+        if (existingRating) {
+            currentRating = parseInt(existingRating);
+            updateStars(currentRating);
+            ratingText.textContent = ratingTexts[currentRating];
+        }
+        
+        stars.forEach((star, index) => {
+            // Клик по звезде
+            star.addEventListener('click', () => {
+                const rating = parseInt(star.dataset.rating);
+                currentRating = rating;
+                
+                // Устанавливаем значение в скрытое поле
+                hiddenRatingInput.value = rating;
+                
+                updateStars(rating);
+                ratingText.textContent = ratingTexts[rating];
+            });
+            
+            // Наведение на звезду
+            star.addEventListener('mouseenter', () => {
+                const rating = parseInt(star.dataset.rating);
+                updateStars(rating, true);
+                ratingText.textContent = ratingTexts[rating];
+            });
+        });
+        
+        // Убираем наведение
+        document.getElementById('starRating').addEventListener('mouseleave', () => {
+            updateStars(currentRating);
+            ratingText.textContent = currentRating > 0 ? ratingTexts[currentRating] : '';
+        });
+        
+        function updateStars(rating, hover = false) {
+            stars.forEach((star, index) => {
+                const starRating = index + 1;
+                star.classList.remove('active', 'hover');
+                
+                if (starRating <= rating) {
+                    star.classList.add(hover ? 'hover' : 'active');
+                }
+            });
+        }
+        
+        // Проверка формы при отправке
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!hiddenRatingInput.value) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите рейтинг');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

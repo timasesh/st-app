@@ -1,0 +1,59 @@
+{% load course_filters %}
+<!-- Вкладка достижений -->
+<div id="achievements" class="tab-pane">
+    <div class="achievements-wrap">
+        <div class="achievements-hero">
+            <div class="achievements-hero-icon">🏆</div>
+            <div class="achievements-hero-text">
+                <h2>Мои достижения</h2>
+                <p>Проходите квизы и курсы, собирайте звёзды и открывайте призы!</p>
+            </div>
+        </div>
+
+        <div class="achievements-grid">
+            {% for sa in unlocked_achievements %}
+                <div class="achievement-card unlocked">
+                    <div class="achievement-header">
+                        <div class="achievement-badge">{{ sa.achievement.reward_icon }}</div>
+                        <div class="achievement-title">{{ sa.achievement.title }}</div>
+                    </div>
+                    <div class="achievement-description">{{ sa.achievement.description }}</div>
+                    <div class="achievement-reward"><i class="fas fa-gift"></i> Награда: {{ sa.achievement.reward }}</div>
+                    <div class="achievement-progress">
+                        <div class="progress-bar"><div class="fill" style="width: 100%"></div></div>
+                        <div class="progress-meta">Открыто: {{ sa.unlocked_at|date:"d.m.Y" }}</div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-levels-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Пока нет разблокированных достижений — начните с прохождения квизов!</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if locked_achievements %}
+            <div class="levels-header" style="margin-top:1rem;">
+                <h3 class="levels-title" style="font-size:1.4rem;"><i class="fas fa-unlock"></i> Что можно открыть далее</h3>
+            </div>
+            <div class="achievements-grid">
+                {% for ach in locked_achievements %}
+                    {% with p=progress_by_id|get_item:ach.id %}
+                        <div class="achievement-card">
+                            <div class="achievement-header">
+                                <div class="achievement-badge">{{ ach.reward_icon }}</div>
+                                <div class="achievement-title">{{ ach.title }}</div>
+                            </div>
+                            <div class="achievement-description">{{ ach.description }}</div>
+                            <div class="achievement-reward"><i class="fas fa-gift"></i> Награда: {{ ach.reward }}</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar"><div class="fill" style="width: {{ p.percentage|default:0 }}%"></div></div>
+                                <div class="progress-meta">Прогресс: {{ p.current|default:0 }} / {{ p.target|default:1 }}</div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

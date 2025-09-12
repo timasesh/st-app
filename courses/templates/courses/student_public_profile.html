@@ -1,131 +1,567 @@
 {% load static %}
+{% load course_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль студента</title>
+    <title>Профиль студента - {{ student.user.get_full_name|default:student.user.username }}</title>
+    <link rel="icon" type="image/png" href="/media/image/ST.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
     <style>
+        /* Современная цветовая схема в стиле student_page */
+        .modern-profile-body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modern-profile-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .profile-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .profile-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 1.5rem;
+        }
+
         .profile-avatar {
             width: 120px;
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-        .profile-header {
-            background: #0b2c5b;
-            color: #fff;
-            border-radius: 20px 20px 0 0;
-            padding: 2rem 1rem 1rem 1rem;
-            text-align: center;
+
+        .profile-avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            user-select: none;
         }
-        .profile-main {
-            background: #fff;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-stars {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-contact {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 20px;
             padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
-        .profile-info {
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.1rem;
         }
-        .star {
-            color: #FFD700;
-            font-size: 1.3rem;
+
+        .group-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
+
         .group-badge {
-            background: #4169E1;
-            color: #fff;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .rating-item {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .rating-item:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .course-item {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .course-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .progress-container {
+            background: #e3f2fd;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: -25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .quiz-item {
+            background: #f0f8ff;
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .quiz-score {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 0.25rem 0.75rem;
             border-radius: 12px;
-            padding: 0.2em 0.8em;
-            margin-right: 0.5em;
-            font-size: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
-        .course-progress {
-            height: 10px;
-            background: #e0eaff;
-            border-radius: 5px;
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
         }
-        .progress-bar {
-            background: linear-gradient(90deg, #00c6ff, #007bff);
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .personal-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 1rem;
+            }
+            
+            .main-content {
+                padding: 0 1rem;
+            }
+            
+            .profile-hero {
+                padding: 2rem 1rem;
+            }
+            
+            .profile-contact {
+                gap: 1rem;
+            }
+            
+            .section-card {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
-<body style="background:#d7e1ff;">
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="profile-header">
-                {% if student.avatar %}
-                    <img src="{{ student.avatar.url }}" class="profile-avatar mb-3" alt="avatar">
-                {% else %}
-                    <img src="https://via.placeholder.com/120" class="profile-avatar mb-3" alt="avatar">
-                {% endif %}
-                <h2 class="mb-1">{{ student.user.username }}</h2>
-                <div class="mb-2">
-                    <span class="star"><i class="fas fa-star"></i> {{ stars }}</span>
-                </div>
-                <div class="profile-info mb-2">
-                    <span class="mr-3"><i class="fas fa-envelope"></i> {{ student.email|default:'-' }}</span>
-                    <span><i class="fas fa-phone"></i> {{ student.phone_number|default:'-' }}</span>
-                </div>
-                <a href="javascript:history.back()" class="btn btn-light btn-sm">Назад</a>
-            </div>
-            <div class="profile-main">
-                <h4>Группы</h4>
-                {% if groups %}
-                    <div class="mb-3">
-                        {% for group in groups %}
-                            <span class="group-badge">{{ group.name }}</span>
-                        {% endfor %}
+<body class="modern-profile-body">
+    
+    <header class="modern-profile-header">
+        <div class="header-container">
+            <h1 class="profile-title">Профиль студента</h1>
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </a>
+        </div>
+    </header>
+
+    <div class="main-content">
+        
+        <!-- Профиль студента -->
+        <div class="profile-card">
+            <div class="profile-hero">
+                <div class="profile-avatar-container avatar-with-level">
+                    {% if student.avatar %}
+                        <img src="{{ student.avatar.url }}" class="profile-avatar" alt="avatar">
+                    {% else %}
+                        <div class="profile-avatar-placeholder">
+                            {% if student.user.first_name and student.user.last_name %}
+                                {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                            {% elif student.user.first_name %}
+                                {{ student.user.first_name|first|upper }}{{ student.user.first_name|slice:"1:2"|upper }}
+                            {% else %}
+                                {{ student.user.username|first|upper }}{{ student.user.username|slice:"1:2"|upper }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="level-badge level-{{ student.level_number }} large animate" 
+                         data-tooltip="{{ student.level_name }}">
+                        {{ student.level_number }}
                     </div>
-                    <ul class="list-group mb-4">
-                        {% for gr in group_ratings %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><b>{{ gr.group.name }}</b> — место в группе: <span class="badge badge-primary">{{ gr.place }}/{{ gr.total }}</span></span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="text-muted mb-3">Нет групп</div>
-                {% endif %}
-                <h4>Курсы</h4>
-                {% if courses %}
-                    <ul class="list-group mb-4">
-                        {% for course in courses %}
-                        <li class="list-group-item">
-                            <b>{{ course.title }}</b>
-                            <div class="course-progress mt-2 mb-1">
-                                {% with progress=course.studentprogress_set.first.progress %}
-                                <div class="progress-bar" role="progressbar" style="width: {{ progress|default:0 }}%;" aria-valuenow="{{ progress|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                {% endwith %}
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="text-muted mb-3">Нет курсов</div>
-                {% endif %}
-                <h4>Пройденные квизы</h4>
-                {% if quizzes %}
-                    <ul class="list-group mb-4">
-                        {% for quiz in quizzes %}
-                        <li class="list-group-item">
-                            <b>{{ quiz.quiz.title }}</b> — <span class="text-success">{{ quiz.score }}/{{ quiz.total_questions }}</span>
-                            <span class="ml-2 text-muted">{{ quiz.date_taken|date:'d.m.Y H:i' }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="text-muted mb-3">Нет пройденных квизов</div>
-                {% endif %}
-                <p><b>Имя:</b> {{ student.first_name|default:'-' }}</p>
-                <p><b>Фамилия:</b> {{ student.last_name|default:'-' }}</p>
+                </div>
+                
+                <h2 class="profile-name">{{ student.user.get_full_name|default:student.user.username }}</h2>
+                
+                <div class="profile-stars">
+                    <i class="fas fa-star"></i> {{ stars }} 
+                </div>
+                
+                <div class="profile-contact">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ student.email|default:'Не указан' }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ student.phone_number|default:'Не указан' }}</span>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Группы -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                Группы
+            </h3>
+            
+            {% if groups %}
+                <div class="group-badges">
+                    {% for group in groups %}
+                        <span class="group-badge">{{ group.name }}</span>
+                    {% endfor %}
+                </div>
+                
+                {% for gr in group_ratings %}
+                <div class="rating-item">
+                    <div>
+                        <strong>{{ gr.group.name }}</strong>
+                        <div class="text-muted small">Место в группе</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="badge badge-primary badge-pill" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                            {{ gr.place }}/{{ gr.total }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <p>Студент пока не состоит ни в одной группе</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Курсы -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                Курсы
+            </h3>
+            
+            {% if courses %}
+                {% for course in courses %}
+                <div class="course-item">
+                    <div class="course-title">{{ course.title }}</div>
+                    <div class="progress-container">
+                        {% with progress=course_progress|get_item:course.id %}
+                        <div class="progress-fill" style="width: {{ progress|default:0 }}%;"></div>
+                        <div class="progress-text">{{ progress|default:0 }}%</div>
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <p>Студент пока не записан на курсы</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Пройденные квизы -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                Пройденные квизы
+            </h3>
+            
+            {% if quizzes %}
+                {% for quiz in quizzes %}
+                <div class="quiz-item">
+                    <div class="flex-grow-1">
+                        <strong>{{ quiz.quiz.title }}</strong>
+                        <div class="text-muted small">{{ quiz.date_taken|date:'d.m.Y H:i' }}</div>
+                    </div>
+                    <div class="quiz-score">
+                        {{ quiz.score }}/{{ quiz.total_questions }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <p>Квизы пока не пройдены</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Личная информация -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                Личная информация
+            </h3>
+            
+            <div class="personal-info">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-signature"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Имя</div>
+                        <strong>{{ student.first_name|default:'Не указано' }}</strong>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Фамилия</div>
+                        <strong>{{ student.last_name|default:'Не указано' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

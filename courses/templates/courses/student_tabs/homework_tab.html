@@ -1,0 +1,233 @@
+{% load course_filters %}
+<!-- Вкладка домашних заданий -->
+<div id="homework" class="tab-pane">
+    <div class="homework-container-modern">
+        <!-- Современный заголовок -->
+        <div class="homework-hero-modern">
+            <div class="homework-hero-content">
+                <div class="hero-icon-section">
+                    <div class="hero-main-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="hero-floating-icons">
+                        <div class="floating-icon icon-1">📚</div>
+                        <div class="floating-icon icon-2">✏️</div>
+                        <div class="floating-icon icon-3">📝</div>
+                    </div>
+                </div>
+                <div class="hero-text-section">
+                    <h2 class="hero-title">Домашние задания</h2>
+                    <p class="hero-subtitle">Управляйте своими учебными заданиями и отслеживайте прогресс выполнения</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Улучшенная статистика -->
+        <div class="homework-stats-modern">
+            <div class="stats-card pending-stats">
+                <div class="stats-card-content">
+                    <div class="stats-icon-wrapper">
+                        <div class="stats-icon pending-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-number">{{ pending_homeworks_count|default:0 }}</div>
+                        <div class="stats-label">К выполнению</div>
+                        <div class="stats-description">Новые задания</div>
+                    </div>
+                </div>
+                <div class="stats-card-bg"></div>
+            </div>
+            
+            <div class="stats-card submitted-stats">
+                <div class="stats-card-content">
+                    <div class="stats-icon-wrapper">
+                        <div class="stats-icon submitted-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-number">{{ submitted_homeworks_count|default:0 }}</div>
+                        <div class="stats-label">На проверке</div>
+                        <div class="stats-description">Ожидают оценки</div>
+                    </div>
+                </div>
+                <div class="stats-card-bg"></div>
+            </div>
+            
+            <div class="stats-card completed-stats">
+                <div class="stats-card-content">
+                    <div class="stats-icon-wrapper">
+                        <div class="stats-icon completed-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-number">{{ completed_homeworks_count|default:0 }}</div>
+                        <div class="stats-label">Завершено</div>
+                        <div class="stats-description">Получена оценка</div>
+                    </div>
+                </div>
+                <div class="stats-card-bg"></div>
+            </div>
+        </div>
+
+        <!-- Современный раздел заданий -->
+        <div class="homework-section-modern">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-list-check"></i>
+                    Ваши задания
+                </h3>
+                {% if recent_homeworks %}
+                    <div class="homework-filters-modern">
+                        <button class="filter-btn-modern active" data-filter="all">
+                            <span>Все</span>
+                            <div class="filter-indicator"></div>
+                        </button>
+                        <button class="filter-btn-modern" data-filter="pending">
+                            <span>К выполнению</span>
+                            <div class="filter-indicator"></div>
+                        </button>
+                        <button class="filter-btn-modern" data-filter="submitted">
+                            <span>На проверке</span>
+                            <div class="filter-indicator"></div>
+                        </button>
+                        <button class="filter-btn-modern" data-filter="completed">
+                            <span>Завершено</span>
+                            <div class="filter-indicator"></div>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if recent_homeworks %}
+                <div class="homework-grid-modern">
+                    {% for homework in recent_homeworks %}
+                        <div class="homework-card-modern 
+                            {% if homework.submissions.first.is_completed %}homework-completed
+                            {% elif homework.submissions.first.is_submitted %}homework-submitted
+                            {% else %}homework-pending{% endif %}"
+                            data-status="
+                            {% if homework.submissions.first.is_completed %}completed
+                            {% elif homework.submissions.first.is_submitted %}submitted
+                            {% else %}pending{% endif %}">
+                            
+                            <!-- Статус индикатор -->
+                            <div class="homework-status-indicator">
+                                {% if homework.submissions.first.is_completed %}
+                                    <div class="status-badge-hw status-completed">
+                                        <i class="fas fa-trophy"></i>
+                                        <span>ЗАВЕРШЕНО</span>
+                                    </div>
+                                {% elif homework.submissions.first.is_submitted %}
+                                    <div class="status-badge-hw status-review">
+                                        <i class="fas fa-eye"></i>
+                                        <span>НА ПРОВЕРКЕ</span>
+                                    </div>
+                                {% else %}
+                                    <div class="status-badge-hw status-new">
+                                        <i class="fas fa-exclamation"></i>
+                                        <span>К ВЫПОЛНЕНИЮ</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Основное содержимое -->
+                            <div class="homework-content-modern">
+                                <div class="homework-header-modern">
+                                    <div class="homework-icon-modern">
+                                        {% if homework.submissions.first.is_completed %}
+                                            <i class="fas fa-trophy"></i>
+                                        {% elif homework.submissions.first.is_submitted %}
+                                            <i class="fas fa-paper-plane"></i>
+                                        {% else %}
+                                            <i class="fas fa-file-alt"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="homework-title-section">
+                                        <h4 class="homework-title-modern">{{ homework.title }}</h4>
+                                        <div class="homework-teacher">
+                                            <i class="fas fa-user-tie"></i>
+                                            {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="homework-description-modern">
+                                    {{ homework.description|truncatewords:25 }}
+                                </div>
+
+                                <!-- Дедлайн и прогресс -->
+                                <div class="homework-deadline-section">
+                                    <div class="deadline-info">
+                                        <div class="deadline-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <div class="deadline-text">
+                                            <span class="deadline-label">Срок сдачи</span>
+                                            <span class="deadline-date">{{ homework.due_date|date:"d.m.Y H:i" }}</span>
+                                        </div>
+                                    </div>
+                                    {% if homework.submissions.first.is_completed and homework.submissions.first.grade %}
+                                        <div class="grade-display">
+                                            <div class="grade-badge">{{ homework.submissions.first.grade }}</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Действия -->
+                                <div class="homework-actions-modern">
+                                    {% if homework.submissions.first.is_completed %}
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="homework-action-btn completed-btn">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Посмотреть результат</span>
+                                            <div class="btn-arrow-hw"><i class="fas fa-arrow-right"></i></div>
+                                        </a>
+                                    {% elif homework.submissions.first.is_submitted %}
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="homework-action-btn review-btn">
+                                            <i class="fas fa-hourglass-half"></i>
+                                            <span>Ожидает проверки</span>
+                                            <div class="btn-arrow-hw"><i class="fas fa-arrow-right"></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'student_homework_detail' homework.id %}" class="homework-action-btn start-btn">
+                                            <i class="fas fa-pen"></i>
+                                            <span>Выполнить задание</span>
+                                            <div class="btn-arrow-hw"><i class="fas fa-arrow-right"></i></div>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Эффекты для завершенных заданий -->
+                            {% if homework.submissions.first.is_completed %}
+                                <div class="homework-completion-effects">
+                                    <div class="completion-sparkle-hw sparkle-hw-1">⭐</div>
+                                    <div class="completion-sparkle-hw sparkle-hw-2">🏆</div>
+                                    <div class="completion-sparkle-hw sparkle-hw-3">✨</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-homework-modern">
+                    <div class="no-homework-illustration">
+                        <div class="illustration-circle-hw">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="floating-homework-elements">
+                            <div class="floating-element-hw element-hw-1">📚</div>
+                            <div class="floating-element-hw element-hw-2">✏️</div>
+                            <div class="floating-element-hw element-hw-3">📝</div>
+                        </div>
+                    </div>
+                    <h3 class="no-homework-title">Пока нет заданий</h3>
+                    <p class="no-homework-text">Домашние задания от преподавателей появятся здесь. Следите за обновлениями!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

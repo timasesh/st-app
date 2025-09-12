@@ -1,0 +1,441 @@
+{% extends 'courses/admin_base.html' %}
+
+{% block title %}Управление запросами{% endblock %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ message_requests.count }}</div>
+            <div class="stats-label">Запросов сообщений</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ profile_requests.count }}</div>
+            <div class="stats-label">Запросов профиля</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="stats-number">{{ course_requests.count }}</div>
+            <div class="stats-label">Запросов курсов</div>
+        </div>
+    </div>
+</div>
+
+<!-- Секции управления -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="requestsTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="messages-tab" data-toggle="tab" href="#messages" role="tab">
+                            <i class="fas fa-envelope mr-2"></i>Сообщения
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab">
+                            <i class="fas fa-user-edit mr-2"></i>Профиль
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="course-tab" data-toggle="tab" href="#course" role="tab">
+                            <i class="fas fa-graduation-cap mr-2"></i>Курсы
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="requestsTabContent">
+                    <!-- Секция запросов сообщений -->
+                    <div class="tab-pane fade show active" id="messages" role="tabpanel">
+                        <h5 class="mb-3">Запросы на отправку сообщений</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Студент</th>
+                                        <th>Тема</th>
+                                        <th>Сообщение</th>
+                                        <th>Статус</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in message_requests %}
+                                    <tr>
+                                        <td>{{ request.id }}</td>
+                                        <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                                        <td>{{ request.subject }}</td>
+                                        <td>{{ request.message|truncatechars:50 }}</td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge badge-warning">Ожидает</span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge badge-success">Одобрен</span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge badge-danger">Отклонен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'admin_message_request_detail' request.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if request.status == 'pending' %}
+                                                <button class="btn btn-sm btn-outline-success" onclick="approveMessageRequest({{ request.id }})">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="rejectMessageRequest({{ request.id }})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Запросы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция запросов профиля -->
+                    <div class="tab-pane fade" id="profile" role="tabpanel">
+                        <h5 class="mb-3">Запросы на изменение профиля</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Студент</th>
+                                        <th>Тип изменения</th>
+                                        <th>Описание</th>
+                                        <th>Статус</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in profile_requests %}
+                                    <tr>
+                                        <td>{{ request.id }}</td>
+                                        <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                                        <td>Редактирование профиля</td>
+                                        <td>{{ request.description|truncatechars:50 }}</td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge badge-warning">Ожидает</span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge badge-success">Одобрен</span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge badge-danger">Отклонен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewProfileRequest({{ request.id }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                {% if request.status == 'pending' %}
+                                                <button class="btn btn-sm btn-outline-success" onclick="approveProfileRequest({{ request.id }})">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="rejectProfileRequest({{ request.id }})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Запросы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Секция запросов курсов -->
+                    <div class="tab-pane fade" id="course" role="tabpanel">
+                        <h5 class="mb-3">Запросы на добавление курсов</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Студент</th>
+                                        <th>Название курса</th>
+                                        <th>Описание</th>
+                                        <th>Статус</th>
+                                        <th>Дата создания</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in course_requests %}
+                                    <tr>
+                                        <td>{{ request.id }}</td>
+                                        <td>{{ request.student.first_name }} {{ request.student.last_name }}</td>
+                                        <td>{{ request.course_name }}</td>
+                                        <td>{{ request.description|truncatechars:50 }}</td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge badge-warning">Ожидает</span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge badge-success">Одобрен</span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge badge-danger">Отклонен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewCourseRequest({{ request.id }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                {% if request.status == 'pending' %}
+                                                <button class="btn btn-sm btn-outline-success" onclick="approveCourseRequest({{ request.id }})">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="rejectCourseRequest({{ request.id }})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Запросы не найдены</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<!-- Модальное окно просмотра запроса профиля -->
+<div class="modal fade" id="profileRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Детали запроса профиля</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="profileRequestContent">
+                <!-- Содержимое будет загружено через AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно просмотра запроса курса -->
+<div class="modal fade" id="courseRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Детали запроса курса</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="courseRequestContent">
+                <!-- Содержимое будет загружено через AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-success" id="approveCourseBtn" style="display: none;">
+                    <i class="fas fa-check"></i> Одобрить
+                </button>
+                <button type="button" class="btn btn-danger" id="rejectCourseBtn" style="display: none;">
+                    <i class="fas fa-times"></i> Отклонить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно выбора курса -->
+<div class="modal fade" id="courseSelectionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Выберите курс для назначения</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="courseSelectionForm">
+                    <div class="form-group">
+                        <label for="courseSelect">Курс:</label>
+                        <select class="form-control" id="courseSelect" required>
+                            <option value="">Выберите курс...</option>
+                            {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminResponse">Комментарий администратора:</label>
+                        <textarea class="form-control" id="adminResponse" rows="3" placeholder="Дополнительный комментарий (необязательно)"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-success" id="confirmCourseSelection">
+                    <i class="fas fa-check"></i> Подтвердить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function approveMessageRequest(requestId) {
+    if (confirm('Одобрить этот запрос на отправку сообщения?')) {
+        updateRequestStatus('message', requestId, 'approved');
+    }
+}
+
+function rejectMessageRequest(requestId) {
+    if (confirm('Отклонить этот запрос на отправку сообщения?')) {
+        updateRequestStatus('message', requestId, 'rejected');
+    }
+}
+
+function approveProfileRequest(requestId) {
+    if (confirm('Одобрить этот запрос на изменение профиля?')) {
+        updateRequestStatus('profile', requestId, 'approved');
+    }
+}
+
+function rejectProfileRequest(requestId) {
+    if (confirm('Отклонить этот запрос на изменение профиля?')) {
+        updateRequestStatus('profile', requestId, 'rejected');
+    }
+}
+
+let currentCourseRequestId = null;
+
+function approveCourseRequest(requestId) {
+    currentCourseRequestId = requestId;
+    $('#courseSelectionModal').modal('show');
+}
+
+function rejectCourseRequest(requestId) {
+    if (confirm('Отклонить этот запрос на добавление курса?')) {
+        updateRequestStatus('course', requestId, 'rejected');
+    }
+}
+
+function updateRequestStatus(type, requestId, status) {
+    $.ajax({
+        url: '/admin_requests_page/',
+        method: 'POST',
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'request_type': type,
+            'request_id': requestId,
+            'action': 'update_status',
+            'status': status
+        },
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert('Ошибка: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Произошла ошибка при обновлении статуса');
+        }
+    });
+}
+
+function viewProfileRequest(requestId) {
+    // Здесь можно добавить AJAX запрос для получения деталей запроса
+    $('#profileRequestContent').html('<p>Загрузка...</p>');
+    $('#profileRequestModal').modal('show');
+}
+
+function viewCourseRequest(requestId) {
+    // Здесь можно добавить AJAX запрос для получения деталей запроса
+    $('#courseRequestContent').html('<p>Загрузка...</p>');
+    $('#courseRequestModal').modal('show');
+}
+
+// Обработчик подтверждения выбора курса
+$('#confirmCourseSelection').click(function() {
+    const courseId = $('#courseSelect').val();
+    const adminResponse = $('#adminResponse').val();
+    
+    if (!courseId) {
+        alert('Пожалуйста, выберите курс');
+        return;
+    }
+    
+    if (currentCourseRequestId) {
+        updateCourseRequestStatus(currentCourseRequestId, 'approved', courseId, adminResponse);
+    }
+});
+
+// Функция обновления статуса запроса курса с выбором курса
+function updateCourseRequestStatus(requestId, status, courseId = null, adminResponse = '') {
+    $.ajax({
+        url: '/admin_requests_page/',
+        method: 'POST',
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'request_type': 'course',
+            'request_id': requestId,
+            'action': 'update_status',
+            'status': status,
+            'course_id': courseId,
+            'admin_response': adminResponse
+        },
+        success: function(response) {
+            if (response.success) {
+                $('#courseSelectionModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Ошибка: ' + response.error);
+            }
+        },
+        error: function() {
+            alert('Произошла ошибка при обновлении статуса');
+        }
+    });
+}
+</script>
+{% endblock %}

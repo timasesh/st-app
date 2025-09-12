@@ -1,0 +1,688 @@
+{% extends 'courses/student_base.html' %}
+{% load static %}
+
+{% block title %}Домашние задания{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Заголовок с анимацией -->
+            <div class="homework-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="header-content">
+                        <h2 class="mb-0">
+                            <i class="fas fa-book-open text-primary"></i>
+                            Домашние задания
+                        </h2>
+                        <p class="text-muted mb-0">Управляйте своими учебными заданиями</p>
+                    </div>
+                    <div class="stats-badge">
+                        <div class="badge-container">
+                            <span class="badge badge-primary badge-lg">{{ total_homeworks }}</span>
+                            <small class="text-muted d-block">всего заданий</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Статистика с анимацией -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stats-card pending-card">
+                        <div class="stats-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">{{ pending_homeworks|length }}</h3>
+                            <p class="stats-label">Ожидают выполнения</p>
+                        </div>
+                        <div class="stats-progress">
+                            <div class="progress-bar" style="width: {% if total_homeworks > 0 %}{{ pending_homeworks|length|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card submitted-card">
+                        <div class="stats-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">{{ submitted_homeworks|length }}</h3>
+                            <p class="stats-label">Отправлены</p>
+                        </div>
+                        <div class="stats-progress">
+                            <div class="progress-bar" style="width: {% if total_homeworks > 0 %}{{ submitted_homeworks|length|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card completed-card">
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">{{ completed_homeworks|length }}</h3>
+                            <p class="stats-label">Завершены</p>
+                        </div>
+                        <div class="stats-progress">
+                            <div class="progress-bar" style="width: {% if total_homeworks > 0 %}{{ completed_homeworks|length|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Фильтры и поиск -->
+            <div class="filters-section mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="form-group mb-0">
+                                    <label for="status-filter" class="form-label">
+                                        <i class="fas fa-filter"></i> Фильтр по статусу
+                                    </label>
+                                    <select id="status-filter" class="form-control">
+                                        <option value="all">Все задания</option>
+                                        <option value="pending">Ожидают выполнения</option>
+                                        <option value="submitted">Отправлены</option>
+                                        <option value="completed">Завершены</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-0">
+                                    <label for="search-homework" class="form-label">
+                                        <i class="fas fa-search"></i> Поиск
+                                    </label>
+                                    <input type="text" id="search-homework" class="form-control" placeholder="Поиск по названию...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-0">
+                                    <label for="sort-homework" class="form-label">
+                                        <i class="fas fa-sort"></i> Сортировка
+                                    </label>
+                                    <select id="sort-homework" class="form-control">
+                                        <option value="due-date">По сроку выполнения</option>
+                                        <option value="created-date">По дате создания</option>
+                                        <option value="title">По названию</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ожидающие выполнения -->
+            {% if pending_homeworks %}
+            <div class="homework-section pending-section" data-status="pending">
+                <div class="section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock"></i>
+                        Ожидают выполнения
+                        <span class="badge badge-warning ml-2">{{ pending_homeworks|length }}</span>
+                    </h5>
+                </div>
+                <div class="homework-grid">
+                    {% for homework in pending_homeworks %}
+                    <div class="homework-card pending-card" data-title="{{ homework.title|lower }}">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h6>{{ homework.title }}</h6>
+                                <div class="card-meta">
+                                    <span class="teacher-name">
+                                        <i class="fas fa-user-tie"></i>
+                                        {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}
+                                    </span>
+                                    <span class="due-date {% if homework.is_overdue %}overdue{% endif %}">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ homework.due_date|date:"d.m.Y H:i" }}
+                                        {% if homework.is_overdue %}
+                                        <i class="fas fa-exclamation-triangle text-danger ml-1" title="Просрочено"></i>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                {% if homework.pdf_file %}
+                                <i class="fas fa-file-pdf text-danger" title="Есть PDF"></i>
+                                {% endif %}
+                                {% if homework.video_url %}
+                                <i class="fas fa-video text-primary" title="Есть видео"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-description">{{ homework.description|truncatewords:30 }}</p>
+                            <div class="card-footer">
+                                <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                    Выполнить
+                                </a>
+                                <span class="urgency-badge {% if homework.is_overdue %}overdue{% endif %}">
+                                    {% if homework.is_overdue %}
+                                    <i class="fas fa-exclamation-triangle"></i> Просрочено
+                                    {% else %}
+                                    <i class="fas fa-clock"></i> Срочно
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Отправленные -->
+            {% if submitted_homeworks %}
+            <div class="homework-section submitted-section" data-status="submitted">
+                <div class="section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-paper-plane"></i>
+                        Отправлены
+                        <span class="badge badge-info ml-2">{{ submitted_homeworks|length }}</span>
+                    </h5>
+                </div>
+                <div class="homework-grid">
+                    {% for homework in submitted_homeworks %}
+                    <div class="homework-card submitted-card" data-title="{{ homework.title|lower }}">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h6>{{ homework.title }}</h6>
+                                <div class="card-meta">
+                                    <span class="teacher-name">
+                                        <i class="fas fa-user-tie"></i>
+                                        {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}
+                                    </span>
+                                    <span class="submitted-date">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Отправлено: {{ homework.submissions.first.submitted_at|date:"d.m.Y H:i" }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                {% with submission=homework.submissions.first %}
+                                {% if submission.photos.all %}
+                                <i class="fas fa-images text-success" title="Фотографии загружены"></i>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-description">{{ homework.description|truncatewords:30 }}</p>
+                            <div class="card-footer">
+                                <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Просмотреть
+                                </a>
+                                <span class="status-badge">
+                                    <i class="fas fa-clock"></i> На проверке
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Завершенные -->
+            {% if completed_homeworks %}
+            <div class="homework-section completed-section" data-status="completed">
+                <div class="section-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle"></i>
+                        Завершены
+                        <span class="badge badge-success ml-2">{{ completed_homeworks|length }}</span>
+                    </h5>
+                </div>
+                <div class="homework-grid">
+                    {% for homework in completed_homeworks %}
+                    <div class="homework-card completed-card" data-title="{{ homework.title|lower }}">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h6>{{ homework.title }}</h6>
+                                <div class="card-meta">
+                                    <span class="teacher-name">
+                                        <i class="fas fa-user-tie"></i>
+                                        {{ homework.teacher.user.get_full_name|default:homework.teacher.user.username }}
+                                    </span>
+                                    {% with submission=homework.submissions.first %}
+                                    {% if submission.grade %}
+                                    <span class="grade-badge">
+                                        <i class="fas fa-star"></i>
+                                        Оценка: {{ submission.grade }}/10
+                                    </span>
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="card-actions">
+                                <i class="fas fa-check-circle text-success" title="Завершено"></i>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-description">{{ homework.description|truncatewords:30 }}</p>
+                            {% with submission=homework.submissions.first %}
+                            {% if submission.teacher_comment %}
+                            <div class="teacher-comment">
+                                <small class="text-muted">
+                                    <i class="fas fa-comment"></i>
+                                    {{ submission.teacher_comment|truncatewords:15 }}
+                                </small>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                            <div class="card-footer">
+                                <a href="{% url 'student_homework_detail' homework.id %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Просмотреть
+                                </a>
+                                <span class="status-badge completed">
+                                    <i class="fas fa-check-circle"></i> Завершено
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Если нет заданий -->
+            {% if not pending_homeworks and not submitted_homeworks and not completed_homeworks %}
+            <div class="empty-state">
+                <div class="empty-state-content">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h5>Нет домашних заданий</h5>
+                    <p>У вас пока нет назначенных домашних заданий. Они появятся здесь, когда преподаватель создаст для вас задание.</p>
+                    <div class="empty-state-actions">
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-sync-alt"></i>
+                            Обновить
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для страницы домашних заданий */
+.homework-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.header-content h2 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stats-badge .badge-container {
+    text-align: center;
+}
+
+.badge-lg {
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Статистические карточки */
+.stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.stats-card.pending-card {
+    border-left: 4px solid #ffc107;
+}
+
+.stats-card.submitted-card {
+    border-left: 4px solid #17a2b8;
+}
+
+.stats-card.completed-card {
+    border-left: 4px solid #28a745;
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.pending-card .stats-icon {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+}
+
+.submitted-card .stats-icon {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.completed-card .stats-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #343a40;
+}
+
+.stats-label {
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.stats-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #e9ecef;
+}
+
+.stats-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+/* Фильтры */
+.filters-section .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* Секции заданий */
+.homework-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 0;
+}
+
+.section-header h5 {
+    color: #343a40;
+    font-weight: 600;
+}
+
+/* Сетка заданий */
+.homework-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Карточки заданий */
+.homework-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: white;
+    overflow: hidden;
+}
+
+.homework-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.homework-card.pending-card {
+    border-left: 4px solid #ffc107;
+}
+
+.homework-card.submitted-card {
+    border-left: 4px solid #17a2b8;
+}
+
+.homework-card.completed-card {
+    border-left: 4px solid #28a745;
+}
+
+.card-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-title h6 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.card-meta span {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card-description {
+    color: #6c757d;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.teacher-comment {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.status-badge, .urgency-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.urgency-badge.overdue {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.grade-badge {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.875rem;
+}
+
+.due-date.overdue {
+    color: #dc3545;
+}
+
+/* Пустое состояние */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.empty-state h5 {
+    color: #343a40;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .homework-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    .filters-section .row > div {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<script>
+// Фильтрация и поиск
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('status-filter');
+    const searchInput = document.getElementById('search-homework');
+    const sortSelect = document.getElementById('sort-homework');
+    
+    function filterHomeworks() {
+        const status = statusFilter.value;
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        const sections = document.querySelectorAll('.homework-section');
+        const cards = document.querySelectorAll('.homework-card');
+        
+        sections.forEach(section => {
+            if (status === 'all' || section.dataset.status === status) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+        
+        cards.forEach(card => {
+            const title = card.dataset.title;
+            const matchesSearch = title.includes(searchTerm);
+            const matchesStatus = status === 'all' || card.closest('.homework-section').dataset.status === status;
+            
+            if (matchesSearch && matchesStatus) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    statusFilter.addEventListener('change', filterHomeworks);
+    searchInput.addEventListener('input', filterHomeworks);
+    
+    // Сортировка
+    sortSelect.addEventListener('change', function() {
+        const sortBy = this.value;
+        const sections = document.querySelectorAll('.homework-section');
+        
+        sections.forEach(section => {
+            const cards = Array.from(section.querySelectorAll('.homework-card'));
+            
+            cards.sort((a, b) => {
+                if (sortBy === 'title') {
+                    return a.dataset.title.localeCompare(b.dataset.title);
+                } else if (sortBy === 'due-date') {
+                    // Здесь можно добавить логику сортировки по дате
+                    return 0;
+                } else if (sortBy === 'created-date') {
+                    // Здесь можно добавить логику сортировки по дате создания
+                    return 0;
+                }
+                return 0;
+            });
+            
+            const grid = section.querySelector('.homework-grid');
+            cards.forEach(card => grid.appendChild(card));
+        });
+    });
+    
+    // Анимация появления карточек
+    const cards = document.querySelectorAll('.homework-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

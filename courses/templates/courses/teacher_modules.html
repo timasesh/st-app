@@ -1,0 +1,131 @@
+{% extends 'courses/teacher_base.html' %}
+
+{% block title %}Мои модули{% endblock %}
+{% block page_title %}Мои модули{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-cubes mr-2"></i>
+                    Мои модули
+                </h3>
+                <div class="d-flex align-items-center">
+                    <span class="badge badge-success badge-pill mr-3">{{ modules|length }} модулей</span>
+                    <button class="btn btn-success" data-toggle="collapse" data-target="#createModuleForm">
+                        <i class="fas fa-plus mr-2"></i>Создать модуль
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Форма создания модуля -->
+            <div class="collapse" id="createModuleForm">
+                <div class="card-body border-bottom">
+                    <h5 class="mb-3">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Создать новый модуль
+                    </h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="moduleTitle">Название модуля *</label>
+                                    <input type="text" class="form-control" name="title" id="moduleTitle" required placeholder="Введите название модуля">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="moduleCourse">Курс *</label>
+                                    <select class="form-control" name="course_id" id="moduleCourse" required>
+                                        <option value="">Выберите курс</option>
+                                        {% for course in courses %}
+                                            <option value="{{ course.id }}">{{ course.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="moduleDescription">Описание модуля</label>
+                            <textarea class="form-control" name="description" id="moduleDescription" rows="3" placeholder="Введите описание модуля (необязательно)"></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary mr-2" data-toggle="collapse" data-target="#createModuleForm">
+                                <i class="fas fa-times mr-2"></i>Отмена
+                            </button>
+                            <button type="submit" name="create_module" class="btn btn-success">
+                                <i class="fas fa-save mr-2"></i>Создать модуль
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                {% if modules %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Название модуля</th>
+                                    <th>Описание</th>
+                                    <th>Курсы</th>
+                                    <th>Уроки</th>
+                                    <th>Квизы</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module in modules %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ module.title }}</strong>
+                                    </td>
+                                    <td>{{ module.description|truncatewords:10 }}</td>
+                                    <td>
+                                        {% for course in module.course_set.all %}
+                                            <span class="badge badge-info mr-1">{{ course.title }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-book"></i> {{ module.lessons.count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-question-circle"></i> {{ module.quizzes.count }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Удалить">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-cubes text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">У вас пока нет модулей</h4>
+                        <p class="text-muted">Модули появятся после создания курсов</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,910 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Колесо Фортуны</title>
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Header Styles */
+        .modern-student-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        .student-profile-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .student-avatar-modern {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .student-info {
+            color: white;
+        }
+
+        .student-name-modern {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .student-role {
+            font-size: 0.9rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .stats-modern {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .stat-icon-wrapper {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.9rem;
+        }
+
+        .stat-content {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            line-height: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* Wheel Page Styles */
+        .wheel-page-container {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        .wheel-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Header Styles */
+        .wheel-header {
+            margin-bottom: 40px;
+        }
+
+        .wheel-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .wheel-header h1 i {
+            color: #ffd700;
+            margin: 0 15px;
+            animation: spin 3s linear infinite;
+        }
+
+        .wheel-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+
+        /* Game Area */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: 50px;
+        }
+
+        /* Wheel Container */
+        .wheel-container-inner {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            /* Фиксируем размеры контейнера */
+            flex-shrink: 0;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: rotate(0deg);
+            /* Фиксируем размеры колеса */
+            flex-shrink: 0;
+        }
+
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.3),
+                inset 0 0 50px rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .wheel.spinning {
+            animation: spin 0.5s linear infinite;
+        }
+
+        /* Pointer */
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 2rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        /* Wheel Center */
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .center-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #333;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            /* Фиксируем размеры контейнера контролов */
+            flex-shrink: 0;
+        }
+
+        .spin-button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border: none;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .spin-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spin-button i {
+            font-size: 2rem;
+        }
+
+        .spin-button span {
+            font-size: 1rem;
+        }
+
+        /* Result Display */
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            min-width: 300px;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-content h3 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .result-content div {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result-content div.win {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .result-content div.lose {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Убираем все анимации частиц */
+        #particles {
+            display: none;
+        }
+
+        .particle {
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes glow {
+            0% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            100% { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.3); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .win-animation {
+            animation: winPulse 0.5s ease-in-out;
+        }
+
+        @keyframes winPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats-modern {
+                order: -1;
+            }
+            
+            .wheel-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .game-area {
+                gap: 30px;
+            }
+            
+            .wheel-container-inner {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .spin-button {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body class="modern-student-body">
+    
+    <header class="modern-student-header">
+        <div class="header-container">            
+            <div class="student-profile-section">
+                <div class="student-avatar-modern">
+                    {% if user.student.avatar %}
+                        <img src="{{ user.student.avatar.url }}" alt="Аватар" class="avatar-image">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {% if user.first_name %}{{ user.first_name|first }}{% else %}{{ user.username|first|upper }}{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="student-info">
+                    <h2 class="student-name-modern">
+                        {% if user.first_name and user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                    </h2>
+                    <p class="student-role">Студент</p>
+                </div>
+            </div>
+            
+            <div class="stats-modern">
+                <div class="stat-item stat-stars" title="Всего звёзд">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#ffb300,#ff8f00);color:#fff;border-radius:50%;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ user.student.stars|default:0 }}</div>
+                        <div class="stat-label">Звёзды</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-courses" title="Количество курсов">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#4dabf7,#1976d2);color:#fff;border-radius:50%;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ user.student.courses.count }}</div>
+                        <div class="stat-label">Курсы</div>
+                    </div>
+                </div>
+                <div class="stat-item stat-groups" title="Группы">
+                    <div class="stat-icon-wrapper" style="background:linear-gradient(135deg,#ba68c8,#6a1b9a);color:#fff;border-radius:50%;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ groups_count|default:0 }}</div>
+                        <div class="stat-label">Группы</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="{% url 'student_page' %}" class="action-btn profile-btn">
+                    <i class="fas fa-home"></i>
+                    <span>Домой</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="wheel-page-container">
+        <div class="wheel-container">
+            <header class="wheel-header">
+                <h1><i class="fas fa-star"></i> Колесо Фортуны <i class="fas fa-star"></i></h1>
+                <p class="wheel-subtitle">Крути и выигрывай звезды!</p>
+            </header>
+
+            <div class="game-area">
+                <div class="wheel-container-inner">
+                    <div class="wheel" id="wheel">
+                        <canvas id="wheelCanvas" width="400" height="400" style="border-radius: 50%;"></canvas>
+                    </div>
+                    <div class="pointer">
+                        <i class="fas fa-caret-down"></i>
+                    </div>
+                    <div class="wheel-center">
+                        <div class="center-circle">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="spinBtn" class="spin-button">
+                        <i class="fas fa-play"></i>
+                        <span>Крутить!</span>
+                    </button>
+                    <div class="result" id="result">
+                        <div class="result-content">
+                            <h3>Результат</h3>
+                            <div id="prizeDisplay"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Убираем контейнер частиц -->
+    </div>
+
+    <script>
+class WheelOfFortune {
+    constructor() {
+        this.wheel = document.getElementById('wheel');
+        this.spinBtn = document.getElementById('spinBtn');
+        this.result = document.getElementById('result');
+        this.prizeDisplay = document.getElementById('prizeDisplay');
+        this.canvas = document.getElementById('wheelCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.isSpinning = false;
+        this.currentRotation = 0; // Текущий угол поворота колеса
+        this.canSpin = true; // Может ли пользователь крутить
+        
+        // Определяем секторы по градусам с шагом 51.42° (оставляем визуал как есть, меняем только логику призов)
+        this.sectors = [
+            { start: 0, end: 51.42, prize: "2⭐", color: "#9B59B6", text: "2 ⭐" },      // 2 звезды (фиолетовый)
+            { start: 51.42, end: 102.84, prize: "0⭐", color: "#95A5A6", text: "0 ⭐" }, // 0 звезд (серый)
+            { start: 102.84, end: 154.26, prize: "0⭐", color: "#95A5A6", text: "0 ⭐" }, // 0 звезд (серый)
+            { start: 154.26, end: 205.68, prize: "3⭐", color: "#F39C12", text: "3 ⭐" }, // 3 звезды (оранжевый)
+            { start: 205.68, end: 257.1, prize: "0⭐", color: "#95A5A6", text: "0 ⭐" }, // 0 звезд (серый)
+            { start: 257.1, end: 308.52, prize: "4⭐", color: "#4ECDC4", text: "4 ⭐" }, // 4 звезды (бирюзовый)
+            { start: 308.52, end: 360, prize: "1⭐", color: "#FF6B6B", text: "1 ⭐" }    // 1 звезда (красный)
+        ];
+        
+        this.init();
+    }
+    
+    init() {
+        this.drawWheel();
+        this.checkSpinAvailability();
+        this.bindEvents();
+    }
+    
+    // Рисуем колесо без лого
+    drawWheel() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        const radius = 180;
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Рисуем секторы по градусам
+        this.sectors.forEach((sector, index) => {
+            // Преобразуем градусы в радианы, начинаем с верхней точки (-90°)
+            const startAngle = (sector.start - 90) * Math.PI / 180;
+            const endAngle = (sector.end - 90) * Math.PI / 180;
+            
+            // Рисуем сектор
+            this.ctx.beginPath();
+            this.ctx.moveTo(centerX, centerY);
+            this.ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            this.ctx.closePath();
+            this.ctx.fillStyle = sector.color;
+            this.ctx.fill();
+            this.ctx.strokeStyle = '#FFF';
+            this.ctx.lineWidth = 3;
+            this.ctx.stroke();
+            
+            // Добавляем текст в центр сектора
+            const middleAngle = ((sector.start + sector.end) / 2 - 90) * Math.PI / 180;
+            const textX = centerX + Math.cos(middleAngle) * (radius * 0.7);
+            const textY = centerY + Math.sin(middleAngle) * (radius * 0.7);
+            
+            this.ctx.save();
+            this.ctx.translate(textX, textY);
+            this.ctx.rotate(middleAngle + Math.PI / 2);
+            this.ctx.fillStyle = '#FFF';
+            this.ctx.font = 'bold 18px Orbitron';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(sector.text, 0, 0);
+            this.ctx.restore();
+        });
+        
+        // Рисуем внешнюю обводку
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        this.ctx.strokeStyle = '#2C3E50';
+        this.ctx.lineWidth = 5;
+        this.ctx.stroke();
+    }
+    
+    // Проверяем доступность спина
+    async checkSpinAvailability() {
+        try {
+            const response = await fetch('{% url "check_spin_availability" %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'
+                }
+            });
+            const data = await response.json();
+            
+            if (!data.can_spin) {
+                this.canSpin = false;
+                this.spinBtn.disabled = true;
+                this.spinBtn.innerHTML = `
+                    <i class="fas fa-clock"></i>
+                    <span>Недоступно</span>
+                `;
+                
+                if (data.time_remaining) {
+                    const hours = Math.floor(data.time_remaining / 3600);
+                    const minutes = Math.floor((data.time_remaining % 3600) / 60);
+                    this.showTimeRemaining(hours, minutes);
+                }
+            } else {
+                this.canSpin = true;
+                this.spinBtn.disabled = false;
+                this.spinBtn.innerHTML = `
+                    <i class="fas fa-play"></i>
+                    <span>Крутить!</span>
+                `;
+            }
+        } catch (error) {
+            console.error('Ошибка при проверке доступности спина:', error);
+        }
+    }
+    
+    // Показываем оставшееся время
+    showTimeRemaining(hours, minutes) {
+        const timeInfo = document.createElement('div');
+        timeInfo.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 10000;
+        `;
+        timeInfo.innerHTML = `
+            <h3><i class="fas fa-clock"></i> Колесо недоступно</h3>
+            <p>Следующий спин будет доступен через:</p>
+            <h2>${hours}ч ${minutes}м</h2>
+            <p><small>Колесо можно крутить только раз в 24 часа</small></p>
+        `;
+        
+        document.body.appendChild(timeInfo);
+        
+        setTimeout(() => {
+            timeInfo.remove();
+        }, 5000);
+    }
+    
+    // Определяем приз по углу остановки
+    getPrizeByAngle(angle) {
+        // Нормализуем угол до 0-360
+        const normalizedAngle = ((angle % 360) + 360) % 360;
+        
+        console.log(`Проверяем угол: ${normalizedAngle}°`);
+        
+        for (let sector of this.sectors) {
+            if (normalizedAngle >= sector.start && normalizedAngle < sector.end) {
+                console.log(`Попали в сектор: ${sector.start}° - ${sector.end}°, приз: ${sector.prize}`);
+                return sector.prize;
+            }
+        }
+        
+        // Если угол точно 360, то это сектор 1 звезды (последний сектор)
+        if (normalizedAngle === 360) {
+            console.log(`Угол ${normalizedAngle}° - сектор 1 звезды`);
+            return "1⭐";
+        }
+        
+        // Если угол точно 0, то это сектор 2 звезды (первый сектор)
+        if (normalizedAngle === 0) {
+            console.log(`Угол ${normalizedAngle}° - сектор 2 звезды`);
+            return "2⭐";
+        }
+        
+        // Если не попали ни в один сектор, возвращаем 2 звезды (первый сектор)
+        console.log(`Не попали ни в один сектор, возвращаем 2 звезды`);
+        return "2⭐";
+    }
+    
+    bindEvents() {
+        this.spinBtn.addEventListener('click', () => this.spin());
+    }
+    
+    spin() {
+        if (this.isSpinning || !this.canSpin) return;
+        
+        this.isSpinning = true;
+        this.spinBtn.disabled = true;
+        this.result.classList.remove('show');
+        
+        // Генерируем случайный угол от 0 до 360
+        const randomAngle = Math.random() * 360;
+        console.log(`Случайный угол: ${randomAngle}°`);
+        
+        // Колесо делает 5 полных оборотов + случайный угол
+        const fullRotations = 5 * 360; // 5 полных оборотов
+        const totalRotation = fullRotations + randomAngle;
+        
+        // Финальный угол = текущий + полные обороты + случайный угол
+        const finalRotation = this.currentRotation + totalRotation;
+        
+        // Определяем приз по случайному углу (не по финальному повороту)
+        const selectedPrize = this.getPrizeByAngle(randomAngle);
+        console.log(`Финальный поворот: ${finalRotation}°, случайный угол: ${randomAngle}°, приз: ${selectedPrize}`);
+        
+        // Анимация вращения
+        this.wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+        this.wheel.style.transform = `rotate(${finalRotation}deg)`;
+        
+        setTimeout(() => {
+            this.isSpinning = false;
+            
+            // Обновляем текущий угол поворота (абсолютный угол)
+            this.currentRotation = finalRotation;
+            
+            // Показываем результат
+            this.showResult(selectedPrize);
+            
+            // Отправляем результат на сервер
+            this.sendResultToServer(selectedPrize);
+            
+            // После спина блокируем кнопку на 24 часа
+            this.canSpin = false;
+            this.spinBtn.disabled = true;
+            this.spinBtn.innerHTML = `
+                <i class="fas fa-clock"></i>
+                <span>Недоступно</span>
+            `;
+            
+        }, 4000);
+    }
+    
+    showResult(prize) {
+        let resultText = '';
+        let resultClass = '';
+        
+        switch (prize) {
+            case "0⭐":
+                resultText = 'К сожалению, ничего не выиграли 😔';
+                resultClass = 'lose';
+                break;
+            case "1⭐":
+                resultText = 'Поздравляем! Вы выиграли 1 звезду! 🎉';
+                resultClass = 'win';
+                break;
+            case "2⭐":
+                resultText = 'Поздравляем! Вы выиграли 2 звезды! 🎉';
+                resultClass = 'win';
+                break;
+            case "3⭐":
+                resultText = 'Поздравляем! Вы выиграли 3 звезды! 🎉';
+                resultClass = 'win';
+                break;
+            case "4⭐":
+                resultText = 'Поздравляем! Вы выиграли 4 звезды! 🎉';
+                resultClass = 'win';
+                break;
+            default:
+                const starCount = prize.replace('⭐', '');
+                resultText = `Поздравляем! Вы выиграли ${starCount} ${this.getStarWord(parseInt(starCount))}! 🎉`;
+                resultClass = 'win';
+                break;
+        }
+        
+        this.prizeDisplay.innerHTML = resultText;
+        this.prizeDisplay.className = resultClass;
+        this.result.classList.add('show');
+        
+        // Добавляем анимацию к кнопке
+        this.spinBtn.classList.add('win-animation');
+        setTimeout(() => {
+            this.spinBtn.classList.remove('win-animation');
+        }, 500);
+    }
+    
+    getStarWord(count) {
+        if (count === 1) return 'звезду';
+        if (count >= 2 && count <= 4) return 'звезды';
+        return 'звезд';
+    }
+    
+    // Отправка результата на сервер
+    sendResultToServer(prize) {
+        console.log(`Отправка результата на сервер: ${prize}`);
+        
+        fetch('{% url "spin_wheel" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                prize: prize,
+                timestamp: Date.now()
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Результат сохранен:', data);
+            if (data.success && data.stars_earned > 0) {
+                // Показываем уведомление о полученных звездах
+                this.showStarNotification(data.stars_earned, data.total_stars);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке результата:', error);
+        });
+    }
+    
+    showStarNotification(starsEarned, totalStars) {
+        // Создаем уведомление о полученных звездах
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            animation: slideInRight 0.5s ease;
+        `;
+        notification.innerHTML = `
+            <h4><i class="fas fa-star"></i> Звезды получены!</h4>
+            <p>+${starsEarned} звезд добавлено к вашему балансу</p>
+            <p><strong>Всего звезд: ${totalStars}</strong></p>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    new WheelOfFortune();
+});
+
+// Добавляем CSRF токен
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrfToken) {
+        const meta = document.createElement('meta');
+        meta.name = 'csrfmiddlewaretoken';
+        meta.content = '{{ csrf_token }}';
+        document.head.appendChild(meta);
+    }
+});
+</script>
+
+<style>
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+</body>
+</html>

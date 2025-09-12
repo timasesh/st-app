@@ -124,7 +124,7 @@
 <body>
     <header class="admin-header">
         <span class="admin-title"><i class="fas fa-book-open"></i>Создать новый урок</span>
-        <a href="{% url 'admin_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+        <a href="{% url 'admin_lessons_page' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
     </header>
     <div class="container">
         <div class="card">
@@ -132,35 +132,104 @@
                 <h3><i class="fas fa-plus-circle"></i> Создание урока</h3>
             </div>
             <div class="card-body">
+                <!-- Информация о типах уроков -->
+                <div class="alert alert-info mb-4" style="border-radius: 10px; border: none; background: #e3f2fd; color: #1976d2;">
+                    <h6><i class="fas fa-info-circle"></i> Типы уроков:</h6>
+                    <ul class="mb-0" style="font-size: 0.9rem;">
+                        <li><strong>Только видео:</strong> Загрузите видеофайл или укажите URL</li>
+                        <li><strong>Только PDF:</strong> Загрузите PDF с возможностью скачивания</li>
+                        <li><strong>PDF со слайдером:</strong> Загрузите PDF + включите конвертацию в слайды</li>
+                        <li><strong>Видео + PDF:</strong> Комбинируйте видео и PDF материалы</li>
+                    </ul>
+                </div>
+
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {% for field in lesson_form %}
-                        {% if field.name == 'convert_pdf_to_slides' %}
-                            <div class="form-check mb-3">
-                                {{ field }}
-                                <label class="form-check-label" for="{{ field.id_for_label }}">
-                                    {{ field.label }}
-                                </label>
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
+                    
+                    <!-- Название урока -->
+                    <div class="form-group">
+                        <label for="{{ lesson_form.title.id_for_label }}">{{ lesson_form.title.label }}</label>
+                        {{ lesson_form.title }}
+                        {% for error in lesson_form.title.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Секция видео -->
+                    <div class="card mb-3" style="border: 1px solid #e3eaff; border-radius: 10px;">
+                        <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #e3eaff; padding: 0.75rem 1rem;">
+                            <h6 class="mb-0"><i class="fas fa-video text-primary"></i> Видео материалы (необязательно)</h6>
+                        </div>
+                        <div class="card-body" style="padding: 1rem;">
                             <div class="form-group">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                <label for="{{ lesson_form.video.id_for_label }}">{{ lesson_form.video.label }}</label>
+                                {{ lesson_form.video }}
+                                {% if lesson_form.video.help_text %}
+                                    <small class="form-text text-muted">{{ lesson_form.video.help_text }}</small>
                                 {% endif %}
-                                {% for error in field.errors %}
+                                {% for error in lesson_form.video.errors %}
                                     <div class="invalid-feedback d-block">{{ error }}</div>
                                 {% endfor %}
                             </div>
-                        {% endif %}
-                    {% endfor %}
+                            
+                            <div class="text-center my-2">
+                                <span class="text-muted">или</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="{{ lesson_form.video_url.id_for_label }}">{{ lesson_form.video_url.label }}</label>
+                                {{ lesson_form.video_url }}
+                                {% if lesson_form.video_url.help_text %}
+                                    <small class="form-text text-muted">{{ lesson_form.video_url.help_text }}</small>
+                                {% endif %}
+                                {% for error in lesson_form.video_url.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Секция PDF -->
+                    <div class="card mb-3" style="border: 1px solid #e3eaff; border-radius: 10px;">
+                        <div class="card-header" style="background: #f8f9fa; border-bottom: 1px solid #e3eaff; padding: 0.75rem 1rem;">
+                            <h6 class="mb-0"><i class="fas fa-file-pdf text-danger"></i> PDF материалы (необязательно)</h6>
+                        </div>
+                        <div class="card-body" style="padding: 1rem;">
+                            <div class="form-group">
+                                <label for="{{ lesson_form.pdf.id_for_label }}">{{ lesson_form.pdf.label }}</label>
+                                {{ lesson_form.pdf }}
+                                {% if lesson_form.pdf.help_text %}
+                                    <small class="form-text text-muted">{{ lesson_form.pdf.help_text }}</small>
+                                {% endif %}
+                                {% for error in lesson_form.pdf.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ lesson_form.convert_pdf_to_slides }}
+                                <label class="form-check-label" for="{{ lesson_form.convert_pdf_to_slides.id_for_label }}">
+                                    {{ lesson_form.convert_pdf_to_slides.label }}
+                                </label>
+                                {% if lesson_form.convert_pdf_to_slides.help_text %}
+                                    <small class="form-text text-muted">{{ lesson_form.convert_pdf_to_slides.help_text }}</small>
+                                {% endif %}
+                                {% for error in lesson_form.convert_pdf_to_slides.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Общие ошибки формы -->
+                    {% if lesson_form.non_field_errors %}
+                        <div class="alert alert-danger" style="border-radius: 10px;">
+                            {% for error in lesson_form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
                     <button type="submit" class="btn btn-primary w-100 mt-2"><i class="fas fa-check"></i> Создать урок</button>
                 </form>
             </div>

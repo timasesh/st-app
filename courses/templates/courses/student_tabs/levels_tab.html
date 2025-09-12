@@ -1,0 +1,104 @@
+{% load course_extras %}
+{% load course_filters %}
+<!-- Вкладка уровней -->  
+<div id="levels" class="tab-pane">
+    <div class="levels-container">
+        <div class="levels-header">
+            <h2 class="levels-title">
+                <i class="fas fa-trophy"></i>
+                Ваш прогресс по уровням
+            </h2>
+            <p class="levels-subtitle">Зарабатывайте звезды, проходя квизы, и повышайте свой уровень!</p>
+        </div>
+        
+        <div class="current-level-card">
+            {% if user.student.level and user.student.level.image %}
+                <div class="current-level-image">
+                    <img src="{{ user.student.level.image.url }}" alt="{{ user.student.level.name }}" class="level-image-top-right">
+                </div>
+            {% endif %}
+            <div class="current-level-info">
+                <div class="current-level-badge">
+                    <div class="level-badge level-{{ user.student.level.number|default:1 }} extra-large">
+                        {{ user.student.level.number|default:1 }}
+                    </div>
+                </div>
+                <div class="current-level-details">
+                    <h4>{{ user.student.level.name|default:"Новичок" }}</h4>
+                    <p>Ваш текущий уровень</p>
+                    <div class="stars-count">
+                        <i class="fas fa-star"></i>
+                        {{ user.student.stars|default:0 }} звезд
+                    </div>
+                </div>
+            </div>
+            
+            {% if user.student.level %}
+                <div class="level-progress-section">
+                    <div class="progress-info">
+                        <span>Прогресс до следующего уровня</span>
+                        <span>{{ user.student|level_progress|floatformat:0 }}%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ user.student|level_progress }}%"></div>
+                    </div>
+                    <p class="next-level-info">
+                        Нужно еще {{ user.student|stars_to_next_level }} звезд для достижения следующего уровня
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="levels-header" style="margin-top: 3rem;">
+            <h3 class="levels-title" style="font-size: 1.8rem;">
+                <i class="fas fa-layer-group"></i>
+                Все уровни
+            </h3>
+            <p class="levels-subtitle">Изучите все доступные уровни и их требования</p>
+        </div>
+        
+        <div class="all-levels-grid">
+            {% for level in all_levels %}
+                <div class="level-card {% if level.number == user.student.level.number|default:1 %}current{% elif level.number < user.student.level.number|default:1 %}completed{% else %}locked{% endif %}">
+                    <div class="level-card-header">
+                        {% if level.image %}
+                            <img src="{{ level.image.url }}" alt="{{ level.name }}" class="level-image">
+                        {% else %}
+                            <div class="level-image-placeholder">
+                                <div class="level-badge level-{{ level.number }} large">
+                                    {{ level.number }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="level-status-icon">
+                            {% if level.number == user.student.level.number|default:1 %}
+                                <i class="fas fa-crown current-icon"></i>
+                            {% elif level.number < user.student.level.number|default:1 %}
+                                <i class="fas fa-check completed-icon"></i>
+                            {% else %}
+                                <i class="fas fa-lock locked-icon"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="level-card-body">
+                        <h5 class="level-name">{{ level.name }}</h5>
+                        <div class="level-requirements">
+                            <i class="fas fa-star"></i>
+                            {{ level.min_stars }}-{{ level.max_stars }} звезд
+                        </div>
+                        {% if level.description %}
+                            <p class="level-description">{{ level.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-levels-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Уровни еще не настроены</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

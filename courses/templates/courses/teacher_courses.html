@@ -1,0 +1,150 @@
+{% extends 'courses/teacher_base.html' %}
+
+{% block title %}Мои курсы{% endblock %}
+{% block page_title %}Мои курсы{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-graduation-cap mr-2"></i>
+                    Мои курсы
+                </h3>
+                <div class="d-flex align-items-center">
+                    <span class="badge badge-primary badge-pill mr-3">{{ courses.count }} курсов</span>
+                    <button class="btn btn-success" data-toggle="collapse" data-target="#createCourseForm">
+                        <i class="fas fa-plus mr-2"></i>Создать курс
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Форма создания курса -->
+            <div class="collapse" id="createCourseForm">
+                <div class="card-body border-bottom">
+                    <h5 class="mb-3">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Создать новый курс
+                    </h5>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="courseTitle">Название курса *</label>
+                                    <input type="text" class="form-control" name="title" id="courseTitle" required placeholder="Введите название курса">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="courseStars">Звезды за курс</label>
+                                    <input type="number" class="form-control" name="stars" id="courseStars" min="1" max="100" value="5" placeholder="5">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="courseDescription">Описание курса *</label>
+                            <textarea class="form-control" name="description" id="courseDescription" rows="3" required placeholder="Введите описание курса"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="courseImage">Изображение курса</label>
+                            <input type="file" class="form-control-file" name="image" id="courseImage" accept="image/*">
+                            <small class="form-text text-muted">Рекомендуемый размер: 400x300 пикселей</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary mr-2" data-toggle="collapse" data-target="#createCourseForm">
+                                <i class="fas fa-times mr-2"></i>Отмена
+                            </button>
+                            <button type="submit" name="create_course" class="btn btn-success">
+                                <i class="fas fa-save mr-2"></i>Создать курс
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                {% if courses %}
+                    <div class="row">
+                        {% for course in courses %}
+                        <div class="col-lg-6 col-md-12 mb-4">
+                            <div class="card h-100">
+                                {% if course.image %}
+                                    <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <i class="fas fa-graduation-cap text-white" style="font-size: 3rem;"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ course.title }}</h5>
+                                    <p class="card-text">{{ course.description|truncatewords:30 }}</p>
+                                    
+                                    <div class="row text-center mb-3">
+                                        <div class="col-4">
+                                            <div class="text-primary">
+                                                <i class="fas fa-cubes"></i>
+                                                <div class="font-weight-bold">{{ course.modules.count }}</div>
+                                                <small>Модулей</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-success">
+                                                <i class="fas fa-book"></i>
+                                                <div class="font-weight-bold">
+                                                    {% with total_lessons=0 %}
+                                                        {% for module in course.modules.all %}
+                                                            {% with total_lessons=total_lessons|add:module.lessons.count %}{% endwith %}
+                                                        {% endfor %}
+                                                        {{ total_lessons }}
+                                                    {% endwith %}
+                                                </div>
+                                                <small>Уроков</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-info">
+                                                <i class="fas fa-users"></i>
+                                                <div class="font-weight-bold">{{ course.students.count }}</div>
+                                                <small>Студентов</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-star"></i> {{ course.stars }} звезд
+                                        </span>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'teacher_course_detail' course.id %}" class="btn btn-primary btn-sm" title="Просмотр">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button class="btn btn-outline-secondary btn-sm" title="Редактировать">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" title="Удалить">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-graduation-cap text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">У вас пока нет курсов</h4>
+                        <p class="text-muted">Обратитесь к администратору для назначения курсов</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
