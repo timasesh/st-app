@@ -1174,14 +1174,17 @@
             }
         });
 
-        // Smooth scrolling for anchor links
+        // Smooth scrolling for anchor links with fixed navbar offset
         $('a[href^="#"]').on('click', function(event) {
             var target = $(this.getAttribute('href'));
             if (target.length) {
                 event.preventDefault();
+                var navHeight = $('.navbar').outerHeight() || 80;
                 $('html, body').stop().animate({
-                    scrollTop: target.offset().top - 80
-                }, 1000);
+                    scrollTop: target.offset().top - navHeight
+                }, 600);
+                // Close mobile navbar after navigation
+                $('.navbar-collapse').collapse('hide');
             }
         });
 
