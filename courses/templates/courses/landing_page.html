@@ -823,6 +823,7 @@
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
                         <img src="{% static 'images/main2.png' %}" alt="Study Task Platform" 
                              class="main-image" id="main2"
+                             loading="lazy" decoding="async"
                              style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
                 </div>
                     <h1></h1>
@@ -831,6 +832,7 @@
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
                         <img src="{% static 'images/main3.png' %}" alt="Study Task Platform" 
                              class="main-image" id="main3"
+                             loading="lazy" decoding="async"
                              style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
                     </div>
                 </div>
@@ -911,7 +913,7 @@
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="step-card h-100">
                         <div class="step-image-first">
-                            <img src="{% static 'images/1.png' %}" alt="Шаг 1" class="step-image-1">
+                            <img src="{% static 'images/1.png' %}" alt="Шаг 1" class="step-image-1" loading="lazy" decoding="async">
                         </div>
                         <h5 class="feature-title">Онлайн урок с учителем</h5>
                         <p class="feature-description">Присоединяйтесь к онлайн уроку с опытным преподавателем. Интерактивное обучение в реальном времени с возможностью задавать вопросы.</p>
@@ -920,7 +922,7 @@
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="step-card h-100">
                         <div class="step-image">
-                            <img src="{% static 'images/2.png' %}" alt="Шаг 2">
+                            <img src="{% static 'images/2.png' %}" alt="Шаг 2" loading="lazy" decoding="async">
                         </div>
                         <h5 class="feature-title">Квиз и закрепление</h5>
                         <p class="feature-description">После урока проходите квиз на платформе. На каждом третьем уроке смотрите презентацию и закрепляйте пройденные темы.</p>
@@ -929,7 +931,7 @@
                 <div class="col-lg-4 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="step-card h-100">
                         <div class="step-image">
-                            <img src="{% static 'images/3.png' %}" alt="Шаг 3">
+                            <img src="{% static 'images/3.png' %}" alt="Шаг 3" loading="lazy" decoding="async">
                         </div>
                         <h5 class="feature-title">Звезды и награды</h5>
                         <p class="feature-description">Получайте звезды за каждый квиз и пройденный раздел. Накопите достаточно звезд и обменяйте их на призы!</p>
@@ -1216,17 +1218,14 @@
 
         // Main images animation with 3-second intervals
         function animateMainImages() {
-            console.log('Starting main images animation...');
             const images = ['main1', 'main2', 'main3'];
             let currentIndex = 0;
 
             function showNextImage() {
                 if (currentIndex < images.length) {
                     const imageElement = document.getElementById(images[currentIndex]);
-                    console.log('Looking for image:', images[currentIndex], 'Found:', imageElement);
                     
                     if (imageElement) {
-                        console.log('Showing image:', images[currentIndex]);
                         imageElement.classList.add('show');
                         imageElement.style.opacity = '1';
                         imageElement.style.transform = 'translateY(0)';
@@ -1236,8 +1235,6 @@
                         if (currentIndex < images.length) {
                             setTimeout(showNextImage, 3000);
                         }
-                    } else {
-                        console.error('Image element not found:', images[currentIndex]);
                     }
                 }
             }
@@ -1248,23 +1245,19 @@
 
         // Initialize main images animation when DOM is ready
         $(document).ready(function() {
-            console.log('DOM ready, initializing main images animation...');
             animateMainImages();
         });
 
         // Also try on window load as backup
         $(window).on('load', function() {
-            console.log('Window loaded, checking main images...');
             // Check if images are still hidden and animate them
             const images = ['main1', 'main2', 'main3'];
             images.forEach((id, index) => {
                 const img = document.getElementById(id);
                 if (img && !img.classList.contains('show')) {
-                    console.log('Image still hidden, will animate:', id);
                     // Force animation if still hidden
                     setTimeout(() => {
                         if (img && !img.classList.contains('show')) {
-                            console.log('Forcing animation for:', id);
                             img.classList.add('show');
                             img.style.opacity = '1';
                             img.style.transform = 'translateY(0)';
@@ -1276,7 +1269,6 @@
 
         // Alternative animation method using jQuery
         function animateImagesWithJQuery() {
-            console.log('Trying jQuery animation method...');
             const images = ['#main1', '#main2', '#main3'];
             let currentIndex = 0;
 
@@ -1284,7 +1276,6 @@
                 if (currentIndex < images.length) {
                     const $image = $(images[currentIndex]);
                     if ($image.length) {
-                        console.log('Showing image with jQuery:', images[currentIndex]);
                         $image.addClass('show').css({
                             'opacity': '1',
                             'transform': 'translateY(0)'
@@ -1294,8 +1285,6 @@
                         if (currentIndex < images.length) {
                             setTimeout(showNextImage, 3000);
                         }
-                    } else {
-                        console.error('Image not found with jQuery:', images[currentIndex]);
                     }
                 }
             }
