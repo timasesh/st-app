@@ -28,6 +28,16 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ['1', 'true', 'yes']
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
+# Добавляем свои собственные домены
+CUSTOM_HOSTS = [
+    'study.kz',          # твой основной домен
+    'www.study.kz',      # с www
+    '127.0.0.1',         # локальная разработка
+    'localhost',         # локальная разработка
+]
+
+# Объединяем списки, убираем возможные дубликаты
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS + CUSTOM_HOSTS))
 # Optional: when behind App Platform proxy, allow all subdomains you configured via ALLOWED_HOSTS
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
@@ -166,7 +176,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Third-party service keys (read from env in App Platform)
-OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', '')
 SUPABASE_URL = os.getenv('SUPABASE_URL', '')
 SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY', '')
 SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')

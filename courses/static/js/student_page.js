@@ -1,27 +1,18 @@
 // Ждем загрузки DOM
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM загружен, инициализируем вкладки...');
     
     // Проверяем наличие элементов
     const navLinks = document.querySelectorAll('.sidebar-nav-link');
     const tabPanes = document.querySelectorAll('.tab-pane');
     
-    console.log('Найдено ссылок навигации:', navLinks.length);
-    console.log('Найдено вкладок:', tabPanes.length);
     
     // Проверяем сайдбар
     const sidebarElement = document.getElementById('studentSidebar');
-    console.log('Сайдбар найден:', sidebarElement);
-    if (sidebarElement) {
-        console.log('Стили сайдбара:', window.getComputedStyle(sidebarElement));
-        console.log('Видимость сайдбара:', sidebarElement.offsetWidth, 'x', sidebarElement.offsetHeight);
-    }
     
     // JS для современных вкладок (обновленная версия)
     navLinks.forEach(function(link) {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Клик по ссылке:', this.getAttribute('data-tab'));
             
             const targetTab = this.getAttribute('data-tab');
             if (!targetTab) return; // Пропускаем ссылки без data-tab
@@ -81,11 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const defaultLink = document.querySelector(`.sidebar-nav-link[data-tab="${defaultTab}"]`);
     const defaultPane = document.getElementById(defaultTab);
     
-    console.log('Поиск элементов для инициализации:');
-    console.log('- defaultLink:', defaultLink);
-    console.log('- defaultPane:', defaultPane);
-    console.log('- Все ссылки сайдбара:', document.querySelectorAll('.sidebar-nav-link'));
-    console.log('- Все вкладки:', document.querySelectorAll('.tab-pane'));
     
     // Убираем активный класс у всех вкладок и ссылок
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));

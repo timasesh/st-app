@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Проверяем, является ли устройство мобильным
     const isMobile = window.innerWidth <= 768;
     
-    console.log('Ширина экрана:', window.innerWidth);
-    console.log('Мобильное устройство:', isMobile);
     
     if (isMobile) {
         initializeMobileNavigation();
@@ -14,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработчик изменения размера окна
     window.addEventListener('resize', function() {
         const newIsMobile = window.innerWidth <= 768;
-        console.log('Изменение размера окна:', window.innerWidth, 'Мобильное:', newIsMobile);
         if (newIsMobile !== isMobile) {
             location.reload(); // Перезагружаем страницу при изменении типа устройства
         }
@@ -147,6 +144,44 @@ function optimizeImagesForMobile() {
 
 // Инициализация оптимизации изображений
 document.addEventListener('DOMContentLoaded', optimizeImagesForMobile);
+
+// Функция инициализации сайдбара
+function initializeSidebar() {
+    const sidebar = document.getElementById('studentSidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    if (!sidebar || !sidebarToggle) return;
+    
+    // Обработчик открытия/закрытия сайдбара
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('closed');
+        if (sidebarOverlay) {
+            sidebarOverlay.classList.toggle('active');
+        }
+    });
+    
+    // Обработчик закрытия сайдбара по клику на оверлей
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.add('closed');
+            this.classList.remove('active');
+        });
+    }
+    
+    // Обработчик закрытия сайдбара по клику на ссылки навигации (на мобильных)
+    const navLinks = document.querySelectorAll('.sidebar-nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('closed');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove('active');
+                }
+            }
+        });
+    });
+}
 
 // Инициализация сайдбара
 document.addEventListener('DOMContentLoaded', initializeSidebar);

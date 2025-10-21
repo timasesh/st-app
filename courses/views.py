@@ -282,7 +282,6 @@ def admin_page(request):
                 try:
                     import datetime
                     df = pd.read_excel(abs_path)
-                    print(f'Всего строк в файле: {len(df)}')
                     added_count = 0
                     new_students = []
                     for idx, row in df.iterrows():
@@ -296,7 +295,6 @@ def admin_page(request):
                             # Проверяем, нет ли другого пользователя с таким username, но другим email
                             conflict = User.objects.filter(username=username).exclude(email=email).first()
                             if conflict:
-                                print(f'Конфликт: username {username} уже занят другим email {conflict.email}')
                                 continue  # Можно заменить на conflict.delete() если нужно удалять
                             temp_password = generate_random_password()
                             user, created = User.objects.get_or_create(email=email, defaults={
@@ -321,17 +319,12 @@ def admin_page(request):
                                 added_count += 1
                             new_students.append(student)
                         except IntegrityError as e:
-                            print(f'Ошибка уникальности для {email}: {e}')
                         except Exception as e:
-                            print(f'Ошибка при добавлении {email}: {e}')
                     # Создаём новую группу для этой загрузки
                     group_name = f'Группа от {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
                     group = Group.objects.create(name=group_name)
                     group.students.set(new_students)
                     group.save()
-                    print(f'Создана группа: {group_name} (студентов: {len(new_students)})')
-                    print(f'Обработано строк: {idx+1}')
-                    print(f'Добавлено студентов: {added_count}')
                     messages.success(request, f'Все студенты из файла успешно добавлены! ({added_count}) Создана группа: {group_name}')
                 except Exception as e:
                     messages.error(request, f'Ошибка при обработке файла: {e}')
@@ -751,7 +744,6 @@ def student_page(request):
                 try:
                     evaluate_and_unlock_achievements(student)
                 except Exception as e:
-                    print(f"Ошибка при пересчёте достижений после начисления звёзд за квиз: {e}")
     
     # Convert progress_data to a dictionary with course IDs as keys
     progress_data = {}
@@ -821,9 +813,6 @@ def student_page(request):
     try:
         evaluate_and_unlock_achievements(student)
     except Exception as e:
-        print(f"Ошибка при пересчёте достижений в student_page: {e}")
-        import traceback
-        traceback.print_exc()
     
     # Достижения
     from .models import Achievement, StudentAchievement
@@ -844,7 +833,6 @@ def student_page(request):
         try:
             progress_by_id[ach.id] = get_achievement_progress(student, ach)
         except Exception as e:
-            print(f"Ошибка при расчёте прогресса достижения {ach.title}: {e}")
             progress_by_id[ach.id] = {'current': 0, 'target': ach.condition_value or 1, 'percentage': 0}
     groups = student.groups.all().prefetch_related('students__user')
     
@@ -1071,7 +1059,6 @@ def student_profile(request):
                 return redirect('student_profile')
             else:
                 # Добавляем отладочную информацию
-                print("Form errors:", form.errors)
                 messages.error(request, f'Ошибка при обновлении профиля: {form.errors}')
     else:
         form = StudentProfileForm(instance=student)
@@ -1524,9 +1511,6 @@ def start_quiz(request, quiz_id):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
-            print(f"Ошибка при пересчёте достижений: {e}")
-            import traceback
-            traceback.print_exc()
         
         if passed:
             messages.success(request, f'Квиз сдан! Ваш результат: {percent}%.')
@@ -1602,9 +1586,6 @@ def quiz_result(request, quiz_id):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
-            print(f"Ошибка при пересчёте достижений: {e}")
-            import traceback
-            traceback.print_exc()
     return render(request, 'courses/quiz_result.html', {
         'quiz': quiz,
         'result': last_attempt,
@@ -1748,7 +1729,6 @@ def update_progress(request):
             try:
                 evaluate_and_unlock_achievements(student)
             except Exception as e:
-                print(f"Ошибка при пересчёте достижений в update_progress: {e}")
 
             response_data = {'success': True, 'progress': progress_value}
             if stars_awarded:
@@ -1799,7 +1779,6 @@ def check_and_award_course_stars(student, course):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
-            print(f"Ошибка при пересчёте достижений в check_and_award_course_stars: {e}")
         
         return True, course.stars
     
@@ -2035,13 +2014,11 @@ def group_management_page(request, group_id):
                 messages.error(request, 'Название группы не может быть пустым.')
         elif 'remove_students_from_group' in request.POST:
             student_ids = request.POST.getlist('students_to_remove')
-            print(f"DEBUG: Received student_ids for removal: {student_ids}") # Отладочный вывод
             students_to_remove = Student.objects.filter(id__in=student_ids)
             for student in students_to_remove:
                 group.students.remove(student)
             group.refresh_from_db() # Обновляем объект группы из базы данных
             messages.success(request, 'Выбранные студенты успешно удалены из группы.')
-            print(f"DEBUG: Students in group after removal: {group.students.count()}") # Отладочный вывод
         elif 'add_students_to_group' in request.POST:
             student_ids = request.POST.getlist('students_to_add')
             students_to_add = Student.objects.filter(id__in=student_ids)
@@ -3551,7 +3528,6 @@ def teacher_quiz_questions(request, quiz_id):
         elif 'edit_question' in request.POST:
             question_id = request.POST.get('question_id')
             question_text = request.POST.get('question_text')
-            print(f"DEBUG: Editing question {question_id} with text: {question_text}")
             try:
                 question = Question.objects.get(id=question_id, quiz=quiz)
                 question.text = question_text
@@ -3561,21 +3537,17 @@ def teacher_quiz_questions(request, quiz_id):
                 for i in range(1, 5):
                     answer_text = request.POST.get(f'answer_{i}')
                     answer_id = request.POST.get(f'answer_id_{i}')
-                    print(f"DEBUG: Answer {i} - text: {answer_text}, id: {answer_id}")
                     if answer_text and answer_id:
                         try:
                             answer = Answer.objects.get(id=answer_id, question=question)
                             answer.text = answer_text
                             answer.save()
-                            print(f"DEBUG: Updated answer {answer_id} to: {answer_text}")
                         except Answer.DoesNotExist:
-                            print(f"DEBUG: Answer {answer_id} not found")
                             pass
                 
                 messages.success(request, 'Вопрос успешно обновлен.')
                 return redirect('teacher_quiz_questions', quiz_id=quiz.id)
             except Question.DoesNotExist:
-                print(f"DEBUG: Question {question_id} not found")
                 messages.error(request, 'Вопрос не найден.')
                 return redirect('teacher_quiz_questions', quiz_id=quiz.id)
         elif 'add_question' in request.POST:
@@ -3662,11 +3634,6 @@ def student_start_quiz(request, quiz_id):
         messages.error(request, 'В этом квизе нет вопросов.')
         return redirect('student_page')
     
-    print(f"DEBUG: Quiz {quiz.id} has {questions_count} questions")
-    for question in quiz.questions.all():
-        print(f"DEBUG: Question {question.id}: {question.text}")
-        for answer in question.answers.all():
-            print(f"DEBUG: Answer {answer.id}: {answer.text} (correct: {answer.is_correct})")
     
     # Создаем новую попытку
     attempt_number = QuizAttempt.objects.filter(student=student, quiz=quiz).count() + 1
@@ -4138,7 +4105,6 @@ def student_homework_submit(request, homework_id):
                 )
             except Exception as e:
                 # Логируем ошибку, но не прерываем процесс
-                print(f"Ошибка создания уведомления: {e}")
             
             return JsonResponse({'success': True, 'message': 'Задание успешно отправлено!'})
             
@@ -4379,13 +4345,10 @@ def spin_wheel(request):
     """API для вращения колеса фортуны"""
     try:
         # Логируем входящие данные для отладки
-        print(f"Spin wheel request from user: {request.user.username}")
-        print(f"Request body: {request.body}")
         
         # Проверяем, может ли студент крутить сейчас (раз в 24 часа)
         if not WheelSpin.can_spin_now(request.user.student):
             next_spin_time = WheelSpin.get_next_spin_time(request.user.student)
-            print(f"User {request.user.username} already spun recently")
             
             # Вычисляем оставшееся время
             from django.utils import timezone
@@ -4401,7 +4364,6 @@ def spin_wheel(request):
         
         data = json.loads(request.body)
         prize = data.get('prize', '0⭐')
-        print(f"Prize: {prize}")
         
         # Извлекаем количество звезд из приза
         star_count = int(prize.replace('⭐', ''))
@@ -4443,9 +4405,6 @@ def student_levels_page(request):
     try:
         evaluate_and_unlock_achievements(student)
     except Exception as e:
-        print(f"Ошибка при пересчёте достижений в student_levels_page: {e}")
-        import traceback
-        traceback.print_exc()
     
     # Достижения
     from .models import Achievement, StudentAchievement
@@ -4459,7 +4418,6 @@ def student_levels_page(request):
         try:
             progress_by_id[ach.id] = get_achievement_progress(student, ach)
         except Exception as e:
-            print(f"Ошибка при расчёте прогресса достижения {ach.title}: {e}")
             progress_by_id[ach.id] = {'current': 0, 'target': ach.condition_value or 1, 'percentage': 0}
     
     # Данные для уведомлений
