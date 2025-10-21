@@ -28,16 +28,6 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ['1', 'true', 'yes']
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
-# Добавляем свои собственные домены
-CUSTOM_HOSTS = [
-    'study.kz',          # твой основной домен
-    'www.study.kz',      # с www
-    '127.0.0.1',         # локальная разработка
-    'localhost',         # локальная разработка
-]
-
-# Объединяем списки, убираем возможные дубликаты
-ALLOWED_HOSTS = list(set(ALLOWED_HOSTS + CUSTOM_HOSTS))
 # Optional: when behind App Platform proxy, allow all subdomains you configured via ALLOWED_HOSTS
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
