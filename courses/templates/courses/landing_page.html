@@ -25,6 +25,24 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     
+    <!-- Font-display optimization for Font Awesome -->
+    <style>
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Brands';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2') format('woff2');
+        }
+    </style>
+    
     <link rel="preload" href="https://unpkg.com/aos@2.3.1/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"></noscript>
     
@@ -494,7 +512,7 @@
         }
         
         /* Отладочные стили для проверки применения */
-        .step-image img[src*="1.png"] {
+        .step-image img[src*="1.webp"] {
             background-color: rgba(255, 0, 0, 0.1) !important;
             width: 90% !important;
             max-width: 350px !important;
@@ -769,7 +787,10 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#home">
-                <img src="{% static 'images/Study_Task.png' %}" alt="Study Task" width="259" height="56" loading="eager" />
+                <picture>
+                    <source type="image/webp" srcset="{% static 'images/Study_Task-130w.webp' %} 130w, {% static 'images/Study_Task.webp' %} 259w" sizes="(max-width: 768px) 130px, 259px">
+                    <img src="{% static 'images/Study_Task.wp2' %}" alt="Study Task" width="259" height="56" loading="eager" />
+                </picture>
             </a>
             
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-label="Toggle navigation">
@@ -853,32 +874,41 @@
                         </div>
                 <div class="col-lg-6">
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <img src="{% static 'images/main1.png' %}" alt="Study Task Platform" 
-                             class="main-image" id="main1"
-                             width="1327" height="409"
-                             loading="eager"
-                             decoding="async"
-                             style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <picture>
+                            <source type="image/webp" srcset="{% static 'images/main1-480w.webp' %} 480w, {% static 'images/main1-800w.webp' %} 800w, {% static 'images/main1.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
+                            <img src="{% static 'images/main1.webp' %}" alt="Study Task Platform" 
+                                 class="main-image" id="main1"
+                                 width="1327" height="409"
+                                 loading="eager"
+                                 decoding="async"
+                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        </picture>
                     </div>
                     <h1></h1>
                     <h1></h1>
                     <h1></h1>
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <img src="{% static 'images/main2.png' %}" alt="Study Task Platform" 
-                             class="main-image" id="main2"
-                             width="1327" height="409"
-                             loading="lazy" decoding="async"
-                             style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <picture>
+                            <source type="image/webp" srcset="{% static 'images/main2-480w.webp' %} 480w, {% static 'images/main2-800w.webp' %} 800w, {% static 'images/main2.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
+                            <img src="{% static 'images/main2.webp' %}" alt="Study Task Platform" 
+                                 class="main-image" id="main2"
+                                 width="1327" height="409"
+                                 loading="lazy" decoding="async"
+                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        </picture>
                 </div>
                     <h1></h1>
                     <h1></h1>
                     <h1></h1>
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <img src="{% static 'images/main3.png' %}" alt="Study Task Platform" 
-                             class="main-image" id="main3"
-                             width="1327" height="409"
-                             loading="lazy" decoding="async"
-                             style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <picture>
+                            <source type="image/webp" srcset="{% static 'images/main3-480w.webp' %} 480w, {% static 'images/main3-800w.webp' %} 800w, {% static 'images/main3.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
+                            <img src="{% static 'images/main3.webp' %}" alt="Study Task Platform" 
+                                 class="main-image" id="main3"
+                                 width="1327" height="409"
+                                 loading="lazy" decoding="async"
+                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        </picture>
                     </div>
                 </div>
             </div>
@@ -958,9 +988,12 @@
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="step-card h-100">
                         <div class="step-image-first">
-                            <img src="{% static 'images/1.png' %}" alt="Шаг 1" class="step-image-1" 
-                                 width="501" height="333"
-                                 loading="lazy" decoding="async">
+                            <picture>
+                                <source type="image/webp" srcset="{% static 'images/1-250w.webp' %} 250w, {% static 'images/1-500w.webp' %} 500w, {% static 'images/1.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
+                                <img src="{% static 'images/1.webp' %}" alt="Шаг 1" class="step-image-1" 
+                                     width="501" height="333"
+                                     loading="lazy" decoding="async">
+                            </picture>
                         </div>
                         <h5 class="feature-title">Онлайн урок с учителем</h5>
                         <p class="feature-description">Присоединяйтесь к онлайн уроку с опытным преподавателем. Интерактивное обучение в реальном времени с возможностью задавать вопросы.</p>
@@ -969,9 +1002,12 @@
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="step-card h-100">
                         <div class="step-image">
-                            <img src="{% static 'images/2.png' %}" alt="Шаг 2" 
-                                 width="501" height="330"
-                                 loading="lazy" decoding="async">
+                            <picture>
+                                <source type="image/webp" srcset="{% static 'images/2-250w.webp' %} 250w, {% static 'images/2-500w.webp' %} 500w, {% static 'images/2.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
+                                <img src="{% static 'images/2.webp' %}" alt="Шаг 2" 
+                                     width="501" height="330"
+                                     loading="lazy" decoding="async">
+                            </picture>
                         </div>
                         <h5 class="feature-title">Квиз и закрепление</h5>
                         <p class="feature-description">После урока проходите квиз на платформе. На каждом третьем уроке смотрите презентацию и закрепляйте пройденные темы.</p>
@@ -980,9 +1016,12 @@
                 <div class="col-lg-4 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="step-card h-100">
                         <div class="step-image">
-                            <img src="{% static 'images/3.png' %}" alt="Шаг 3" 
-                                 width="501" height="331"
-                                 loading="lazy" decoding="async">
+                            <picture>
+                                <source type="image/webp" srcset="{% static 'images/3-250w.webp' %} 250w, {% static 'images/3-500w.webp' %} 500w, {% static 'images/3.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
+                                <img src="{% static 'images/3.webp' %}" alt="Шаг 3" 
+                                     width="501" height="331"
+                                     loading="lazy" decoding="async">
+                            </picture>
                         </div>
                         <h5 class="feature-title">Звезды и награды</h5>
                         <p class="feature-description">Получайте звезды за каждый квиз и пройденный раздел. Накопите достаточно звезд и обменяйте их на призы!</p>
