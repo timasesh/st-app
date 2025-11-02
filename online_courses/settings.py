@@ -26,12 +26,25 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ['1', 'true', 'yes']
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+# ALLOWED_HOSTS - список разрешенных доменов
+# Можно переопределить через переменную окружения ALLOWED_HOSTS (разделенные запятыми)
+default_allowed_hosts = ['study-task.kz', 'www.study-task.kz', 'localhost', '127.0.0.1']
+env_hosts_str = os.getenv('ALLOWED_HOSTS', '').strip()
+if env_hosts_str:
+    env_allowed_hosts = [host.strip() for host in env_hosts_str.split(',') if host.strip()]
+    ALLOWED_HOSTS = env_allowed_hosts if env_allowed_hosts else default_allowed_hosts
+else:
+    ALLOWED_HOSTS = default_allowed_hosts
 
-# Optional: when behind App Platform proxy, allow all subdomains you configured via ALLOWED_HOSTS
-CSRF_TRUSTED_ORIGINS = [
-    origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
-]
+# CSRF_TRUSTED_ORIGINS - источники, которым доверяем для CSRF
+# Можно переопределить через переменную окружения CSRF_TRUSTED_ORIGINS
+default_csrf_origins = ['https://study-task.kz', 'https://www.study-task.kz']
+env_csrf_str = os.getenv('CSRF_TRUSTED_ORIGINS', '').strip()
+if env_csrf_str:
+    env_csrf_origins = [origin.strip() for origin in env_csrf_str.split(',') if origin.strip()]
+    CSRF_TRUSTED_ORIGINS = env_csrf_origins if env_csrf_origins else default_csrf_origins
+else:
+    CSRF_TRUSTED_ORIGINS = default_csrf_origins
 
 
 # Application definition
