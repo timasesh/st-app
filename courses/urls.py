@@ -1,7 +1,11 @@
 from django.urls import path
 from . import views
+from .views_robots import robots_txt
 
 urlpatterns = [
+    # Robots.txt
+    path('robots.txt', robots_txt, name='robots_txt'),
+    
     # Landing Page
     path('', views.landing_page, name='landing_page'),
     

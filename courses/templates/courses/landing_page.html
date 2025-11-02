@@ -6,6 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Study Task — Образовательный центр с геймификацией в обучении</title>
     <meta name="description" content="Study Task — современный образовательный центр с геймификацией обучения. Онлайн уроки, интерактивные квизы, презентации и система наград для учеников 1–11 классов.">
+    <meta name="keywords" content="Study Task, Стади Таск, онлайн школа IT, курсы программирования, обучение Python, Django, React Native, онлайн обучение, IT курсы, геймификация обучения, онлайн уроки, интерактивные квизы">
+    <meta name="author" content="Study Task Team">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Study Task — Онлайн IT школа">
+    <meta property="og:description" content="Учись IT с нуля: Python, Django, мобильная разработка, квизы и уроки. Образовательный центр с геймификацией обучения для учеников 1–11 классов.">
+    <meta property="og:image" content="https://study-task.kz{% static 'images/Study_Task.png' %}">
+    <meta property="og:url" content="https://study-task.kz/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Study Task">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Study Task — Онлайн IT школа">
+    <meta name="twitter:description" content="Учись IT с нуля: Python, Django, мобильная разработка. Образовательный центр с геймификацией обучения.">
+    <meta name="twitter:image" content="https://study-task.kz{% static 'images/Study_Task.png' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
+    <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/media/image/ST.png">
     
     <!-- Preconnect to external domains for faster loading -->
     <link rel="preconnect" href="https://stackpath.bootstrapcdn.com">
@@ -512,7 +534,7 @@
         }
         
         /* Отладочные стили для проверки применения */
-        .step-image img[src*="1.webp"] {
+        .step-image img[src*="1.png"] {
             background-color: rgba(255, 0, 0, 0.1) !important;
             width: 90% !important;
             max-width: 350px !important;
@@ -789,7 +811,7 @@
             <a class="navbar-brand" href="#home">
                 <picture>
                     <source type="image/webp" srcset="{% static 'images/Study_Task-130w.webp' %} 130w, {% static 'images/Study_Task.webp' %} 259w" sizes="(max-width: 768px) 130px, 259px">
-                    <img src="{% static 'images/Study_Task.wp2' %}" alt="Study Task" width="259" height="56" loading="eager" />
+                    <img src="{% static 'images/Study_Task.png' %}" alt="Study Task" width="259" height="56" loading="eager" />
                 </picture>
             </a>
             
@@ -876,7 +898,7 @@
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
                         <picture>
                             <source type="image/webp" srcset="{% static 'images/main1-480w.webp' %} 480w, {% static 'images/main1-800w.webp' %} 800w, {% static 'images/main1.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main1.webp' %}" alt="Study Task Platform" 
+                            <img src="{% static 'images/main1.png' %}" alt="Study Task Platform" 
                                  class="main-image" id="main1"
                                  width="1327" height="409"
                                  loading="eager"
@@ -890,7 +912,7 @@
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
                         <picture>
                             <source type="image/webp" srcset="{% static 'images/main2-480w.webp' %} 480w, {% static 'images/main2-800w.webp' %} 800w, {% static 'images/main2.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main2.webp' %}" alt="Study Task Platform" 
+                            <img src="{% static 'images/main2.png' %}" alt="Study Task Platform" 
                                  class="main-image" id="main2"
                                  width="1327" height="409"
                                  loading="lazy" decoding="async"
@@ -903,7 +925,7 @@
                     <div class="text-center main-image-container" style="position: relative; z-index: 20;">
                         <picture>
                             <source type="image/webp" srcset="{% static 'images/main3-480w.webp' %} 480w, {% static 'images/main3-800w.webp' %} 800w, {% static 'images/main3.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main3.webp' %}" alt="Study Task Platform" 
+                            <img src="{% static 'images/main3.png' %}" alt="Study Task Platform" 
                                  class="main-image" id="main3"
                                  width="1327" height="409"
                                  loading="lazy" decoding="async"
@@ -990,7 +1012,7 @@
                         <div class="step-image-first">
                             <picture>
                                 <source type="image/webp" srcset="{% static 'images/1-250w.webp' %} 250w, {% static 'images/1-500w.webp' %} 500w, {% static 'images/1.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
-                                <img src="{% static 'images/1.webp' %}" alt="Шаг 1" class="step-image-1" 
+                                <img src="{% static 'images/1.png' %}" alt="Шаг 1" class="step-image-1" 
                                      width="501" height="333"
                                      loading="lazy" decoding="async">
                             </picture>
@@ -1004,7 +1026,7 @@
                         <div class="step-image">
                             <picture>
                                 <source type="image/webp" srcset="{% static 'images/2-250w.webp' %} 250w, {% static 'images/2-500w.webp' %} 500w, {% static 'images/2.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
-                                <img src="{% static 'images/2.webp' %}" alt="Шаг 2" 
+                                <img src="{% static 'images/2.png' %}" alt="Шаг 2" 
                                      width="501" height="330"
                                      loading="lazy" decoding="async">
                             </picture>
@@ -1018,7 +1040,7 @@
                         <div class="step-image">
                             <picture>
                                 <source type="image/webp" srcset="{% static 'images/3-250w.webp' %} 250w, {% static 'images/3-500w.webp' %} 500w, {% static 'images/3.webp' %} 501w" sizes="(max-width: 768px) 100vw, 501px">
-                                <img src="{% static 'images/3.webp' %}" alt="Шаг 3" 
+                                <img src="{% static 'images/3.png' %}" alt="Шаг 3" 
                                      width="501" height="331"
                                      loading="lazy" decoding="async">
                             </picture>

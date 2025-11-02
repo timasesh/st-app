@@ -1,11 +1,35 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Study Task{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>{% block title %}Study Task — Онлайн школа IT направлений{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Study Task — это онлайн-платформа для обучения IT: курсы, тесты, прогресс студентов и геймификация обучения.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}Study Task, Стади Таск, онлайн школа IT, курсы программирования, обучение Python, Django, React Native, онлайн обучение, IT курсы{% endblock %}">
+    <meta name="author" content="Study Task Team">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="{% block og_title %}Study Task — Онлайн IT школа{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Учись IT с нуля: Python, Django, мобильная разработка, квизы и уроки.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://study-task.kz{% static 'images/Study_Task.png' %}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}https://study-task.kz{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Study Task">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Study Task — Онлайн IT школа{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Учись IT с нуля: Python, Django, мобильная разработка.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://study-task.kz{% static 'images/Study_Task.png' %}{% endblock %}">
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
     <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/media/image/ST.png">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
