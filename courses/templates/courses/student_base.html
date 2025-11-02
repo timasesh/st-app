@@ -9,19 +9,46 @@
     <title>{% block title %}Study Task{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="/media/favicon.svg">
     <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://stackpath.bootstrapcdn.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Load CSS asynchronously -->
+    <link rel="preload" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></noscript>
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Raleway:wght@700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"></noscript>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
     <link rel="stylesheet" href="{% static 'levels_tab_styles.css' %}">
     {% block extra_css %}{% endblock %}
+    
+    <!-- Script for async CSS loading support -->
+    <script>
+        (function() {
+            var links = document.querySelectorAll('link[rel="preload"][as="style"]');
+            links.forEach(function(link) {
+                if (link.onload === null) {
+                    link.onload = function() {
+                        this.rel = 'stylesheet';
+                    };
+                }
+            });
+        })();
+    </script>
 </head>
 <body class="modern-student-body">
     
     <header class="modern-student-header">
         <div class="header-container">
             <div class="logo-container">
-                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img">
+                <img src="/media/image/Study_Task.png" alt="Study Task" class="logo-img" width="259" height="56" loading="eager">
             </div>
             
             <div class="student-profile-section">
