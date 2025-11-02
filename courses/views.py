@@ -319,7 +319,12 @@ def admin_page(request):
                                 added_count += 1
                             new_students.append(student)
                         except IntegrityError as e:
+                            # Пропускаем дубликаты
+                            continue
                         except Exception as e:
+                            # Логируем другие ошибки и пропускаем проблемную строку
+                            logger.error(f"Ошибка при обработке студента {email}: {e}")
+                            continue
                     # Создаём новую группу для этой загрузки
                     group_name = f'Группа от {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
                     group = Group.objects.create(name=group_name)
@@ -744,6 +749,8 @@ def student_page(request):
                 try:
                     evaluate_and_unlock_achievements(student)
                 except Exception as e:
+                    # Логируем ошибку, но не прерываем выполнение
+                    logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
     
     # Convert progress_data to a dictionary with course IDs as keys
     progress_data = {}
