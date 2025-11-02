@@ -820,6 +820,8 @@ def student_page(request):
     try:
         evaluate_and_unlock_achievements(student)
     except Exception as e:
+        # Логируем ошибку, но не прерываем выполнение
+        logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
     
     # Достижения
     from .models import Achievement, StudentAchievement
@@ -1518,6 +1520,8 @@ def start_quiz(request, quiz_id):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
+            # Логируем ошибку, но не прерываем выполнение
+            logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
         
         if passed:
             messages.success(request, f'Квиз сдан! Ваш результат: {percent}%.')
@@ -1593,6 +1597,8 @@ def quiz_result(request, quiz_id):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
+            # Логируем ошибку, но не прерываем выполнение
+            logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
     return render(request, 'courses/quiz_result.html', {
         'quiz': quiz,
         'result': last_attempt,
@@ -1736,6 +1742,8 @@ def update_progress(request):
             try:
                 evaluate_and_unlock_achievements(student)
             except Exception as e:
+                # Логируем ошибку, но не прерываем выполнение
+                logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
 
             response_data = {'success': True, 'progress': progress_value}
             if stars_awarded:
@@ -1786,6 +1794,8 @@ def check_and_award_course_stars(student, course):
         try:
             evaluate_and_unlock_achievements(student)
         except Exception as e:
+            # Логируем ошибку, но не прерываем выполнение
+            logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
         
         return True, course.stars
     
@@ -4112,6 +4122,7 @@ def student_homework_submit(request, homework_id):
                 )
             except Exception as e:
                 # Логируем ошибку, но не прерываем процесс
+                logger.error(f"Ошибка при создании уведомления о домашнем задании: {e}")
             
             return JsonResponse({'success': True, 'message': 'Задание успешно отправлено!'})
             
@@ -4412,6 +4423,8 @@ def student_levels_page(request):
     try:
         evaluate_and_unlock_achievements(student)
     except Exception as e:
+        # Логируем ошибку, но не прерываем выполнение
+        logger.error(f"Ошибка при пересчете достижений для студента {student.username}: {e}")
     
     # Достижения
     from .models import Achievement, StudentAchievement
