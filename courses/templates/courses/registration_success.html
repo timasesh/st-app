@@ -1,0 +1,15 @@
+{% extends "courses/student_base.html" %}
+{% block title %}Регистрация успешна{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <div class="alert alert-success">
+    <h4 class="alert-heading">Регистрация прошла успешно!</h4>
+    <p>На вашу почту {{ email }} отправлен временный пароль для входа.</p>
+    <hr>
+    <a class="btn btn-success" href="{% url 'student_login' %}">Перейти ко входу</a>
+  </div>
+  <p class="text-muted">Если письмо не пришло, проверьте папку «Спам».</p>
+</div>
+{% endblock %}
+
+
