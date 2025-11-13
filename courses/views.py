@@ -22,11 +22,12 @@ import traceback
 from django.db.utils import IntegrityError
 import fitz
 
+from django.core.mail import send_mail
 from .forms import (
     StudentRegistrationForm, LessonCreationForm, ModuleCreationForm,
     CourseCreationForm, StudentProfileForm, QuizForm, QuestionForm,
     AnswerForm, QuizToModuleForm, StudentExcelUploadForm, StudentMessageRequestForm,
-    CourseFeedbackForm
+    CourseFeedbackForm, StudentQuickRegistrationForm
 )
 from .models import (
     User, Lesson, Module, Course, StudentProgress, Student,
@@ -108,6 +109,7 @@ def check_username_availability(request):
     return JsonResponse({'error': 'Invalid request'})
 
 def student_registration(request):
+    """Старая регистрация (используется в админке)."""
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
@@ -121,8 +123,43 @@ def student_registration(request):
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
         form = StudentRegistrationForm()
-    
     return render(request, 'courses/student_registration.html', {'form': form})
+
+
+def register_student(request):
+    """Регистрация без пароля: генерируем и отправляем пароль на email."""
+    form = StudentQuickRegistrationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            user = form.save(commit=False)
+            user.is_student = True
+            if not user.username:
+                user.username = user.email
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            user.set_password(password)
+            user.save()
+            Student.objects.get_or_create(user=user, defaults={
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            })
+            subject = 'Ваш аккаунт Study Task создан'
+            message = (
+                f'Здравствуйте, {user.first_name or user.username}!\n\n'
+                f'Ваш аккаунт на Study Task успешно создан.\n'
+                f'Временный пароль: {password}\n\n'
+                f'Войдите в систему и при необходимости смените пароль в профиле.\n'
+                f'Ссылка: https://study-task.kz/login/\n'
+            )
+            try:
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+            except Exception as e:
+                logger.error(f'Ошибка отправки письма регистрации: {e}')
+            return render(request, 'courses/registration_success.html', {'email': user.email})
+        except Exception as e:
+            logger.error(f'Ошибка регистрации: {e}')
+            messages.error(request, 'Произошла ошибка при создании аккаунта. Попробуйте ещё раз.')
+    return render(request, 'courses/register.html', {'form': form})
 
 def admin_login(request):
     if request.method == 'POST':

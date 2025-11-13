@@ -11,7 +11,8 @@ urlpatterns = [
     
     # Authentication URLs
     path('login/', views.student_login, name='student_login'),
-    path('registration/', views.student_registration, name='student_registration'),
+    # Используем упрощённую регистрацию без пароля
+    path('registration/', views.register_student, name='student_registration'),
     path('check-username/', views.check_username_availability, name='check_username_availability'),
     path('admin_login/', views.admin_login, name='admin_login'),
     path('teacher_login/', views.teacher_login, name='teacher_login'),

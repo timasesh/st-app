@@ -1,14 +1,279 @@
-{% extends "courses/student_base.html" %}
-{% block title %}Регистрация студента{% endblock %}
-{% block content %}
-<div class="container mt-4">
-  <h2 class="mb-3">Регистрация студента</h2>
-  <form method="POST" class="card p-3">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary mt-2">Зарегистрироваться</button>
-  </form>
-</div>
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Study Task — Регистрация студента</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'student_styles.css' %}">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #667eea 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-heavy: 0 15px 35px rgba(31, 38, 135, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url('{% static "animations/hero-background.gif" %}');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 900px;
+            padding: 15px;
+        }
+
+        .auth-card {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            color: white;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .branding {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 0.5rem;
+        }
+
+        .branding .logo-wrap {
+            position: relative;
+        }
+
+        .branding .logo-wrap::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            filter: blur(0px);
+        }
+
+        .branding img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            padding: 8px;
+            border: 2px solid rgba(255,255,255,0.35);
+        }
+
+        .brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .brand-subtitle {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 1rem;
+        }
+
+        .brand-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .brand-item {
+            display: flex;
+            gap: 0.7rem;
+            align-items: center;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+        }
+
+        .brand-item i {
+            color: #ffd700;
+        }
+
+        .form-section {
+            padding: 0.5rem;
+        }
+
+        .form-section h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-section p {
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.9);
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: 12px;
+            border: none;
+            background: var(--secondary-gradient);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 12px 30px rgba(245, 87, 108, 0.45);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .login-link a {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .auth-card {
+                grid-template-columns: 1fr;
+                max-width: 520px;
+                margin: 0 auto;
+            }
+
+            .branding {
+                order: 2;
+            }
+
+            .form-section {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1rem;
+            }
+
+            .brand-title {
+                font-size: 1.7rem;
+            }
+
+            .form-section h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="branding">
+                <div class="logo-wrap">
+                    <img src="{% static 'images/ST.png' %}" alt="Study Task Logo" loading="lazy" decoding="async">
+                </div>
+                <div>
+                    <h1 class="brand-title">Study Task</h1>
+                    <p class="brand-subtitle">Образовательный центр с геймификацией</p>
+                </div>
+                <div class="brand-list">
+                    <div class="brand-item"><i class="fas fa-trophy"></i> Система достижений и звёзд</div>
+                    <div class="brand-item"><i class="fas fa-star"></i> Рейтинги и уровни</div>
+                    <div class="brand-item"><i class="fas fa-users"></i> Командные задания</div>
+                    <div class="brand-item"><i class="fas fa-gift"></i> Призы за активность</div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h2>Регистрация студента</h2>
+                <p>Заполните данные, чтобы получить доступ к платформе. Временный пароль придёт на вашу почту.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-warning">
+                            {{ form.non_field_errors|striptags }}
+                        </div>
+                    {% endif %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-warning small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-user-plus mr-2"></i>Зарегистрироваться
+                    </button>
+                </form>
+                <div class="login-link">
+                    Уже есть аккаунт?
+                    <a href="{% url 'student_login' %}">Войти в систему</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
 
 

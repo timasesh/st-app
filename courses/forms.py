@@ -2,6 +2,7 @@
 # courses/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
 from .models import User, Lesson, Module, Course, Student, Teacher
 from .models import Question, Answer
 from django.db import transaction
@@ -11,6 +12,40 @@ import re
 from .models import StudentMessageRequest
 from .models import CourseFeedback
 from .models import CourseAddRequest
+
+
+class StudentQuickRegistrationForm(forms.ModelForm):
+    """Форма быстрой регистрации без пароля."""
+
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'username', 'email']
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'username': 'Имя пользователя',
+            'email': 'Email',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': field.label,
+            })
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and get_user_model().objects.filter(username=username).exists():
+            raise forms.ValidationError("Пользователь с таким именем уже существует.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and get_user_model().objects.filter(email=email).exists():
+            raise forms.ValidationError("Пользователь с таким email уже существует.")
+        return email
 
 
 class StudentRegistrationForm(forms.Form):
