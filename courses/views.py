@@ -152,7 +152,13 @@ def register_student(request):
                 f'Ссылка: https://study-task.kz/login/\n'
             )
             try:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True,
+                )
             except Exception as e:
                 logger.error(f'Ошибка отправки письма регистрации: {e}')
             return render(request, 'courses/registration_success.html', {'email': user.email})

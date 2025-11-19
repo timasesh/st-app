@@ -293,6 +293,25 @@
             color: white;
         }
 
+        .hero-images .main-image-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-image-grid {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-image-grid .image-small {
+            flex: 1 1 calc(50% - 0.6rem);
+        }
+
+        .hero-image-grid img {
+            width: 100%;
+            border-radius: 20px;
+        }
+
         .hero-title {
             font-family: 'Poppins', sans-serif;
             font-size: 3.5rem;
@@ -722,6 +741,14 @@
                 font-size: 2.5rem;
             }
             
+            .hero-image-grid {
+                flex-direction: column;
+            }
+            
+            .hero-image-grid .image-small {
+                flex: 1 1 100%;
+            }
+            
             .hero-subtitle {
                 font-size: 1.1rem;
             }
@@ -894,42 +921,36 @@
                             </div>
                         </div>
                 <div class="col-lg-6">
-                    <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <picture>
-                            <source type="image/webp" srcset="{% static 'images/main1-480w.webp' %} 480w, {% static 'images/main1-800w.webp' %} 800w, {% static 'images/main1.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main1.png' %}" alt="Study Task Platform" 
-                                 class="main-image" id="main1"
-                                 width="1327" height="409"
-                                 loading="eager"
-                                 decoding="async"
-                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        </picture>
-                    </div>
-                    <h1></h1>
-                    <h1></h1>
-                    <h1></h1>
-                    <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <picture>
-                            <source type="image/webp" srcset="{% static 'images/main2-480w.webp' %} 480w, {% static 'images/main2-800w.webp' %} 800w, {% static 'images/main2.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main2.png' %}" alt="Study Task Platform" 
-                                 class="main-image" id="main2"
-                                 width="1327" height="409"
-                                 loading="lazy" decoding="async"
-                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        </picture>
-                </div>
-                    <h1></h1>
-                    <h1></h1>
-                    <h1></h1>
-                    <div class="text-center main-image-container" style="position: relative; z-index: 20;">
-                        <picture>
-                            <source type="image/webp" srcset="{% static 'images/main3-480w.webp' %} 480w, {% static 'images/main3-800w.webp' %} 800w, {% static 'images/main3.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
-                            <img src="{% static 'images/main3.png' %}" alt="Study Task Platform" 
-                                 class="main-image" id="main3"
-                                 width="1327" height="409"
-                                 loading="lazy" decoding="async"
-                                 style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        </picture>
+                    <div class="hero-images">
+                        <div class="text-center main-image-container" style="position: relative; z-index: 20;">
+                            <picture>
+                                <source type="image/webp" srcset="{% static 'images/main1-480w.webp' %} 480w, {% static 'images/main1-800w.webp' %} 800w, {% static 'images/main1.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 1327px">
+                                <img src="{% static 'images/main1.png' %}" alt="Study Task Platform"
+                                     class="main-image" id="main1" width="1327" height="409"
+                                     loading="eager" decoding="async"
+                                     style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                            </picture>
+                        </div>
+                        <div class="hero-image-grid">
+                            <div class="image-small">
+                                <picture>
+                                    <source type="image/webp" srcset="{% static 'images/main2-480w.webp' %} 480w, {% static 'images/main2-800w.webp' %} 800w, {% static 'images/main2.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 660px">
+                                    <img src="{% static 'images/main2.png' %}" alt="Study Task Platform"
+                                         class="main-image" id="main2" width="660" height="330"
+                                         loading="lazy" decoding="async"
+                                         style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.25);">
+                                </picture>
+                            </div>
+                            <div class="image-small">
+                                <picture>
+                                    <source type="image/webp" srcset="{% static 'images/main3-480w.webp' %} 480w, {% static 'images/main3-800w.webp' %} 800w, {% static 'images/main3.webp' %} 1327w" sizes="(max-width: 768px) 100vw, 660px">
+                                    <img src="{% static 'images/main3.png' %}" alt="Study Task Platform"
+                                         class="main-image" id="main3" width="660" height="330"
+                                         loading="lazy" decoding="async"
+                                         style="max-width: 100%; height: auto; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.25);">
+                                </picture>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

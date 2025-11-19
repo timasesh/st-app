@@ -43,8 +43,8 @@
 
         .auth-container {
             width: 100%;
-            max-width: 900px;
-            padding: 15px;
+            max-width: 800px;
+            padding: 10px;
         }
 
         .auth-card {
@@ -53,11 +53,13 @@
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            padding: 1.5rem;
+            padding: 1.2rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            gap: 1.2rem;
             color: white;
+            max-height: 88vh;
+            overflow-y: auto;
         }
 
         .auth-card::before {
@@ -198,6 +200,7 @@
                 grid-template-columns: 1fr;
                 max-width: 520px;
                 margin: 0 auto;
+                max-height: none;
             }
 
             .branding {
@@ -211,15 +214,16 @@
 
         @media (max-width: 480px) {
             .auth-card {
-                padding: 1rem;
+                padding: 0.9rem;
+                gap: 1rem;
             }
 
             .brand-title {
-                font-size: 1.7rem;
+                font-size: 1.6rem;
             }
 
             .form-section h2 {
-                font-size: 1.3rem;
+                font-size: 1.2rem;
             }
         }
     </style>
