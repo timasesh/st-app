@@ -157,10 +157,16 @@ def register_student(request):
                     message,
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
-                    fail_silently=True,
+                    fail_silently=False,
                 )
             except Exception as e:
                 logger.error(f'Ошибка отправки письма регистрации: {e}')
+                messages.error(
+                    request,
+                    'Не удалось отправить письмо с паролем. Попробуйте ещё раз позже или обратитесь в поддержку.'
+                )
+                user.delete()
+                return render(request, 'courses/register.html', {'form': form})
             return render(request, 'courses/registration_success.html', {'email': user.email})
         except Exception as e:
             logger.error(f'Ошибка регистрации: {e}')
