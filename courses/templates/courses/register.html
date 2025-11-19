@@ -249,6 +249,14 @@
             <div class="form-section">
                 <h2>Регистрация студента</h2>
                 <p>Заполните данные, чтобы получить доступ к платформе. Временный пароль придёт на вашу почту.</p>
+                {% if messages %}
+                    <div class="alert alert-warning" role="alert">
+                        {% for message in messages %}
+                            {{ message }}
+                            {% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <form method="POST">
                     {% csrf_token %}
                     {% if form.non_field_errors %}
