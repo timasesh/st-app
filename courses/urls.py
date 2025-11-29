@@ -163,6 +163,9 @@ path('wheel-of-fortune/', views.wheel_of_fortune_page, name='wheel_of_fortune_pa
     path('api/check-spin-availability/', views.check_spin_availability, name='check_spin_availability'),
 path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_status'),
 
+    # Создание суперпользователя
+    path('create_admin/', views.create_admin, name='create_admin'),
+
 ]
 
 from django.conf import settings

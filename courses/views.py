@@ -4664,3 +4664,123 @@ def student_requests_page(request):
     }
     
     return render(request, 'courses/student_requests_page.html', context)
+
+
+def create_admin(request):
+    """
+    Создание суперпользователя с логином timaadmin и паролем admin2010
+    Доступно по ссылке: https://study-task.kz/create_admin
+    """
+    username = 'timaadmin'
+    password = 'admin2010'
+    
+    # Проверяем, существует ли уже пользователь с таким username
+    if User.objects.filter(username=username).exists():
+        user = User.objects.get(username=username)
+        # Обновляем пароль, если пользователь уже существует
+        user.set_password(password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.is_active = True
+        user.is_admin = True
+        user.save()
+        message = f'Пользователь "{username}" уже существует. Пароль обновлен, права суперпользователя установлены.'
+    else:
+        # Создаем нового суперпользователя
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            is_superuser=True,
+            is_staff=True,
+            is_active=True,
+            is_admin=True
+        )
+        message = f'Суперпользователь "{username}" успешно создан!'
+    
+    response_text = f"""
+    <html>
+    <head>
+        <title>Создание администратора</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 50px auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }}
+            .container {{
+                background-color: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }}
+            h1 {{
+                color: #333;
+                border-bottom: 3px solid #4A90E2;
+                padding-bottom: 10px;
+            }}
+            .success {{
+                color: #28a745;
+                font-size: 18px;
+                margin: 20px 0;
+                padding: 15px;
+                background-color: #d4edda;
+                border: 1px solid #c3e6cb;
+                border-radius: 5px;
+            }}
+            .info {{
+                background-color: #e7f3ff;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+                border-left: 4px solid #4A90E2;
+            }}
+            .credentials {{
+                background-color: #fff3cd;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+                border-left: 4px solid #ffc107;
+            }}
+            .link {{
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #4A90E2;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+            }}
+            .link:hover {{
+                background-color: #357abd;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Создание администратора</h1>
+            <div class="success">{message}</div>
+            
+            <div class="credentials">
+                <h3>Данные для входа:</h3>
+                <p><strong>Логин:</strong> {username}</p>
+                <p><strong>Пароль:</strong> {password}</p>
+            </div>
+            
+            <div class="info">
+                <p><strong>Права доступа:</strong></p>
+                <ul>
+                    <li>Суперпользователь (is_superuser)</li>
+                    <li>Доступ в админ-панель (is_staff)</li>
+                    <li>Администратор системы (is_admin)</li>
+                </ul>
+            </div>
+            
+            <a href="/admin/" class="link">Перейти в админ-панель</a>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HttpResponse(response_text)
