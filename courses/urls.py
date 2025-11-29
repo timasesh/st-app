@@ -166,6 +166,9 @@ path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_stat
     # Создание суперпользователя
     path('create_admin/', views.create_admin, name='create_admin'),
 
+    # Создание преподавателя
+    path('create_teacher/', views.create_teacher, name='create_teacher'),
+
 ]
 
 from django.conf import settings

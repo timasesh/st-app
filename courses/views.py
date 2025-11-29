@@ -4784,3 +4784,240 @@ def create_admin(request):
     """
     
     return HttpResponse(response_text)
+
+
+def create_teacher(request):
+    """
+    Создание преподавателя с указанными данными
+    Доступно по ссылке: https://study-task.kz/create_teacher
+    """
+    email = 'teacheer@gmail.com'
+    username = email  # Используем email как username
+    password = 'teacher2010'
+    first_name = 'Учитель'
+    last_name = 'Учитель'
+    phone_number = '8777 777 77 77'
+    specialization = 'Математика, Физика'
+    bio = 'Преподаватель по математике и физике'
+    
+    try:
+        # Проверяем, существует ли уже пользователь с таким email/username
+        user_exists = User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists()
+        teacher_exists = Teacher.objects.filter(email=email).exists()
+        
+        if user_exists:
+            # Если пользователь существует, обновляем его
+            user = User.objects.filter(username=username).first() or User.objects.filter(email=email).first()
+            user.username = username
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.set_password(password)
+            user.is_teacher = True
+            user.is_active = True
+            user.save()
+            
+            # Обновляем или создаем профиль преподавателя
+            teacher, created = Teacher.objects.get_or_create(
+                email=email,
+                defaults={
+                    'user': user,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'phone_number': phone_number,
+                    'specialization': specialization,
+                    'bio': bio,
+                }
+            )
+            
+            if not created:
+                # Обновляем существующий профиль
+                teacher.user = user
+                teacher.first_name = first_name
+                teacher.last_name = last_name
+                teacher.phone_number = phone_number
+                teacher.specialization = specialization
+                teacher.bio = bio
+                teacher.is_active = True
+                teacher.save()
+            
+            message = f'Преподаватель "{first_name} {last_name}" уже существовал. Данные обновлены.'
+            status = 'updated'
+        else:
+            # Создаем нового пользователя
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_teacher=True,
+                is_active=True
+            )
+            
+            # Создаем профиль преподавателя
+            teacher = Teacher.objects.create(
+                user=user,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone_number=phone_number,
+                specialization=specialization,
+                bio=bio,
+                is_active=True
+            )
+            
+            message = f'Преподаватель "{first_name} {last_name}" успешно создан!'
+            status = 'created'
+        
+        response_text = f"""
+        <html>
+        <head>
+            <title>Создание преподавателя</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 50px auto;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                }}
+                .container {{
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }}
+                h1 {{
+                    color: #333;
+                    border-bottom: 3px solid #4A90E2;
+                    padding-bottom: 10px;
+                }}
+                .success {{
+                    color: #28a745;
+                    font-size: 18px;
+                    margin: 20px 0;
+                    padding: 15px;
+                    background-color: #d4edda;
+                    border: 1px solid #c3e6cb;
+                    border-radius: 5px;
+                }}
+                .info {{
+                    background-color: #e7f3ff;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    border-left: 4px solid #4A90E2;
+                }}
+                .credentials {{
+                    background-color: #fff3cd;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    border-left: 4px solid #ffc107;
+                }}
+                .details {{
+                    background-color: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                }}
+                .details p {{
+                    margin: 8px 0;
+                }}
+                .details strong {{
+                    color: #333;
+                    min-width: 150px;
+                    display: inline-block;
+                }}
+                .link {{
+                    display: inline-block;
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #4A90E2;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }}
+                .link:hover {{
+                    background-color: #357abd;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Создание преподавателя</h1>
+                <div class="success">{message}</div>
+                
+                <div class="credentials">
+                    <h3>Данные для входа:</h3>
+                    <p><strong>Логин:</strong> {email}</p>
+                    <p><strong>Пароль:</strong> {password}</p>
+                </div>
+                
+                <div class="details">
+                    <h3>Информация о преподавателе:</h3>
+                    <p><strong>Имя:</strong> {first_name}</p>
+                    <p><strong>Фамилия:</strong> {last_name}</p>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Номер телефона:</strong> {phone_number}</p>
+                    <p><strong>Специализация:</strong> {specialization}</p>
+                    <p><strong>О преподавателе:</strong> {bio}</p>
+                </div>
+                
+                <div class="info">
+                    <p><strong>Права доступа:</strong></p>
+                    <ul>
+                        <li>Преподаватель (is_teacher)</li>
+                        <li>Активный пользователь (is_active)</li>
+                    </ul>
+                </div>
+                
+                <a href="/teacher_dashboard/" class="link">Перейти в панель преподавателя</a>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return HttpResponse(response_text)
+        
+    except Exception as e:
+        error_message = f'Ошибка при создании преподавателя: {str(e)}'
+        response_text = f"""
+        <html>
+        <head>
+            <title>Ошибка создания преподавателя</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 50px auto;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                }}
+                .container {{
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }}
+                .error {{
+                    color: #dc3545;
+                    font-size: 18px;
+                    margin: 20px 0;
+                    padding: 15px;
+                    background-color: #f8d7da;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 5px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Ошибка создания преподавателя</h1>
+                <div class="error">{error_message}</div>
+            </div>
+        </body>
+        </html>
+        """
+        return HttpResponse(response_text, status=500)
