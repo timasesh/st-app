@@ -1863,11 +1863,100 @@ def calculate_score(post_data, quiz):
 # User Management Views
 @login_required
 def delete_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    if request.method == 'POST':
-        user.delete()
+    """
+    Удаление пользователя (студента) со всеми связанными данными.
+    Обрабатывает удаление Student, User и всех связанных записей.
+    """
+    try:
+        # Пытаемся найти пользователя
+        user = None
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            # Если User не найден, пытаемся найти по Student ID
+            # Это для обратной совместимости, если передается student_id вместо user_id
+            try:
+                student = Student.objects.get(id=user_id)
+                user = student.user
+            except Student.DoesNotExist:
+                messages.error(request, 'Пользователь не найден')
+                return redirect('admin_page')
+        
+        if not user:
+            messages.error(request, 'Пользователь не найден')
+            return redirect('admin_page')
+        
+        if request.method == 'POST':
+            # Получаем связанного студента, если он существует
+            student = None
+            try:
+                student = Student.objects.get(user=user)
+            except Student.DoesNotExist:
+                pass
+            
+            # Удаляем связанные данные перед удалением пользователя
+            if student:
+                # Удаляем аватар студента, если он есть
+                if student.avatar:
+                    try:
+                        student.avatar.delete(save=False)
+                    except Exception:
+                        pass
+                
+                # Удаляем прогресс студента
+                StudentProgress.objects.filter(user=user).delete()
+                
+                # Удаляем результаты квизов
+                QuizResult.objects.filter(user=user).delete()
+                QuizAttempt.objects.filter(student=student).delete()
+                
+                # Удаляем результаты курсов
+                CourseResult.objects.filter(user=user).delete()
+                
+                # Удаляем отзывы о курсах
+                CourseFeedback.objects.filter(student=student).delete()
+                
+                # Удаляем домашние задания и отправки
+                HomeworkSubmission.objects.filter(student=student).delete()
+                Homework.objects.filter(student=student).delete()
+                
+                # Удаляем запросы
+                CourseAddRequest.objects.filter(student=student).delete()
+                ProfileEditRequest.objects.filter(student=student).delete()
+                StudentMessageRequest.objects.filter(student=student).delete()
+                
+                # Удаляем уведомления
+                Notification.objects.filter(student=student).delete()
+                
+                # Удаляем вращения колеса фортуны
+                WheelSpin.objects.filter(student=student).delete()
+                
+                # Открепляем студента от всех курсов и групп
+                student.courses.clear()
+                student.groups.clear()
+                
+                # Удаляем студента
+                student.delete()
+            
+            # Удаляем пользователя (это также удалит все связи через CASCADE)
+            user.delete()
+            
+            messages.success(request, 'Студент успешно удален')
+            return redirect('admin_page')
+        
+        # Для GET запроса показываем страницу подтверждения
+        student_name = user.get_full_name() or user.username
+        if hasattr(user, 'teacher_profile'):
+            student_name = f"{user.teacher_profile.full_name} (Преподаватель)"
+        elif hasattr(user, 'student'):
+            student_name = f"{user.student.first_name} {user.student.last_name}".strip() or user.username
+        
+        return render(request, 'courses/delete_student.html', {'student': user, 'student_name': student_name})
+    
+    except Exception as e:
+        messages.error(request, f'Ошибка при удалении студента: {str(e)}')
+        logger.error(f'Error deleting user {user_id}: {str(e)}')
         return redirect('admin_page')
-    return render(request, 'courses/delete_student.html', {'student': user})
 
 @login_required
 def detach_course(request, user_id, course_id):
