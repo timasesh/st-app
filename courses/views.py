@@ -1880,11 +1880,11 @@ def delete_user(request, user_id):
                 user = student.user
             except Student.DoesNotExist:
                 messages.error(request, 'Пользователь не найден')
-                return redirect('admin_students/')
+                return redirect('admin_students_page')
         
         if not user:
             messages.error(request, 'Пользователь не найден')
-            return redirect('admin_students')
+            return redirect('admin_students_page')
         
         if request.method == 'POST':
             # Получаем связанного студента, если он существует
@@ -1942,7 +1942,7 @@ def delete_user(request, user_id):
             user.delete()
             
             messages.success(request, 'Студент успешно удален')
-            return redirect('admin_students/')
+            return redirect('admin_students_page')
         
         # Для GET запроса показываем страницу подтверждения
         student_name = user.get_full_name() or user.username
@@ -1956,7 +1956,7 @@ def delete_user(request, user_id):
     except Exception as e:
         messages.error(request, f'Ошибка при удалении студента: {str(e)}')
         logger.error(f'Error deleting user {user_id}: {str(e)}')
-        return redirect('admin_page')
+        return redirect('admin_students_page')
 
 @login_required
 def detach_course(request, user_id, course_id):
