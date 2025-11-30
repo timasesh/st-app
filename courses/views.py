@@ -1880,11 +1880,11 @@ def delete_user(request, user_id):
                 user = student.user
             except Student.DoesNotExist:
                 messages.error(request, 'Пользователь не найден')
-                return redirect('admin_page')
+                return redirect('admin_students/')
         
         if not user:
             messages.error(request, 'Пользователь не найден')
-            return redirect('admin_page')
+            return redirect('admin_students')
         
         if request.method == 'POST':
             # Получаем связанного студента, если он существует
@@ -1942,7 +1942,7 @@ def delete_user(request, user_id):
             user.delete()
             
             messages.success(request, 'Студент успешно удален')
-            return redirect('admin_page')
+            return redirect('admin_students/')
         
         # Для GET запроса показываем страницу подтверждения
         student_name = user.get_full_name() or user.username
