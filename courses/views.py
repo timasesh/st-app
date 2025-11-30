@@ -632,7 +632,7 @@ def admin_page(request):
     quizzes = Quiz.objects.all()
     available_lessons = Lesson.objects.all()  # Все доступные уроки
     edit_requests = ProfileEditRequest.objects.filter(status='pending').select_related('student__user')
-    course_add_requests = CourseAddRequest.objects.filter(status='pending').select_related('student__user', 'course')
+    course_add_requests = CourseAddRequest.objects.filter(status='pending').select_related('student__user', 'assigned_course')
     message_requests = StudentMessageRequest.objects.filter(status='pending').select_related('student__user')
     groups = Group.objects.all().prefetch_related('students')
     levels = Level.objects.all().order_by('number')
@@ -2519,7 +2519,7 @@ def requests_history(request):
     student_id = request.GET.get('student_id')
     items = []
     profile_qs = ProfileEditRequest.objects.all().select_related('student__user')
-    course_add_qs = CourseAddRequest.objects.all().select_related('student__user', 'course')
+    course_add_qs = CourseAddRequest.objects.all().select_related('student__user', 'assigned_course')
     message_qs = StudentMessageRequest.objects.all().select_related('student__user')
     if student_id:
         profile_qs = profile_qs.filter(student_id=student_id)
@@ -2545,7 +2545,7 @@ def requests_history(request):
             'status': r.status,
             'created_at': r.created_at.strftime('%d.%m.%Y %H:%M'),
             'reviewed_at': r.reviewed_at.strftime('%d.%m.%Y %H:%M') if r.reviewed_at else '',
-            'course': r.course.title,
+            'course': r.assigned_course.title if r.assigned_course else (r.course_name or 'Не указан'),
             'message': r.comment or '',
             'admin_response': r.admin_response or ''
         })
