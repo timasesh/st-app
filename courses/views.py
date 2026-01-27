@@ -23,6 +23,9 @@ from django.db.utils import IntegrityError
 import fitz
 
 from django.core.mail import send_mail
+from django.views.static import serve
+from pathlib import Path
+from mimetypes import guess_type
 from .forms import (
     StudentRegistrationForm, LessonCreationForm, ModuleCreationForm,
     CourseCreationForm, StudentProfileForm, QuizForm, QuestionForm,
@@ -5110,3 +5113,92 @@ def create_teacher(request):
         </html>
         """
         return HttpResponse(response_text, status=500)
+
+
+# AI Image Creator View
+def ai_image_creator(request, path=''):
+    """
+    View для обслуживания React приложения генератора картинок
+    """
+    # Путь к папке с приложением
+    app_dir = Path(settings.BASE_DIR) / 'study-task---ai-image-creator'
+    
+    # Если путь пустой, отдаем index.html
+    if path == '' or path == 'index.html':
+        index_path = app_dir / 'index.html'
+        if index_path.exists():
+            with open(index_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            # Заменяем абсолютные пути на пути с префиксом
+            base_path = '/study-task---ai-image-creator'
+            content = content.replace('href="/index.css"', f'href="{base_path}/index.css"')
+            content = content.replace('src="/index.tsx"', f'src="{base_path}/index.tsx"')
+            return HttpResponse(content, content_type='text/html')
+        else:
+            return HttpResponse('Index file not found', status=404)
+    
+    # Для остальных файлов (index.tsx, App.tsx, index.css и т.д.)
+    file_path = app_dir / path
+    
+    # Проверяем безопасность пути
+    try:
+        file_path = file_path.resolve()
+        app_dir_resolved = app_dir.resolve()
+        if not str(file_path).startswith(str(app_dir_resolved)):
+            return HttpResponse('Forbidden', status=403)
+    except (ValueError, OSError) as e:
+        return HttpResponse(f'Invalid path: {str(e)}', status=400)
+    
+    if file_path.exists() and file_path.is_file():
+        # Определяем MIME тип
+        content_type, _ = guess_type(str(file_path))
+        if content_type is None:
+            if path.endswith('.tsx') or path.endswith('.ts'):
+                content_type = 'application/javascript; charset=utf-8'
+            elif path.endswith('.jsx'):
+                content_type = 'application/javascript; charset=utf-8'
+            elif path.endswith('.css'):
+                content_type = 'text/css; charset=utf-8'
+            elif path.endswith('.json'):
+                content_type = 'application/json; charset=utf-8'
+            else:
+                content_type = 'application/octet-stream'
+        
+        # Читаем файл
+        try:
+            if path.endswith('.tsx') or path.endswith('.ts') or path.endswith('.jsx') or path.endswith('.js') or path.endswith('.css') or path.endswith('.json'):
+                # Текстовые файлы
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                response = HttpResponse(content, content_type=content_type)
+            else:
+                # Бинарные файлы
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                response = HttpResponse(content, content_type=content_type)
+            return response
+        except Exception as e:
+            logger.error(f'Error reading file {path}: {str(e)}')
+            return HttpResponse(f'Error reading file: {str(e)}', status=500)
+    else:
+        # Если файл не найден, пробуем найти файл с расширениями .tsx, .ts, .jsx, .js
+        # Это нужно для импортов без расширений (например, './App' вместо './App.tsx')
+        if '.' not in path or not path.endswith(('.tsx', '.ts', '.jsx', '.js', '.css', '.json')):
+            for ext in ['.tsx', '.ts', '.jsx', '.js']:
+                try_path = file_path.with_suffix(ext)
+                if try_path.exists() and try_path.is_file():
+                    file_path = try_path
+                    path = str(Path(path).with_suffix(ext))
+                    # Определяем MIME тип
+                    content_type = 'application/javascript; charset=utf-8'
+                    # Читаем файл
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        response = HttpResponse(content, content_type=content_type)
+                        return response
+                    except Exception as e:
+                        logger.error(f'Error reading file {path}: {str(e)}')
+                        return HttpResponse(f'Error reading file: {str(e)}', status=500)
+        
+        return HttpResponse(f'File not found: {path}', status=404)

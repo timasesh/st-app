@@ -169,6 +169,10 @@ path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_stat
     # Создание преподавателя
     path('create_teacher/', views.create_teacher, name='create_teacher'),
 
+    # AI Image Creator (более специфичный маршрут должен быть первым)
+    path('study-task---ai-image-creator/<path:path>', views.ai_image_creator, name='ai_image_creator_file'),
+    path('study-task---ai-image-creator/', views.ai_image_creator, name='ai_image_creator'),
+
 ]
 
 from django.conf import settings
