@@ -1,0 +1,8 @@
+
+{
+  "name": "Study Task - AI Image Creator",
+  "description": "Educational creative studio for generating and editing visuals, powered by advanced AI models.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
