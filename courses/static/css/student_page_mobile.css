@@ -1,753 +1,887 @@
-/* Мобильная адаптация для student_page */
+/* Улучшенная мобильная адаптация для student_page */
 
-/* Сайдбар стили */
+/* Сайдбар стили - улучшенные */
 .student-sidebar {
-    position: fixed;
-    top: 0;
-    left: -280px;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    z-index: 2000;
-    transition: all 0.3s ease;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: -320px;
+  height: 100vh;
+  width: 320px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  z-index: 2000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .student-sidebar.open {
-    left: 0;
+  left: 0;
 }
 
 .sidebar-header {
-    padding: 1.5rem;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-brand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
 }
 
 .sidebar-logo {
-    height: 30px;
-    width: auto;
+  height: 30px;
+  width: auto;
 }
 
 .sidebar-nav {
-    padding: 1rem 0;
+  padding: 1rem 0;
 }
 
 .sidebar-nav .nav-item {
-    margin: 0.2rem 0;
+  margin: 0.2rem 0;
 }
 
 .sidebar-nav-link {
-    color: rgba(255,255,255,0.8);
-    padding: 0.8rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
-    text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 4px solid transparent;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.sidebar-nav-link:hover::before {
+  left: 100%;
 }
 
 .sidebar-nav-link:hover {
-    color: white;
-    background-color: rgba(255,255,255,0.1);
-    border-left-color: white;
-    text-decoration: none;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left-color: #ffd700;
+  text-decoration: none;
+  transform: translateX(4px);
 }
 
 .sidebar-nav-link.active {
-    color: white;
-    background-color: rgba(255,255,255,0.2);
-    border-left-color: white;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left-color: #ffd700;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-nav-link i {
-    width: 20px;
-    text-align: center;
+  width: 24px;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
 .sidebar-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.1);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .sidebar-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: rgba(255,255,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .sidebar-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: white;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
 }
 
 .sidebar-user-details {
-    flex: 1;
+  flex: 1;
 }
 
 .sidebar-user-name {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
 }
 
 .sidebar-user-role {
-    font-size: 0.8rem;
-    opacity: 0.8;
+  font-size: 0.8rem;
+  opacity: 0.8;
 }
 
 .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1500;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
 }
 
 .sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 .sidebar-toggle-btn {
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.4);
-    color: white;
-    font-size: 1.3rem;
-    padding: 0.6rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-size: 1.3rem;
+  padding: 0.6rem;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(255,255,255,0.3);
-    border-color: rgba(255,255,255,0.5);
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-toggle-btn:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 /* Общие мобильные стили */
 @media (max-width: 768px) {
-    body {
-        overflow-x: hidden;
-    }
-    
-    /* Скрываем кнопку сайдбара на мобильных */
-    .sidebar-toggle-btn {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
-    }
-    
-    /* Хедер - растягиваем на весь экран, но делаем компактнее */
-    .modern-student-header {
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        padding: 0.25rem 1rem 0.25rem 3.5rem;
-        border-radius: 0;
-        position: relative;
-    }
-    
-    .header-container {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: stretch;
-        text-align: center;
-    }
-    
-    .logo-container {
-        display: none !important;
-    }
-    
-    .student-profile-section {
-        display: none !important;
-    }
-    
-    .stats-modern {
-        order: 1;
-        flex-direction: row;
-        justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.25rem;
-    }
-    
-    .stat-item {
-        min-width: 50px;
-        padding: 0.2rem 0.4rem;
-    }
-    
-    .stat-number {
-        font-size: 0.9rem;
-    }
-    
-    .stat-label {
-        font-size: 0.55rem;
-    }
-    
-    .header-actions {
-        order: 4;
-        flex-direction: row;
-        gap: 0.5rem;
-        justify-content: center;
-    }
-    
-    .action-btn {
-        padding: 0.3rem 0.8rem;
-        font-size: 0.75rem;
-        flex: 1;
-        max-width: 120px;
-    }
-    
-    /* Основной контент */
-    .main-content {
-        padding: 0;
-        margin-top: 0;
-    }
-    
-    .content-card {
-        border-radius: 0;
-        margin: 0;
-        min-height: calc(100vh - 300px);
-    }
-    
-    /* Скрываем нижнюю навигацию на мобильных */
-    .modern-navigation {
-        display: none !important;
-    }
-    
-    /* Контент вкладок */
-    .tab-pane {
-        padding: 0.5rem;
-        padding-bottom: 1rem; /* Убираем отступ для нижней навигации */
-    }
-    
-    /* Карточки курсов */
-    .courses-modern-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .course-card-modern {
-        margin: 0;
-    }
-    
-    /* Рейтинг */
-    .rating-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .rating-card {
-        margin: 0;
-    }
-    
-    .rating-group-card-modern {
-        padding: 0.75rem;
-        margin: 0;
-    }
-    
-    .rating-group-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .rating-group-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin: 0;
-        line-height: 1.2;
-    }
-    
-    .rating-group-subtitle {
-        font-size: 0.85rem;
-        margin: 0;
-        opacity: 0.7;
-    }
-    
-    .rating-student-item {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        border-radius: 8px;
-    }
-    
-    .rating-student-name {
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-    
-    .rating-student-stars {
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-    
-    .stars-progress-bar {
-        height: 6px;
-        border-radius: 3px;
-    }
-    
-    /* Уровни */
-    .levels-container {
-        padding: 0;
-    }
-    
-    .current-level-card {
-        margin-bottom: 1rem;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    /* Компактная картинка уровня в правом верхнем углу */
-    .current-level-image {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 80px;
-        height: 80px;
-        z-index: 2;
-    }
-    
-    .level-image-top-right {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    .current-level-info {
-        padding-right: 100px; /* Место для картинки */
-    }
-    
-    .levels-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 0.75rem;
-    }
-    
-    .level-card {
-        padding: 0.75rem;
-    }
-    
-    .level-image {
-        width: 50px;
-        height: 50px;
-    }
-    
-    /* Квизы */
-    .quizzes-grid {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .quiz-card {
-        margin: 0;
-        padding: 0.5rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .quiz-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .quiz-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    .quiz-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin: 0;
-        line-height: 1.2;
-    }
-    
-    .quiz-subtitle {
-        font-size: 0.85rem;
-        margin: 0;
-        opacity: 0.7;
-    }
-    
-    .quiz-stats {
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .quiz-stat {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 8px;
-    }
-    
-    .quiz-actions {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .quiz-btn {
-        width: 100%;
-        padding: 0.5rem;
-        font-size: 0.85rem;
-        border-radius: 8px;
-        text-align: center;
-    }
-    
-    .quiz-result-btn {
-        width: 100%;
-        padding: 0.5rem;
-        font-size: 0.85rem;
-        border-radius: 8px;
-        text-align: center;
-        margin-bottom: 0.5rem;
-    }
-    
-    .quiz-score {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-    
-    .quiz-stars-earned {
-        font-size: 0.8rem;
-        color: #ffc107;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Запросы */
-    .requests-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .request-card {
-        margin: 0;
-    }
-    
-    /* Уведомления */
-    .notifications-list {
-        gap: 0.75rem;
-    }
-    
-    .notification-item {
-        padding: 0.75rem;
-    }
+  body {
+    overflow-x: hidden;
+    padding-bottom: 70px; /* Место для нижней навигации */
+  }
+
+  /* Нижняя мобильная навигация */
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5rem 0;
+    backdrop-filter: blur(15px);
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 0.7rem;
+  }
+
+  .mobile-nav-item i {
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .mobile-nav-item.active {
+    color: #ffd700;
+    transform: translateY(-2px);
+  }
+
+  .mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: #ffd700;
+    border-radius: 2px;
+  }
+
+  .mobile-nav-item:hover {
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  /* Мобильный бейдж для уведомлений */
+  .mobile-notification-badge {
+    position: absolute;
+    top: 0;
+    right: 20%;
+    background: #ff4757;
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  /* Скрываем кнопку сайдбара на мобильных */
+  .sidebar-toggle-btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Хедер - улучшенный мобильный дизайн */
+  .modern-student-header {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 0.75rem 1rem;
+    border-radius: 0;
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    backdrop-filter: blur(15px);
+  }
+
+  .header-container {
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .logo-container {
+    display: flex !important;
+    order: 1;
+  }
+
+  .logo-img {
+    height: 35px;
+    filter: brightness(0) invert(1);
+  }
+
+  .student-profile-section {
+    display: none !important;
+  }
+
+  .stats-modern {
+    order: 2;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+    margin-bottom: 0;
+  }
+
+  .stat-item {
+    min-width: 60px;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-icon-wrapper {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+  }
+
+  .stat-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .header-actions {
+    order: 4;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .action-btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    flex: 1;
+    max-width: 120px;
+  }
+
+  /* Основной контент - улучшенный мобильный лейаут */
+  .modern-student-main {
+    padding: 1rem 0.5rem 2rem 0.5rem;
+    min-height: calc(100vh - 140px);
+  }
+
+  .main-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .content-card {
+    border-radius: 0;
+    margin: 0;
+    min-height: auto;
+    background: transparent;
+  }
+
+  /* Контент вкладок */
+  .tab-content {
+    padding: 0;
+  }
+
+  .tab-pane {
+    padding: 0.5rem;
+    padding-bottom: 2rem;
+    background: transparent;
+  }
+
+  /* Карточки курсов */
+  .courses-modern-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .course-card-modern {
+    margin: 0;
+  }
+
+  /* Рейтинг */
+  .rating-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .rating-card {
+    margin: 0;
+  }
+
+  .rating-group-card-modern {
+    padding: 0.75rem;
+    margin: 0;
+  }
+
+  .rating-group-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .rating-group-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .rating-group-subtitle {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.7;
+  }
+
+  .rating-student-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .rating-student-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .rating-student-stars {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .stars-progress-bar {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  /* Уровни */
+  .levels-container {
+    padding: 0;
+  }
+
+  .current-level-card {
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Компактная картинка уровня в правом верхнем углу */
+  .current-level-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 80px;
+    height: 80px;
+    z-index: 2;
+  }
+
+  .level-image-top-right {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .current-level-info {
+    padding-right: 100px; /* Место для картинки */
+  }
+
+  .levels-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .level-card {
+    padding: 0.75rem;
+  }
+
+  .level-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Квизы */
+  .quizzes-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .quiz-card {
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .quiz-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .quiz-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .quiz-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .quiz-subtitle {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.7;
+  }
+
+  .quiz-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .quiz-stat {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+  }
+
+  .quiz-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quiz-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .quiz-result-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .quiz-score {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .quiz-stars-earned {
+    font-size: 0.8rem;
+    color: #ffc107;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Запросы */
+  .requests-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .request-card {
+    margin: 0;
+  }
+
+  /* Уведомления */
+  .notifications-list {
+    gap: 0.75rem;
+  }
+
+  .notification-item {
+    padding: 0.75rem;
+  }
 }
 
 /* Планшеты */
 @media (min-width: 769px) and (max-width: 1024px) {
-    .header-container {
-        padding: 1rem 2rem;
-    }
-    
-    .stats-modern {
-        gap: 1.5rem;
-    }
-    
-    .courses-modern-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    
-    .nav-tabs-modern {
-        gap: 1rem;
-    }
-    
-    .nav-tab {
-        padding: 0.75rem 1rem;
-    }
-    
-    /* Показываем кнопку сайдбара на планшетах */
-    .sidebar-toggle-btn {
-        display: flex !important;
-        position: absolute;
-        top: 0.5rem;
-        left: 0.5rem;
-        z-index: 1000;
-    }
-    
-    /* Компактная картинка уровня для планшетов */
-    .current-level-image {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 90px;
-        height: 90px;
-        z-index: 2;
-    }
-    
-    .level-image-top-right {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .current-level-info {
-        padding-right: 110px; /* Место для картинки */
-    }
-    
-    /* Квизы для планшетов */
-    .quizzes-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1rem;
-    }
-    
-    .quiz-card {
-        padding: 1rem;
-    }
-    
-    .quiz-card-header {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .quiz-stats {
-        flex-direction: row;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-    
-    .quiz-actions {
-        flex-direction: row;
-        gap: 0.5rem;
-    }
-    
-    .quiz-btn {
-        width: auto;
-        flex: 1;
-    }
-    
-    /* Рейтинг для планшетов */
-    .rating-group-card-modern {
-        padding: 1rem;
-    }
-    
-    .rating-group-header {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .rating-student-item {
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
+  .header-container {
+    padding: 1rem 2rem;
+  }
+
+  .stats-modern {
+    gap: 1.5rem;
+  }
+
+  .courses-modern-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .nav-tabs-modern {
+    gap: 1rem;
+  }
+
+  .nav-tab {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Показываем кнопку сайдбара на планшетах */
+  .sidebar-toggle-btn {
+    display: flex !important;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1000;
+  }
+
+  /* Компактная картинка уровня для планшетов */
+  .current-level-image {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 90px;
+    height: 90px;
+    z-index: 2;
+  }
+
+  .level-image-top-right {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .current-level-info {
+    padding-right: 110px; /* Место для картинки */
+  }
+
+  /* Квизы для планшетов */
+  .quizzes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .quiz-card {
+    padding: 1rem;
+  }
+
+  .quiz-card-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .quiz-stats {
+    flex-direction: row;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .quiz-actions {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .quiz-btn {
+    width: auto;
+    flex: 1;
+  }
+
+  /* Рейтинг для планшетов */
+  .rating-group-card-modern {
+    padding: 1rem;
+  }
+
+  .rating-group-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .rating-student-item {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
 }
 
 /* Большие экраны */
 @media (min-width: 1025px) {
-    .modern-student-header {
-        padding: 0.6rem 2rem;
-    }
-    
-    .header-container {
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-    
-    /* Скрываем кнопку сайдбара на десктопе */
-    .sidebar-toggle-btn {
-        display: none !important;
-    }
-    
-    /* Компактная картинка уровня для десктопа */
-    .current-level-image {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 100px;
-        height: 100px;
-        z-index: 2;
-    }
-    
-    .level-image-top-right {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .current-level-info {
-        padding-right: 120px; /* Место для картинки */
-    }
-    
-    /* Квизы для десктопа */
-    .quizzes-grid {
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .quiz-card {
-        padding: 1.25rem;
-    }
-    
-    .quiz-card-header {
-        flex-direction: row;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .quiz-stats {
-        flex-direction: row;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-    
-    .quiz-actions {
-        flex-direction: row;
-        gap: 0.75rem;
-    }
-    
-    .quiz-btn {
-        width: auto;
-        flex: 1;
-        padding: 0.75rem 1rem;
-    }
-    
-    /* Рейтинг для десктопа */
-    .rating-group-card-modern {
-        padding: 1.25rem;
-    }
-    
-    .rating-group-header {
-        flex-direction: row;
-        align-items: center;
-        gap: 1rem;
-    }
-    
-    .rating-student-item {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .rating-student-name {
-        font-size: 1rem;
-    }
-    
-    .rating-student-stars {
-        font-size: 0.9rem;
-    }
+  .modern-student-header {
+    padding: 0.6rem 2rem;
+  }
+
+  .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Скрываем кнопку сайдбара на десктопе */
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
+
+  /* Компактная картинка уровня для десктопа */
+  .current-level-image {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 100px;
+    height: 100px;
+    z-index: 2;
+  }
+
+  .level-image-top-right {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .current-level-info {
+    padding-right: 120px; /* Место для картинки */
+  }
+
+  /* Квизы для десктопа */
+  .quizzes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .quiz-card {
+    padding: 1.25rem;
+  }
+
+  .quiz-card-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .quiz-stats {
+    flex-direction: row;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .quiz-actions {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .quiz-btn {
+    width: auto;
+    flex: 1;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Рейтинг для десктопа */
+  .rating-group-card-modern {
+    padding: 1.25rem;
+  }
+
+  .rating-group-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .rating-student-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .rating-student-name {
+    font-size: 1rem;
+  }
+
+  .rating-student-stars {
+    font-size: 0.9rem;
+  }
 }
 
 /* Убираем анимации для нижней навигации */
 
 /* Стили для скролла */
 .tab-pane {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Улучшенные стили для карточек на мобильных */
 @media (max-width: 768px) {
-    .course-card-modern,
-    .rating-card,
-    .quiz-card,
-    .request-card {
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .course-card-modern:active,
-    .rating-card:active,
-    .quiz-card:active,
-    .request-card:active {
-        transform: scale(0.98);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+  .course-card-modern,
+  .rating-card,
+  .quiz-card,
+  .request-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .course-card-modern:active,
+  .rating-card:active,
+  .quiz-card:active,
+  .request-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
 }
 
 /* Стили для пустых состояний */
 @media (max-width: 768px) {
-    .empty-state {
-        text-align: center;
-        padding: 2rem 1rem;
-    }
-    
-    .empty-state i {
-        font-size: 3rem;
-        color: #ccc;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-state h3 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .empty-state p {
-        font-size: 0.9rem;
-        color: #666;
-    }
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9rem;
+    color: #666;
+  }
 }
