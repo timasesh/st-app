@@ -63,51 +63,15 @@
     <link rel="preconnect" href="https://unpkg.com" />
 
     <!-- Critical CSS: Bootstrap (inline for above-the-fold content) -->
-    <link
-      rel="preload"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      as="style"
-      onload="
-        this.onload = null;
-        this.rel = 'stylesheet';
-      "
-    />
-    <noscript
-      ><link
-        rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    /></noscript>
-
+    <link rel="preload" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" defer>
+    <noscript><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></noscript>
+    
     <!-- Non-critical CSS: Load asynchronously -->
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
-      as="style"
-      onload="
-        this.onload = null;
-        this.rel = 'stylesheet';
-      "
-    />
-    <noscript
-      ><link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    /></noscript>
-
-    <link
-      rel="preload"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      as="style"
-      onload="
-        this.onload = null;
-        this.rel = 'stylesheet';
-      "
-    />
-    <noscript
-      ><link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    /></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" defer>
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" defer>
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
     <!-- Font-display optimization for Font Awesome -->
     <style>
@@ -262,7 +226,7 @@
 
       /* Header Styles */
       .navbar {
-        background: rgba(76, 175, 80, 0.95);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -279,7 +243,7 @@
       }
 
       .navbar.scrolled {
-            background: rgba(76, 175, 80, 0.98);
+            background: rgba(255, 255, 255, 0.98);
             box-shadow: var(--shadow-light);
             padding: 0.5rem 0;
         }
@@ -985,32 +949,15 @@
             </li>
             <li class="nav-item">
               <a
-                class="nav-link"
-                href="/study-task---ai-image-creator/"
-                target="_blank"
-                style="
-                  margin-left: 0.5rem;
-                  border-radius: 20px;
-                  padding: 0.5rem 1.5rem;
-                  background: var(--accent-gradient);
-                  color: white !important;
-                  font-weight: 600;
-                "
-              >
-                <i class="fas fa-image"></i> Генератор картинок
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
                 class="nav-link btn btn-outline-primary"
-                href="{% url 'student_login' %}"
+                href="https://wa.me/87717515167?text=Здравствуйте, хотелось бы записаться на обучение!"
                 style="
                   margin-left: 1rem;
                   border-radius: 20px;
                   padding: 0.5rem 1.5rem;
                 "
               >
-                <i class="fas fa-sign-in-alt"></i> Войти
+                <i class="fas fa-rocket"></i> Начать обучение
               </a>
             </li>
           </ul>
@@ -1090,9 +1037,9 @@
                 соревнования делают учебу увлекательной! Зарабатывайте звезды и
                 обменивайте их на призы — от наклеек до планшетов!
               </p>
-              <a href="{% url 'student_registration' %}" class="hero-cta">
+              <a href="https://wa.me/87717515167?text=Здравствуйте, хотелось бы записаться на обучение!" class="hero-cta">
                 <i class="fas fa-rocket"></i>
-                Зарегестрироваться
+                Начать обучение
               </a>
             </div>
             <div>
@@ -1748,7 +1695,7 @@
           <div class="footer-section">
             <h5>Контакты</h5>
             <p><i class="fas fa-envelope"></i> study.task.kz@gmail.com</p>
-            <p><i class="fas fa-phone"></i> +7 (775) 476-52-63</p>
+            <p><i class="fas fa-phone"></i> +7 (771) 751 51 67</p>
             <p><i class="fas fa-map-marker-alt"></i> Алматы, Казахстан</p>
           </div>
         </div>
@@ -1760,9 +1707,9 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
 
     <script>
       // Initialize AOS
@@ -1928,50 +1875,5 @@
       });
     </script>
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-      (function (m, e, t, r, i, k, a) {
-        m[i] =
-          m[i] ||
-          function () {
-            (m[i].a = m[i].a || []).push(arguments);
-          };
-        m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) {
-          if (document.scripts[j].src === r) {
-            return;
-          }
-        }
-        ((k = e.createElement(t)),
-          (a = e.getElementsByTagName(t)[0]),
-          (k.async = 1),
-          (k.src = r),
-          a.parentNode.insertBefore(k, a));
-      })(
-        window,
-        document,
-        "script",
-        "https://mc.yandex.ru/metrika/tag.js?id=105191229",
-        "ym",
-      );
-
-      ym(105191229, "init", {
-        ssr: true,
-        webvisor: true,
-        clickmap: true,
-        ecommerce: "dataLayer",
-        accurateTrackBounce: true,
-        trackLinks: true,
-      });
-    </script>
-    <noscript
-      ><div>
-        <img
-          src="https://mc.yandex.ru/watch/105191229"
-          style="position: absolute; left: -9999px"
-          alt=""
-        /></div
-    ></noscript>
-    <!-- /Yandex.Metrika counter -->
   </body>
 </html>
