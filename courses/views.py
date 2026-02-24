@@ -28,6 +28,8 @@ from django.core.mail import send_mail
 from django.views.static import serve
 from pathlib import Path
 from mimetypes import guess_type
+
+from .models import User
 from .forms import (
     StudentRegistrationForm, LessonCreationForm, ModuleCreationForm,
     CourseCreationForm, StudentProfileForm, QuizForm, QuestionForm,
@@ -35,7 +37,7 @@ from .forms import (
     CourseFeedbackForm, StudentQuickRegistrationForm
 )
 from .models import (
-    User, Lesson, Module, Course, StudentProgress, Student,
+    Lesson, Module, Course, StudentProgress, Student,
     Question, Answer, Quiz, QuizResult, ProfileEditRequest, CourseAddRequest, Notification, Group, QuizAttempt, StudentMessageRequest, Level,
     CourseFeedback, CourseResult, Achievement, Teacher, Homework, HomeworkSubmission, HomeworkPhoto, WheelSpin
 )
@@ -2664,7 +2666,6 @@ def requests_history(request):
 def admin_students_page(request):
     """Страница управления студентами"""
     from .models import Student, Group, StudentMessageRequest, ProfileEditRequest, StudentAchievement
-    from django.contrib.auth.models import User
     from django.contrib import messages
     
     if request.method == 'POST':
@@ -4907,6 +4908,7 @@ def create_teacher(request):
     Создание преподавателя с указанными данными
     Доступно по ссылке: https://study-task.kz/create_teacher
     """
+    from .models import Teacher
     email = 'teacheer@gmail.com'
     username = email  # Используем email как username
     password = 'teacher2010'
