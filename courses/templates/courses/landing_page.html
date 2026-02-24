@@ -949,9 +949,22 @@
             <li class="nav-item">
               <a
                 class="nav-link btn btn-outline-primary"
-                href="https://wa.me/87717515167?text=Здравствуйте, хотелось бы записаться на обучение!"
+                href="{% url 'student_login' %}"
                 style="
                   margin-left: 1rem;
+                  border-radius: 20px;
+                  padding: 0.5rem 1.5rem;
+                "
+              >
+                <i class="fas fa-sign-in-alt"></i> Войти
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-outline-primary"
+                href="https://wa.me/87717515167?text=Здравствуйте, хотелось бы записаться на обучение!"
+                style="
+                  margin-left: 0.5rem;
                   border-radius: 20px;
                   padding: 0.5rem 1.5rem;
                 "
@@ -1651,9 +1664,9 @@
               Запишитесь на пробный онлайн урок с нашими учителями и получите
               первые звезды!
             </p>
-            <a href="{% url 'student_registration' %}" class="hero-cta">
-              <i class="fas fa-play"></i>
-              Зарегестрироваться
+            <a href="https://wa.me/87717515167?text=Здравствуйте, хотелось бы записаться на обучение!" class="hero-cta">
+              <i class="fas fa-rocket"></i>
+              Начать обучение
             </a>
           </div>
         </div>
@@ -1699,7 +1712,7 @@
         </div>
 
         <div class="footer-bottom">
-          <p>&copy; 2025 Study Task. Все права защищены.</p>
+          <p>&copy; 2026 Study Task. Все права защищены.</p>
         </div>
       </div>
     </footer>
