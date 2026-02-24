@@ -992,6 +992,44 @@
     <script src="{% static 'js/wheel_of_fortune.js' %}"></script>
 
     <script>
+      // Tab switching functionality
+      function switchTab(tabName) {
+        // Hide all tab panes
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabPanes.forEach(pane => {
+          pane.classList.remove('active');
+        });
+        
+        // Remove active class from all nav links
+        const navLinks = document.querySelectorAll('.nav-link, .sidebar-nav-link, .mobile-nav-item');
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+        });
+        
+        // Show selected tab pane
+        const selectedTab = document.getElementById(tabName);
+        if (selectedTab) {
+          selectedTab.classList.add('active');
+        }
+        
+        // Add active class to selected nav link
+        const selectedNavLink = document.querySelector(`[data-tab="${tabName}"], [href="#${tabName}"]`);
+        if (selectedNavLink) {
+          selectedNavLink.classList.add('active');
+        }
+        
+        // Update mobile navigation
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+        mobileNavItems.forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        const selectedMobileNav = document.querySelector(`[data-tab="${tabName}"]`);
+        if (selectedMobileNav) {
+          selectedMobileNav.classList.add('active');
+        }
+      }
+      
       // Проверяем доступность колеса фортуны
       function checkWheelAvailability() {
         fetch("/api/check-spin-availability/")
