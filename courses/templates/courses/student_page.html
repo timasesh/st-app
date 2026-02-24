@@ -31,6 +31,17 @@
     <meta name="student-page-url" content="{% url 'student_page' %}" />
 
     <style>
+      /* Increase Study Task logo size */
+      .sidebar-logo {
+        width: 200px !important;
+        height: auto !important;
+      }
+      
+      .logo-img {
+        width: 200px !important;
+        height: auto !important;
+      }
+      
       /* Стили для квизов */
       .quizzes-container {
         padding: 2rem 0;
@@ -937,11 +948,11 @@
       <div class="main-container">
         <!-- Контент вкладок -->
         <div class="tab-content">
-          {% include 'courses/student_tabs/home_tab.html' %} {% include
-          'courses/student_tabs/rating_tab.html' %} {% include
-          'courses/student_tabs/levels_tab.html' %} {% include
-          'courses/student_tabs/quizzes_tab.html' %} {% include
-          'courses/student_tabs/notifications_tab.html' %}
+          {% include 'courses/student_tabs/home_tab.html' %}
+          {% include 'courses/student_tabs/rating_tab.html' %}
+          {% include 'courses/student_tabs/levels_tab.html' %}
+          {% include 'courses/student_tabs/quizzes_tab.html' %}
+          {% include 'courses/student_tabs/notifications_tab.html' %}
         </div>
       </div>
     </main>

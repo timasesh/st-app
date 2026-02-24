@@ -9,23 +9,6 @@
         </div>
         
         <div class="home-cards-grid">
-            <!-- Карточка курсов -->
-            <div class="home-card courses-card" onclick="switchTab('courses')">
-                <div class="home-card-icon courses-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <div class="home-card-content">
-                    <h3 class="home-card-title">Мои курсы</h3>
-                    <p class="home-card-description">Изучайте материалы, проходите уроки и отслеживайте прогресс</p>
-                    <div class="card-stats">
-                        <span class="stat-badge">{{ user.student.courses.count }} курсов</span>
-                    </div>
-                </div>
-                <div class="home-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-
             <!-- Карточка рейтинга -->
             <div class="home-card rating-card" onclick="switchTab('rating')">
                 <div class="home-card-icon rating-icon">
@@ -77,57 +60,6 @@
                 </div>
             </div>
 
-            <!-- Карточка домашних заданий -->
-            <div class="home-card homework-card" onclick="switchTab('homework')">
-                <div class="home-card-icon homework-icon">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="home-card-content">
-                    <h3 class="home-card-title">Домашние задания</h3>
-                    <p class="home-card-description">Выполняйте задания и получайте обратную связь</p>
-                    <div class="card-stats">
-                        <span class="stat-badge">{{ pending_homeworks_count }} активных</span>
-                    </div>
-                </div>
-                <div class="home-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-
-            <!-- Карточка запросов -->
-            <div class="home-card requests-card" onclick="switchTab('requests')">
-                <div class="home-card-icon requests-icon">
-                    <i class="fas fa-paper-plane"></i>
-                </div>
-                <div class="home-card-content">
-                    <h3 class="home-card-title">Запросы</h3>
-                    <p class="home-card-description">Отправляйте запросы преподавателям и администрации</p>
-                    <div class="card-stats">
-                        <span class="stat-badge">Связь с админами</span>
-                    </div>
-                </div>
-                <div class="home-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-
-            <!-- Карточка достижений -->
-            <div class="home-card achievements-card" onclick="switchTab('achievements')">
-                <div class="home-card-icon achievements-icon">
-                    <i class="fas fa-award"></i>
-                </div>
-                <div class="home-card-content">
-                    <h3 class="home-card-title">Достижения</h3>
-                    <p class="home-card-description">Отслеживайте свои достижения и награды</p>
-                    <div class="card-stats">
-                        <span class="stat-badge">{{ unlocked_achievements|length }} получено</span>
-                    </div>
-                </div>
-                <div class="home-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-
             <!-- Карточка уведомлений -->
             <div class="home-card notifications-card" onclick="switchTab('notifications')">
                 <div class="home-card-icon notifications-icon">
@@ -138,23 +70,6 @@
                     <p class="home-card-description">Следите за важными обновлениями и новостями</p>
                     <div class="card-stats">
                         <span class="stat-badge">{{ unread_notifications_count }} новых</span>
-                    </div>
-                </div>
-                <div class="home-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-
-            <!-- Карточка колеса фортуны -->
-            <div class="home-card wheel-card" onclick="switchTab('wheel')">
-                <div class="home-card-icon wheel-icon">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="home-card-content">
-                    <h3 class="home-card-title">Колесо Фортуны</h3>
-                    <p class="home-card-description">Испытайте удачу и выиграйте звезды! Крутите колесо раз в 24 часа</p>
-                    <div class="card-stats">
-                        <span class="stat-badge">🎰 Ежедневная игра</span>
                     </div>
                 </div>
                 <div class="home-card-arrow">
