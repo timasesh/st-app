@@ -3561,7 +3561,8 @@ def teacher_quizzes(request):
         if title:
             quiz = Quiz.objects.create(
                 title=title,
-                description=description or ""
+                description=description or "",
+                is_active=True  # Make quiz active so students can see it
             )
             
             if assign_to_module and module_id:
@@ -4408,38 +4409,18 @@ def student_courses_page(request):
 def student_rating_page(request):
     """Отдельная страница рейтинга студента"""
     student = get_object_or_404(Student, user=request.user)
-    groups = student.groups.all().prefetch_related('students__user')
     
-    # Создаем рейтинг групп
-    rating_groups = []
-    for group in groups:
-        group_students = group.students.all().select_related('user').order_by('-stars', 'user__first_name')
-        students_with_rating = []
-        for position, group_student in enumerate(group_students, 1):
-            students_with_rating.append({
-                'student': group_student,
-                'position': position
-            })
-        
-        rating_groups.append({
-            'name': group.name,
-            'students_with_rating': students_with_rating
-        })
+    # Получаем всех студентов с рейтингом, независимо от групп
+    all_students_with_rating = Student.objects.filter(
+        stars__gt=0
+    ).select_related('user').order_by('-stars', 'user__first_name')
     
-    # Количество групп для хедера
-    groups_count = groups.count()
-    
-    # Данные для уведомлений
-    notifications = Notification.objects.filter(student=student).order_by('-created_at')[:10]
-    unread_count = Notification.objects.filter(student=student, is_read=False).count()
-    
+    # Создаем общий рейтинг без фильтрации по группам
     context = {
         'student': student,
-        'groups': groups,
-        'rating_groups': rating_groups,
-        'groups_count': groups_count,
-        'notifications': notifications,
-        'unread_notifications_count': unread_count,
+        'all_students_with_rating': all_students_with_rating,
+        'notifications': Notification.objects.filter(student=student).order_by('-created_at')[:10],
+        'unread_notifications_count': Notification.objects.filter(student=student, is_read=False).count(),
     }
     
     return render(request, 'courses/student_rating_page.html', context)
