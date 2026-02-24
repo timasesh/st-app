@@ -821,7 +821,7 @@
       <div class="header-container">
         <div class="logo-container">
           <img
-            src="/media/image/Study_Task.png"
+            src="{% static 'images/Study_Task.png' %}"
             alt="Study Task"
             class="logo-img"
           />
@@ -849,21 +849,8 @@
               <div class="stat-label">Звёзды</div>
             </div>
           </div>
-          <div class="stat-item stat-courses" title="Количество курсов">
-            <div
-              class="stat-icon-wrapper"
-              style="
-                background: linear-gradient(135deg, #4dabf7, #1976d2);
-                color: #fff;
-                border-radius: 50%;
-              "
-            >
-              <i class="fas fa-book-open"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-number">{{ user.student.courses.count }}</div>
-              <div class="stat-label">Курсы</div>
-            </div>
+          
+            
           </div>
           <div class="stat-item stat-level" title="Текущий уровень">
             <div
