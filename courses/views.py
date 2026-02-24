@@ -4,13 +4,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
 from django.template.loader import render_to_string
 from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
 import logging
+import time
+from datetime import datetime
 from django.db.models import Count, Avg, Max
 import pandas as pd
 from django.core.files.storage import default_storage
@@ -3603,6 +3605,15 @@ def teacher_quizzes(request):
                     quiz.assigned_students.set(students)
                     student_names = ', '.join([f"{s.user.first_name} {s.user.last_name}" for s in students])
                     messages.success(request, f'Квиз "{quiz.title}" успешно создан и назначен студентам: {student_names}!')
+                    
+                    # Создаем уведомления для студентов
+                    for student in students:
+                        notification = Notification.objects.create(
+                            student=student,
+                            title=f'Новый квиз: {quiz.title}',
+                            message=f'Вам назначен новый квиз "{quiz.title}" за {quiz.stars} звезд. Перейдите во вкладку "Квизы" чтобы начать прохождение.',
+                            notification_type='quiz_assigned'
+                        )
                 else:
                     messages.warning(request, f'Квиз "{quiz.title}" создан, но не назначен ни модулю, ни студентам.')
             
@@ -5215,3 +5226,106 @@ def ai_image_creator(request, path=''):
                         return HttpResponse(f'Error reading file: {str(e)}', status=500)
         
         return HttpResponse(f'File not found: {path}', status=404)
+
+
+# Notification System Views
+@login_required
+def notification_stream(request, user_id):
+    """Server-Sent Events stream for real-time notifications"""
+    if request.user.id != int(user_id):
+        return HttpResponse("Unauthorized", status=401)
+    
+    def event_stream():
+        last_notification_time = timezone.now()
+        
+        while True:
+            try:
+                # Get new notifications for this user
+                student = request.user.student
+                new_notifications = Notification.objects.filter(
+                    student=student,
+                    created_at__gt=last_notification_time,
+                    is_read=False
+                ).order_by('-created_at')
+                
+                for notification in new_notifications:
+                    data = {
+                        'id': notification.id,
+                        'title': notification.title,
+                        'message': notification.message,
+                        'type': notification.notification_type or 'general',
+                        'created_at': notification.created_at.isoformat(),
+                    }
+                    
+                    yield f"data: {json.dumps(data)}\n\n"
+                    last_notification_time = notification.created_at
+                
+                # Check for new notifications every 2 seconds
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"Error in notification stream: {e}")
+                break
+    
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
+    return response
+
+
+@login_required
+@require_POST
+def mark_notification_read(request, notification_id):
+    """Mark notification as read"""
+    try:
+        student = request.user.student
+        notification = Notification.objects.get(id=notification_id, student=student)
+        notification.is_read = True
+        notification.save()
+        
+        return JsonResponse({'success': True})
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def create_quiz_notification(request):
+    """Create notification when quiz is assigned to student"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            student_ids = data.get('student_ids', [])
+            quiz_title = data.get('quiz_title', 'Новый квиз')
+            
+            notifications_created = 0
+            
+            for student_id in student_ids:
+                student = Student.objects.get(id=student_id)
+                
+                # Check if notification already exists for this quiz and student
+                existing_notification = Notification.objects.filter(
+                    student=student,
+                    title=f'Новый квиз: {quiz_title}',
+                    is_read=False
+                ).first()
+                
+                if not existing_notification:
+                    notification = Notification.objects.create(
+                        student=student,
+                        title=f'Новый квиз: {quiz_title}',
+                        message=f'Вам назначен новый квиз "{quiz_title}". Перейдите во вкладку "Квизы" чтобы начать прохождение.',
+                        notification_type='quiz_assigned'
+                    )
+                    notifications_created += 1
+            
+            return JsonResponse({
+                'success': True,
+                'notifications_created': notifications_created
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)

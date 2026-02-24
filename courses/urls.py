@@ -173,10 +173,11 @@ path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_stat
     path('study-task---ai-image-creator/<path:path>', views.ai_image_creator, name='ai_image_creator_file'),
     path('study-task---ai-image-creator/', views.ai_image_creator, name='ai_image_creator'),
 
+    # Notification System
+    path('notifications/stream/<int:user_id>/', views.notification_stream, name='notification_stream'),
+    path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/create-quiz-notification/', views.create_quiz_notification, name='create_quiz_notification'),
 ]
-
-from django.conf import settings
-from django.conf.urls.static import static
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

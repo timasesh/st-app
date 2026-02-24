@@ -665,6 +665,75 @@
         color: white;
       }
 
+      /* Notification System Styles */
+      .notification-permission-btn {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+
+      .notification-item {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+      }
+
+      .notification-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      }
+
+      .notification-item.read {
+        opacity: 0.7;
+        border-left-color: #ccc;
+      }
+
+      .notification-content {
+        flex: 1;
+      }
+
+      .notification-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+      }
+
+      .notification-message {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .notification-time {
+        color: #999;
+        font-size: 0.8rem;
+      }
+
+      .notification-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Browser notification badge animation */
+      .sidebar-notification-badge {
+        animation: badgePulse 1s ease-in-out;
+      }
+
+      @keyframes badgePulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+
       /* Стили для статистики в хедере */
       .stats-modern {
         display: flex;
@@ -1017,6 +1086,13 @@
     <script src="{% static 'js/student_page.js' %}"></script>
     <script src="{% static 'js/student_page_mobile.js' %}"></script>
     <script src="{% static 'js/wheel_of_fortune.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+
+    <script>
+      // Set global variables for notification system
+      window.userId = {{ user.id }};
+      window.userType = 'student';
+    </script>
 
     <script>
       // Tab switching functionality
