@@ -3554,14 +3554,25 @@ def teacher_quizzes(request):
     if request.method == 'POST' and 'create_quiz' in request.POST:
         title = request.POST.get('title')
         description = request.POST.get('description')
+        stars = request.POST.get('stars', '1')
         assign_to_module = request.POST.get('assign_to_module') == 'on'
         module_id = request.POST.get('module_id')
         student_ids = request.POST.getlist('student_ids')
         
         if title:
+            try:
+                stars = int(stars)
+                if stars < 1:
+                    stars = 1
+                elif stars > 50:
+                    stars = 50
+            except (ValueError, TypeError):
+                stars = 1
+            
             quiz = Quiz.objects.create(
                 title=title,
                 description=description or "",
+                stars=stars,
                 is_active=True  # Make quiz active so students can see it
             )
             
@@ -3734,6 +3745,27 @@ def teacher_quiz_questions(request, quiz_id):
                 messages.error(request, 'Пожалуйста, заполните все поля вопроса.')
         
         elif 'finish_quiz' in request.POST:
+            # Сначала проверяем и сохраняем текущий вопрос, если он заполнен
+            question_text = request.POST.get('question_text', '').strip()
+            answer_texts = request.POST.getlist('answer_text')
+            correct_answer = request.POST.get('correct_answer')
+            
+            if question_text and answer_texts and correct_answer:
+                # Сохраняем текущий вопрос перед завершением
+                question = Question.objects.create(quiz=quiz, text=question_text)
+                
+                # Сохраняем ответы
+                for i, answer_text in enumerate(answer_texts):
+                    if answer_text.strip():
+                        is_correct = str(i) == correct_answer
+                        Answer.objects.create(
+                            question=question,
+                            text=answer_text.strip(),
+                            is_correct=is_correct
+                        )
+                
+                messages.success(request, f'Вопрос "{question_text[:50]}..." успешно добавлен!')
+            
             # Проверяем, есть ли вопросы в квизе
             if quiz.questions.count() == 0:
                 messages.error(request, 'Нельзя завершить квиз без вопросов. Добавьте хотя бы один вопрос.')

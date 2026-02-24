@@ -668,7 +668,7 @@
       /* Стили для статистики в хедере */
       .stats-modern {
         display: flex;
-        gap: 16px;
+        gap: 8px;
       }
 
       .stat-item {
@@ -861,12 +861,10 @@
                 border-radius: 50%;
               "
             >
-              <i class="fas fa-trophy"></i>
+              <i class="fas fa-medal"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number">
-                {{ user.student.level_number|default:1 }}
-              </div>
+              <div class="stat-number">{{ user.student.level_number|default:1 }}</div>
               <div class="stat-label">Уровень</div>
             </div>
           </div>
