@@ -380,21 +380,24 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'courses' %}active{% endif %}" href="{% url 'teacher_courses' %}">
+                <a class="nav-link disabled" href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" title="Недоступно">
                     <i class="fas fa-graduation-cap"></i>
                     Курсы
+                    <i class="fas fa-lock ml-auto" style="font-size: 0.8rem;"></i>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'modules' %}active{% endif %}" href="{% url 'teacher_modules' %}">
+                <a class="nav-link disabled" href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" title="Недоступно">
                     <i class="fas fa-cubes"></i>
                     Модули
+                    <i class="fas fa-lock ml-auto" style="font-size: 0.8rem;"></i>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'lessons' %}active{% endif %}" href="{% url 'teacher_lessons' %}">
+                <a class="nav-link disabled" href="#" style="pointer-events: none; opacity: 0.6; cursor: not-allowed;" title="Недоступно">
                     <i class="fas fa-book"></i>
                     Уроки
+                    <i class="fas fa-lock ml-auto" style="font-size: 0.8rem;"></i>
                 </a>
             </li>
             <li class="nav-item">
