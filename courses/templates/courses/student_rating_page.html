@@ -171,78 +171,58 @@
     <main class="modern-student-main">
         <div class="main-container">
             <!-- Контент рейтинга -->
-            {% if rating_groups %}
-                <div class="rating-groups-container">
-                    {% for group in rating_groups %}
-                        <div class="group-rating-wrapper">
-                            <div class="group-rating-card-full">
-                                <h4><i class="fas fa-users"></i> Группа: {{ group.name }}</h4>
+            {% if all_students_with_rating %}
+                <div class="all-students-rating-container">
+                    <h3 class="text-center mb-4">
+                        <i class="fas fa-trophy"></i> Общий рейтинг всех студентов
+                    </h3>
+                    
+                    <div class="modern-rating-list">
+                        {% for student_data in all_students_with_rating %}
+                            <div class="modern-rating-card {% if student_data.student.id == user.student.id %}current-user{% endif %}">
+                                <!-- Позиция в рейтинге -->
+                                <div class="rating-position-modern">
+                                    <span class="position-number">{{ student_data.position }}</span>
+                                    <span class="position-label">место</span>
+                                </div>
                                 
-                                <div class="modern-rating-list">
-                                    {% for student_data in group.students_with_rating %}
-                                        <div class="modern-rating-card {% if student_data.student.id == user.student.id %}current-user{% endif %}">
-                                            <!-- Позиция в рейтинге -->
-                                            <div class="rating-position-modern">
-                                                <div class="position-badge position-{{ student_data.position }}">
-                                                    {{ student_data.position }}
-                                                </div>
+                                <div class="student-info-modern">
+                                    <div class="student-avatar-modern">
+                                        {% if student_data.student.avatar %}
+                                            <img src="{{ student_data.student.avatar.url }}" alt="{{ student_data.student.user.get_full_name }}" class="avatar-img-modern">
+                                        {% else %}
+                                            <div class="avatar-placeholder-modern">
+                                                <i class="fas fa-user"></i>
                                             </div>
-                                            
-                                            <!-- Аватарка студента -->
-                                            <div class="student-avatar-section">
-                                                {% if student_data.student.avatar %}
-                                                    <img src="{{ student_data.student.avatar.url }}" alt="Аватар" class="modern-avatar">
-                                                {% else %}
-                                                    <div class="modern-avatar-placeholder">
-                                                        {% if student_data.student.user.first_name %}
-                                                            {{ student_data.student.user.first_name|first }}
-                                                        {% else %}
-                                                            {{ student_data.student.user.username|first|upper }}
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="student-details-modern">
+                                        <h4 class="student-name-modern">
+                                            {{ student_data.position }}. {{ student_data.student.user.get_full_name }}
+                                            {% if student_data.student.id == user.student.id %}(Вы){% endif %}
+                                        </h4>
+                                        
+                                        <div class="student-stats-modern">
+                                            <div class="stat-item-modern">
+                                                <span class="stat-label-modern">⭐ Звезды:</span>
+                                                <span class="stat-value-modern">{{ student_data.stars }}</span>
                                             </div>
-                                            
-                                            <!-- Информация о студенте -->
-                                            <div class="student-main-info">
-                                                <a href="{% url 'student_public_profile' student_data.student.id %}" class="student-name-link">
-                                                    <h5 class="student-full-name">
-                                                        {% if student_data.student.user.first_name and student_data.student.user.last_name %}
-                                                            {{ student_data.student.user.first_name }} {{ student_data.student.user.last_name }}
-                                                        {% else %}
-                                                            {{ student_data.student.user.username }}
-                                                        {% endif %}
-                                                        {% if student_data.student.id == user.student.id %}
-                                                            <span class="you-badge">ВЫ</span>
-                                                        {% endif %}
-                                                    </h5>
+                                            <div class="stat-item-modern">
+                                                <span class="stat-label-modern">📚 Уровень:</span>
+                                                <span class="stat-value-modern">{{ student_data.student.level_number }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="student-actions-modern">
+                                            <a href="{% url 'student_public_profile' student_data.student.id %}" class="btn-modern btn-outline-modern">
+                                                <i class="fas fa-user"></i> Профиль
+                                            </a>
+                                            {% if student_data.student.id != user.student.id %}
+                                                <a href="{% url 'create_message_request' %}" class="btn-modern btn-primary-modern">
+                                                    <i class="fas fa-envelope"></i> Написать
                                                 </a>
-                                                <p class="student-level-info">
-                                                    {% if student_data.student.level %}
-                                                        Уровень: {{ student_data.student.level.name }}
-                                                    {% else %}
-                                                        Новичок
-                                                    {% endif %}
-                                                </p>
-                                            </div>
-
-                                            <!-- Статистика студента -->
-                                            <div class="student-stats-section">
-                                                {% if student_data.student.level %}
-                                                    <div class="stat-item">
-                                                        <div class="stat-icon level-icon">{{ student_data.student.level.number }}</div>
-                                                        <div class="stat-label">Уровень</div>
-                                                    </div>
-                                                {% endif %}
-                                                
-                                                <div class="stat-item">
-                                                    <div class="stat-icon stars-icon" style="width: 60px;">
-                                                        <i class="fas fa-star"></i>
-                                                        {{ student_data.student.stars }}
-                                                    </div>
-                                                    <div class="stat-label">Звёзды</div>
-                                                </div>
-                                            </div>
+                                            {% endif %}
                                         </div>
                                     {% endfor %}
                                 </div>
