@@ -900,17 +900,17 @@ def student_page(request):
     # Получаем квизы студента (из модулей курсов и прямые назначения)
     student_quizzes = []
     
-    # Квизы из модулей курсов
+    # Сначала получаем прямые назначения квизов (важно!)
+    for quiz in student.assigned_quizzes.filter(is_active=True):
+        if quiz not in student_quizzes:
+            student_quizzes.append(quiz)
+    
+    # Затем добавляем квизы из модулей курсов
     for course in courses:
         for module in course.modules.all():
             for quiz in module.quizzes.filter(is_active=True):
                 if quiz not in student_quizzes:
                     student_quizzes.append(quiz)
-    
-    # Прямые назначения квизов
-    for quiz in student.assigned_quizzes.filter(is_active=True):
-        if quiz not in student_quizzes:
-            student_quizzes.append(quiz)
     
     # Добавляем информацию о результатах квизов
     for quiz in student_quizzes:
