@@ -5236,11 +5236,14 @@ def notification_stream(request, user_id):
     """Server-Sent Events stream for real-time notifications"""
     if request.user.id != int(user_id):
         return HttpResponse("Unauthorized", status=401)
-    
+
     def event_stream():
         last_notification_time = timezone.now()
-        
-        while True:
+        # Ограничиваем время жизни одного соединения, чтобы gunicorn не убивал воркер
+        max_stream_seconds = 25  # меньше таймаута gunicorn (обычно 30 секунд)
+        end_time = time.time() + max_stream_seconds
+
+        while time.time() < end_time:
             try:
                 # Get new notifications for this user
                 student = request.user.student
@@ -5249,7 +5252,7 @@ def notification_stream(request, user_id):
                     created_at__gt=last_notification_time,
                     is_read=False
                 ).order_by('-created_at')
-                
+
                 for notification in new_notifications:
                     data = {
                         'id': notification.id,
@@ -5258,17 +5261,19 @@ def notification_stream(request, user_id):
                         'type': notification.notification_type or 'general',
                         'created_at': notification.created_at.isoformat(),
                     }
-                    
                     yield f"data: {json.dumps(data)}\n\n"
                     last_notification_time = notification.created_at
-                
+
+                # Отправляем "heartbeat", чтобы соединение считалось активным
+                yield ": keep-alive\n\n"
+
                 # Check for new notifications every 2 seconds
                 time.sleep(2)
-                
+
             except Exception as e:
                 logger.error(f"Error in notification stream: {e}")
                 break
-    
+
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     response['X-Accel-Buffering'] = 'no'  # Disable nginx buffering
