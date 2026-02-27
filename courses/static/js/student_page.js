@@ -71,34 +71,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const defaultTab = 'home';
     const defaultLink = document.querySelector(`.sidebar-nav-link[data-tab="${defaultTab}"]`);
     const defaultPane = document.getElementById(defaultTab);
-    
-    
-    // Убираем активный класс у всех вкладок и ссылок
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sidebar-nav-link').forEach(l => l.classList.remove('active'));
-    
+
+    // Делаем инициализацию более безопасной:
+    // не трогаем существующий активный таб, если не нашли оба элемента.
     if (defaultLink && defaultPane) {
+        // Убираем активный класс у всех вкладок и ссылок
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sidebar-nav-link').forEach(l => l.classList.remove('active'));
+
         defaultLink.classList.add('active');
         defaultPane.classList.add('active');
         console.log('Инициализирована вкладка по умолчанию:', defaultTab);
-        
+
         // Убеждаемся, что кнопка "Назад" скрыта на главной вкладке
         const mobileBackBtn = document.getElementById('mobileBackBtn');
         if (mobileBackBtn) {
             mobileBackBtn.classList.add('hidden');
         }
     } else {
-        console.error('Не удалось инициализировать вкладку по умолчанию');
-        // Если не удалось найти элементы, попробуем найти активную вкладку
-        const activePane = document.querySelector('.tab-pane.active');
-        if (activePane) {
-            const activeTabName = activePane.id;
-            const activeLink = document.querySelector(`.sidebar-nav-link[data-tab="${activeTabName}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-                console.log('Найдена активная вкладка:', activeTabName);
-            }
-        }
+        console.warn('Не удалось найти элементы для инициализации вкладки по умолчанию. Используем разметку по умолчанию.');
+        // Оставляем тот таб, который уже помечен как active в HTML.
     }
     
     // Глобальная функция для переключения вкладок
