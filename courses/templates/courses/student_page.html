@@ -1037,43 +1037,7 @@
         }
       }
       
-      // Проверяем доступность колеса фортуны
-      function checkWheelAvailability() {
-        fetch("/api/check-spin-availability/")
-          .then((response) => response.json())
-          .then((data) => {
-            const availabilityElement =
-              document.getElementById("wheelAvailability");
-            if (availabilityElement) {
-              if (data.can_spin) {
-                availabilityElement.innerHTML = "Доступно сейчас!";
-                availabilityElement.style.color = "#28a745";
-              } else if (data.time_remaining) {
-                const hours = Math.floor(data.time_remaining / 3600);
-                const minutes = Math.floor((data.time_remaining % 3600) / 60);
-                availabilityElement.innerHTML = `Через ${hours}ч ${minutes}м`;
-                availabilityElement.style.color = "#ffc107";
-              } else {
-                availabilityElement.innerHTML = "1 раз в 24 часа";
-                availabilityElement.style.color = "#6c757d";
-              }
-            }
-          })
-          .catch((error) => {
-            console.error("Ошибка при проверке доступности колеса:", error);
-            const availabilityElement =
-              document.getElementById("wheelAvailability");
-            if (availabilityElement) {
-              availabilityElement.innerHTML = "1 раз в 24 часа";
-            }
-          });
-      }
-
-      // Проверяем при загрузке страницы
-      document.addEventListener("DOMContentLoaded", checkWheelAvailability);
-
-      // Проверяем каждую минуту
-      setInterval(checkWheelAvailability, 60000);
+      // Колесо фортуны временно отключено, поэтому периодические запросы к API не выполняем.
     </script>
 
     <!-- CSRF Token -->

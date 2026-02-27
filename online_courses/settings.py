@@ -187,7 +187,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'courses.User'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# По умолчанию сохраняем медиа в BASE_DIR / 'media',
+# но в продакшене можно переопределить через переменную окружения MEDIA_ROOT
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', BASE_DIR / 'media'))
 
 # Third-party service keys (read from env in App Platform)
 SUPABASE_URL = os.getenv('SUPABASE_URL', '')

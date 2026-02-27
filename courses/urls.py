@@ -159,11 +159,11 @@ path('teacher/profile/', views.teacher_profile, name='teacher_profile'),
     path('module/<int:module_id>/edit/', views.edit_module, name='edit_module'),
     path('attach-module-to-course/', views.attach_module_to_course, name='attach_module_to_course'),
 
-    # Колесо фортуны
-path('wheel-of-fortune/', views.wheel_of_fortune_page, name='wheel_of_fortune_page'),
-    path('api/spin-wheel/', views.spin_wheel, name='spin_wheel'),
-    path('api/check-spin-availability/', views.check_spin_availability, name='check_spin_availability'),
-path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_status'),
+    # Колесо фортуны (временно отключено)
+    # path('wheel-of-fortune/', views.wheel_of_fortune_page, name='wheel_of_fortune_page'),
+    # path('api/spin-wheel/', views.spin_wheel, name='spin_wheel'),
+    # path('api/check-spin-availability/', views.check_spin_availability, name='check_spin_availability'),
+    # path('api/check-wheel-status/', views.check_wheel_status, name='check_wheel_status'),
 
     # Создание суперпользователя
     path('create_admin/', views.create_admin, name='create_admin'),
