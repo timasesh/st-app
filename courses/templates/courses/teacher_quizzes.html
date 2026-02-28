@@ -3,6 +3,113 @@
 {% block title %}Мои квизы{% endblock %}
 {% block page_title %}Мои квизы{% endblock %}
 
+{% block extra_css %}
+<style>
+.student-selection-container {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.student-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.student-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+.student-item.selected {
+    background-color: #e3f2fd !important;
+    border-left: 3px solid #2196f3;
+}
+
+.student-avatar img,
+.avatar-placeholder {
+    transition: transform 0.3s ease;
+}
+
+.student-item:hover .student-avatar img,
+.student-item:hover .avatar-placeholder {
+    transform: scale(1.1);
+}
+
+.student-checkbox-item {
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+.student-checkbox-item:last-child {
+    border-bottom: none !important;
+}
+
+.selection-controls .btn-group .btn {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+#studentList {
+    background: white;
+}
+
+#selectedCount {
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #2196f3;
+    border-color: #2196f3;
+}
+
+.custom-control-input:focus ~ .custom-control-label::before {
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+.student-info {
+    min-width: 0;
+}
+
+.student-name {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.student-details {
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+    .selection-controls .row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .student-item {
+        padding: 1rem !important;
+    }
+    
+    .student-avatar img,
+    .avatar-placeholder {
+        width: 25px !important;
+        height: 25px !important;
+        font-size: 10px !important;
+    }
+    
+    .student-name {
+        font-size: 0.8rem;
+    }
+    
+    .student-details {
+        font-size: 0.7rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-12">
@@ -74,12 +181,64 @@
                         
                         <div id="studentSelection" class="form-group">
                             <label for="quizStudents">Выберите студентов (необязательно)</label>
-                            <select class="form-control" name="student_ids" id="quizStudents" multiple>
-                                {% for student in students %}
-                                    <option value="{{ student.id }}">{{ student.user.first_name }} {{ student.user.last_name }}</option>
-                                {% endfor %}
-                            </select>
-                            <small class="form-text text-muted">Если не выбран ни один студент, квиз будет создан без назначения</small>
+                            <div class="student-selection-container">
+                                <div class="selection-controls mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="studentSearch" placeholder="Поиск студентов...">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button" class="btn btn-outline-primary" id="selectAllStudents">
+                                                    <i class="fas fa-check-square"></i> Выбрать всех
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary" id="deselectAllStudents">
+                                                    <i class="fas fa-square"></i> Снять все
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="student-list" id="studentList" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px;">
+                                    {% for student in students %}
+                                        <div class="student-item d-flex align-items-center p-2 border-bottom student-checkbox-item" data-student-id="{{ student.id }}" data-student-name="{{ student.user.first_name }} {{ student.user.last_name }}">
+                                            <div class="custom-control custom-checkbox mr-3">
+                                                <input type="checkbox" class="custom-control-input student-checkbox" id="student_{{ student.id }}" name="student_ids" value="{{ student.id }}">
+                                                <label class="custom-control-label" for="student_{{ student.id }}"></label>
+                                            </div>
+                                            <div class="student-info flex-grow-1">
+                                                <div class="student-name font-weight-bold">{{ student.user.first_name }} {{ student.user.last_name }}</div>
+                                                <div class="student-details text-muted small">
+                                                    <i class="fas fa-users mr-1"></i>{{ student.group.name|default:"Без группы" }}
+                                                    <span class="ml-2"><i class="fas fa-star mr-1"></i>{{ student.stars|default:0 }} звёзд</span>
+                                                </div>
+                                            </div>
+                                            <div class="student-avatar ml-2">
+                                                {% if student.avatar %}
+                                                    <img src="{{ student.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 12px; font-weight: bold;">
+                                                        {{ student.user.first_name|first|upper|default:student.user.username|first|upper }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="selection-summary mt-2">
+                                    <small class="text-muted">
+                                        Выбрано студентов: <span id="selectedCount" class="badge badge-primary">0</span> из {{ students|length }}
+                                    </small>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Если не выбран ни один студент, квиз будет создан без назначения. Вы можете назначить студентов позже.</small>
                         </div>
                         
                         <div class="alert alert-info">
@@ -221,4 +380,118 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Функциональность выбора студентов
+    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectAllBtn = document.getElementById('selectAllStudents');
+    const deselectAllBtn = document.getElementById('deselectAllStudents');
+    const studentSearch = document.getElementById('studentSearch');
+    const studentItems = document.querySelectorAll('.student-checkbox-item');
+
+    // Обновление счетчика выбранных студентов
+    function updateSelectedCount() {
+        const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+        selectedCount.textContent = checkedBoxes.length;
+        
+        // Обновление стиля счетчика
+        if (checkedBoxes.length === 0) {
+            selectedCount.className = 'badge badge-secondary';
+        } else if (checkedBoxes.length < 5) {
+            selectedCount.className = 'badge badge-primary';
+        } else if (checkedBoxes.length < 10) {
+            selectedCount.className = 'badge badge-info';
+        } else {
+            selectedCount.className = 'badge badge-success';
+        }
+    }
+
+    // Выбор всех студентов
+    selectAllBtn.addEventListener('click', function() {
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateSelectedCount();
+    });
+
+    // Снятие выбора всех студентов
+    deselectAllBtn.addEventListener('click', function() {
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateSelectedCount();
+    });
+
+    // Поиск студентов
+    studentSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        studentItems.forEach(item => {
+            const studentName = item.dataset.studentName.toLowerCase();
+            const studentInfo = item.textContent.toLowerCase();
+            
+            if (studentName.includes(searchTerm) || studentInfo.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Обновление счетчика при изменении чекбоксов
+    studentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+
+    // Инициализация счетчика
+    updateSelectedCount();
+
+    // Hover эффекты для элементов студентов
+    studentItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            if (!this.querySelector('.student-checkbox').checked) {
+                this.style.backgroundColor = '';
+            }
+        });
+
+        // Клик по элементу (не на чекбокс) переключает чекбокс
+        item.addEventListener('click', function(e) {
+            if (e.target.type !== 'checkbox') {
+                const checkbox = this.querySelector('.student-checkbox');
+                checkbox.checked = !checkbox.checked;
+                updateSelectedCount();
+            }
+        });
+    });
+
+    // Стилизация выбранных элементов
+    function updateSelectedStyles() {
+        studentItems.forEach(item => {
+            const checkbox = item.querySelector('.student-checkbox');
+            if (checkbox.checked) {
+                item.style.backgroundColor = '#e3f2fd';
+                item.style.borderLeft = '3px solid #2196f3';
+            } else {
+                item.style.backgroundColor = '';
+                item.style.borderLeft = '';
+            }
+        });
+    }
+
+    // Обновление стилей при изменении чекбоксов
+    studentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedStyles);
+    });
+
+    // Инициализация стилей
+    updateSelectedStyles();
+});
+</script>
+
 {% endblock %}
