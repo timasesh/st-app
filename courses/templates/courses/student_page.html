@@ -743,20 +743,25 @@
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-top: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 0.5rem 0;
+        padding: 0.3rem 0;
         z-index: 1000;
         display: none;
+        justify-content: space-around;
+        align-items: center;
       }
 
       .mobile-nav-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 0.5rem 1rem;
+        padding: 0.3rem 0.5rem;
         color: #667eea;
         text-decoration: none;
         transition: all 0.3s ease;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
+        min-width: 0;
+        flex: 1;
+        text-align: center;
       }
 
       .mobile-nav-item:hover {
@@ -765,8 +770,8 @@
       }
 
       .mobile-nav-item i {
-        font-size: 1.2rem;
-        margin-bottom: 0.25rem;
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
       }
 
       .mobile-notification-badge {
@@ -928,15 +933,19 @@
             {% endif %}
           </a>
         </div>
+        <div class="nav-item">
+          <a
+            href="#profile"
+            class="nav-link sidebar-nav-link"
+            data-tab="profile"
+          >
+            <i class="fas fa-user"></i>
+            <span>Профиль</span>
+          </a>
+        </div>
         
-        <!-- Кнопки профиля и выхода -->
+        <!-- Кнопка выхода -->
         <div class="sidebar-actions">
-          <div class="nav-item">
-            <a href="{% url 'student_profile' %}" class="nav-link sidebar-nav-link profile-btn">
-              <i class="fas fa-user"></i>
-              <span>Профиль</span>
-            </a>
-          </div>
           <div class="nav-item">
             <a href="{% url 'logout' %}" class="nav-link sidebar-nav-link logout-btn">
               <i class="fas fa-sign-out-alt"></i>
@@ -958,6 +967,7 @@
           {% include 'courses/student_tabs/levels_tab.html' %}
           {% include 'courses/student_tabs/quizzes_tab.html' %}
           {% include 'courses/student_tabs/notifications_tab.html' %}
+          {% include 'courses/student_tabs/profile_tab.html' %}
         </div>
       </div>
     </main>
@@ -971,6 +981,8 @@
         @media (max-width: 768px) {
             .mobile-bottom-nav {
                 display: flex !important;
+                justify-content: space-around !important;
+                align-items: center !important;
                 position: fixed;
                 bottom: 0;
                 left: 0;
@@ -1044,6 +1056,10 @@
             {% if unread_notifications_count > 0 %}
             <span class="mobile-notification-badge">{{ unread_notifications_count }}</span>
             {% endif %}
+        </a>
+        <a href="#profile" class="mobile-nav-item" data-tab="profile">
+            <i class="fas fa-user"></i>
+            <span>Профиль</span>
         </a>
     </nav>
 

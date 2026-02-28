@@ -1,0 +1,627 @@
+{% load static %}
+
+<div id="profile" class="tab-pane">
+    <div class="profile-tab-container">
+        <!-- Заголовок профиля -->
+        <div class="profile-header-section">
+            <div class="profile-avatar-section">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="Аватар" class="profile-avatar-img">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ student.user.first_name|first|upper|default:student.user.username|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="profile-info">
+                    <h2 class="profile-name">{{ student.user.get_full_name|default:student.user.username }}</h2>
+                    <p class="profile-email">{{ student.user.email }}</p>
+                    <div class="profile-badges">
+                        <span class="profile-badge stars-badge">
+                            <i class="fas fa-star"></i>
+                            {{ student.stars|default:0 }} звёзд
+                        </span>
+                        <span class="profile-badge level-badge">
+                            <i class="fas fa-medal"></i>
+                            Уровень {{ student.level_number|default:1 }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информационные карточки -->
+        <div class="profile-info-grid">
+            <div class="profile-info-card">
+                <div class="info-card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Группа</h3>
+                    <p class="info-card-value">{{ student.group.name|default:"Не указана" }}</p>
+                </div>
+            </div>
+
+            <div class="profile-info-card">
+                <div class="info-card-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Телефон</h3>
+                    <p class="info-card-value">{{ student.phone_number|default:"Не указан" }}</p>
+                </div>
+            </div>
+
+            <div class="profile-info-card">
+                <div class="info-card-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Дата регистрации</h3>
+                    <p class="info-card-value">{{ student.user.date_joined|date:"d.m.Y" }}</p>
+                </div>
+            </div>
+
+            <div class="profile-info-card">
+                <div class="info-card-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Достижения</h3>
+                    <p class="info-card-value">{{ achievements_count|default:0 }} достижений</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма редактирования профиля -->
+        <div class="profile-edit-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Редактирование профиля
+                </h3>
+                <p class="section-subtitle">Обновите свою личную информацию</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="profile-form">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Имя
+                        </label>
+                        <input type="text" name="first_name" class="form-input" value="{{ student.user.first_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i>
+                            Фамилия
+                        </label>
+                        <input type="text" name="last_name" class="form-input" value="{{ student.user.last_name }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" name="email" class="form-input" value="{{ student.user.email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-phone"></i>
+                            Телефон
+                        </label>
+                        <input type="tel" name="phone_number" class="form-input" value="{{ student.phone_number }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-image"></i>
+                        Аватар
+                    </label>
+                    <div class="avatar-upload">
+                        <input type="file" name="avatar" class="avatar-input" id="avatarInput" accept="image/*">
+                        <label for="avatarInput" class="avatar-upload-label">
+                            <i class="fas fa-camera"></i>
+                            <span>Выберите новый аватар</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Сохранить изменения
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i>
+                        Сбросить
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Статистика активности -->
+        <div class="profile-stats-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Ваша активность
+                </h3>
+                <p class="section-subtitle">Статистика вашей активности на платформе</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4 class="stat-number">{{ quizzes_completed|default:0 }}</h4>
+                        <p class="stat-label">Пройдено квизов</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4 class="stat-number">{{ homework_completed|default:0 }}</h4>
+                        <p class="stat-label">Выполнено ДЗ</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4 class="stat-number">{{ streak_days|default:0 }}</h4>
+                        <p class="stat-label">Дней подряд</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4 class="stat-number">{{ total_hours|default:0 }}</h4>
+                        <p class="stat-label">Часов обучения</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для вкладки профиля */
+.profile-tab-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Заголовок профиля */
+.profile-header-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.profile-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.profile-info h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.profile-info p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0 0 1rem 0;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.stars-badge {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.level-badge {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+/* Информационные карточки */
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-info-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.info-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.info-card-content h3 {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.info-card-content p {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Форма редактирования */
+.profile-edit-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: #667eea;
+}
+
+.section-subtitle {
+    color: #666;
+    margin: 0;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-label i {
+    color: #667eea;
+    width: 16px;
+}
+
+.form-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.avatar-upload {
+    position: relative;
+}
+
+.avatar-input {
+    display: none;
+}
+
+.avatar-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px dashed #667eea;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.avatar-upload-label:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-color: #764ba2;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Статистика активности */
+.profile-stats-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.stat-content h4 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 0.25rem 0;
+}
+
+.stat-content p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-tab-container {
+        padding: 1rem;
+    }
+
+    .profile-header-section {
+        padding: 1.5rem;
+    }
+
+    .profile-avatar-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .profile-avatar-img,
+    .profile-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profile-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<script>
+function resetForm() {
+    document.querySelector('.profile-form').reset();
+}
+
+// Предпросмотр аватара
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Здесь можно добавить предпросмотр аватара
+            console.log('Avatar selected:', file.name);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
