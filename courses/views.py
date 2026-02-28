@@ -3651,9 +3651,8 @@ def teacher_quizzes(request):
                     for student in students:
                         notification = Notification.objects.create(
                             student=student,
-                            title=f'Новый квиз: {quiz.title}',
-                            message=f'Вам назначен новый квиз "{quiz.title}" за {quiz.stars} звезд. Перейдите во вкладку "Квизы" чтобы начать прохождение.',
-                            notification_type='quiz_assigned'
+                            type='quiz_completed',
+                            message=f'Вам назначен новый квиз "{quiz.title}" за {quiz.stars} звезд. Перейдите во вкладку "Квизы" чтобы начать прохождение.'
                         )
                 else:
                     messages.warning(request, f'Квиз "{quiz.title}" создан, но не назначен ни модулю, ни студентам.')
