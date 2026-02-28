@@ -9,10 +9,10 @@
     <link rel="icon" type="image/png" href="/media/image/ST.png" sizes="32x32">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'optimized_level_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/student_page.css' %}">
     <style>
-        /* Современная цветовая схема в стиле student_page */
-        .modern-student-body {
+        /* Оптимизированные стили для страницы профиля */
+        .profile-body {
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,965 +20,482 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .modern-student-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            position: sticky;
+        /* Мобильная бургер-панель */
+        .mobile-header {
+            display: none;
+            position: fixed;
             top: 0;
-            z-index: 1000;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            padding: 1rem 1.5rem;
+            z-index: 1001;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .header-container {
+        .mobile-header-content {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
+            align-items: center;
         }
 
-        .profile-title {
-            color: #2c3e50;
+        .mobile-title {
+            font-size: 1.2rem;
             font-weight: 700;
-            font-size: 1.8rem;
-            margin: 0;
+            color: #667eea;
         }
 
-        .header-actions {
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #667eea;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            box-shadow: -4px 0 25px rgba(0, 0, 0, 0.15);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            padding: 2rem 1.5rem;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-header {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .close-menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .close-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
         }
 
-        .action-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
+        .mobile-menu-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-            color: white;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
             text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
-        .logout-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        .mobile-menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
         }
 
-        .logout-btn:hover {
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        .mobile-menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #667eea;
         }
 
-        .main-content {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+        .mobile-menu-item.profile {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+        }
+
+        .mobile-menu-item.logout {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .mobile-menu-item.profile i {
+            color: white;
+        }
+
+        .mobile-menu-item.logout i {
+            color: white;
+        }
+
+        /* Основной контент */
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
         }
 
         .profile-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             margin-bottom: 2rem;
         }
 
-        .profile-hero {
+        .profile-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 3rem 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .profile-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
             text-align: center;
-            color: white;
             position: relative;
         }
 
-        .profile-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-
-        .profile-avatar-container {
-            position: relative;
-            z-index: 2;
-            margin-bottom: 1.5rem;
-            animation: avatarFloat 3s ease-in-out infinite;
-        }
-        
-        @keyframes avatarFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .student-avatar {
-            width: 120px;
-            height: 120px;
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
         }
 
-        .avatar-placeholder {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.9);
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            user-select: none;
-        }
-
-        .student-name {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .student-role {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-        }
-
-        .stats-section {
-            background: white;
-            padding: 2rem;
-        }
-
-        .stats-title {
-            color: #2c3e50;
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .stats-icon {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .profile-name {
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-item {
-            background: #f8f9ff;
-            border-radius: 15px;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-5px) scale(1.02);
-            border-color: #667eea;
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-        }
-
-        .stat-icon-wrapper {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .stat-stars .stat-icon-wrapper {
-            background: linear-gradient(135deg, #ffc107, #ff8f00);
-        }
-
-        .stat-courses .stat-icon-wrapper {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-        }
-
-        .stat-groups .stat-icon-wrapper {
-            background: linear-gradient(135deg, #28a745, #20c997);
-        }
-
-        .stat-content {
-            flex: 1;
-        }
-
-        .stat-number {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #2c3e50;
-            line-height: 1;
-            margin-bottom: 0.25rem;
+            margin: 0;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            font-weight: 500;
+        .profile-email {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin: 0.5rem 0 0;
         }
 
-        .info-section {
-            background: white;
-            border-radius: 20px;
+        .profile-body {
             padding: 2rem;
+        }
+
+        .profile-section {
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
-        .info-title {
-            color: #2c3e50;
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .profile-section:last-child {
+            margin-bottom: 0;
         }
 
-        .info-icon {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: #667eea;
         }
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
         }
 
         .info-item {
-            background: #f8f9ff;
-            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.05);
             padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .info-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
-        }
-
-        .info-item-icon {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .info-content {
-            flex: 1;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
         }
 
         .info-label {
-            font-size: 0.8rem;
-            color: #6c757d;
+            font-size: 0.9rem;
+            color: #666;
             margin-bottom: 0.25rem;
         }
 
         .info-value {
+            font-size: 1.1rem;
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 1rem;
+            color: #333;
         }
 
-        .action-section {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .edit-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin: 0 auto;
-        }
-
-        .edit-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-        }
-        
-        .edit-btn:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        .form-modern {
-            margin-top: 2rem;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .form-group-modern {
+        .form-group {
             margin-bottom: 1.5rem;
         }
 
         .form-label {
             display: block;
-            font-weight: 600;
-            color: #2c3e50;
             margin-bottom: 0.5rem;
-            font-size: 0.95rem;
+            font-weight: 500;
+            color: #333;
         }
 
-        .form-control-modern {
+        .form-control {
             width: 100%;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
             border: 2px solid #e9ecef;
             border-radius: 12px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            background: #f8f9ff;
         }
 
-        .form-control-modern:focus {
+        .form-control:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background: white;
         }
 
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .btn-save {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
+        .btn {
+            padding: 0.75rem 2rem;
             border: none;
-            padding: 1rem 2rem;
             border-radius: 25px;
             font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .btn-save:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(40, 167, 69, 0.5);
-            color: white;
             text-decoration: none;
-        }
-        
-        .btn-cancel {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .btn-cancel:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(108, 117, 125, 0.5);
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn-save {
-            flex: 1;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .btn-save:hover {
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-cancel {
-            flex: 1;
-            background: transparent;
-            color: #6c757d;
-            border: 2px solid #6c757d;
-            padding: 1rem;
-            border-radius: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-cancel:hover {
+        .btn-secondary {
             background: #6c757d;
             color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
             transform: translateY(-2px);
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: 15px;
-            border: none;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 500;
-        }
-
-        .alert-info {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            color: #0d47a1;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-            color: #2e7d32;
-        }
-
-        .alert-danger {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
-            color: #c62828;
-        }
-
-        .alert i {
-            font-size: 1.2rem;
-        }
-
+        /* Адаптивность */
         @media (max-width: 768px) {
-            .header-container {
-                padding: 0 1rem;
-                flex-wrap: wrap;
-                gap: 1rem;
+            .mobile-header {
+                display: block;
             }
-            
-            .main-content {
-                padding: 0 1rem;
+
+            .profile-container {
+                padding: 6rem 1rem 2rem;
             }
-            
-            .profile-hero {
-                padding: 2rem 1rem;
+
+            .profile-header {
+                padding: 2rem 1.5rem;
             }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
             }
-            
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
             .info-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .header-actions {
-                flex-direction: column;
-                width: 100%;
             }
         }
     </style>
 </head>
-<body class="modern-student-body">
-    
-    <header class="modern-student-header">
-        <div class="header-container">
-            <h1 class="profile-title">Мой профиль</h1>
-            <div class="header-actions">
-                <a href="{% url 'student_page' %}" class="action-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    Назад
-                </a>
-                <a href="{% url 'logout' %}" class="action-btn logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Выйти
-                </a>
-            </div>
+<body class="profile-body">
+    <!-- Мобильный хэдер с бургер-меню -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-title">Профиль</div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </header>
+    </div>
 
-    <div class="main-content">
-        
-        <!-- Сообщения Django -->
-        {% if messages %}
-            <div class="messages-container" style="margin-bottom: 2rem;">
-                {% for message in messages %}
-                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert" style="
-                        background: linear-gradient(135deg, {% if message.tags == 'error' %}#e74c3c{% elif message.tags == 'success' %}#28a745{% else %}#17a2b8{% endif %}, {% if message.tags == 'error' %}#c0392b{% elif message.tags == 'success' %}#20c997{% else %}#138496{% endif %});
-                        color: white;
-                        border: none;
-                        border-radius: 15px;
-                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                    ">
-                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="color: white;">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
-        <!-- Профиль студента -->
+    <!-- Мобильное меню -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-menu-title">Меню</div>
+            <button class="close-menu-btn" id="closeMenuBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-items">
+            <a href="{% url 'student_profile' %}" class="mobile-menu-item profile">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </a>
+            <a href="{% url 'student_page' %}" class="mobile-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </a>
+            <a href="{% url 'logout' %}" class="mobile-menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Выйти</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="profile-container">
         <div class="profile-card">
-            <div class="profile-hero">
-                <div class="profile-avatar-container avatar-with-level">
-                    {% if student.avatar %}
-                        <img src="{{ student.avatar.url }}" class="student-avatar" alt="avatar">
-                    {% else %}
-                        <div class="avatar-placeholder">
-                            {% if student.user.first_name and student.user.last_name %}
-                                {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
-                            {% elif student.user.first_name %}
-                                {{ student.user.first_name|first|upper }}{{ student.user.first_name|slice:"1:2"|upper }}
-                            {% else %}
-                                {{ student.user.username|first|upper }}{{ student.user.username|slice:"1:2"|upper }}
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    <div class="level-badge level-{{ student.level_number }} large animate" 
-                         data-tooltip="{{ student.level_name }}">
-                        {{ student.level_number }}
+            <div class="profile-header">
+                {% if student.avatar %}
+                    <img src="{{ student.avatar.url }}" alt="Аватар" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 700;">
+                        {{ student.user.first_name|first|upper|default:student.user.username|first|upper }}
                     </div>
-                </div>
-                
-                <h2 class="student-name">{{ student.user.get_full_name|default:student.user.username }}</h2>
-                <p class="student-role">Студент</p>
-            </div>
-            
-            <div class="stats-section">
-                <h3 class="stats-title">
-                    <div class="stats-icon">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    Моя статистика
-                </h3>
-                
-                <div class="stats-grid">
-                    <div class="stat-item stat-stars">
-                        <div class="stat-icon-wrapper">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">{{ student.stars }}</div>
-                            <div class="stat-label">Звезд заработано</div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-item stat-courses">
-                        <div class="stat-icon-wrapper">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">{{ student.courses.count }}</div>
-                            <div class="stat-label">Активных курсов</div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-item stat-groups">
-                        <div class="stat-icon-wrapper">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-number">{{ student.groups.count }}</div>
-                            <div class="stat-label">Групп участия</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Личная информация -->
-        <div class="info-section">
-            <h3 class="info-title">
-                <div class="info-icon">
-                    <i class="fas fa-user"></i>
-                </div>
-                Личная информация
-            </h3>
-            
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Email</div>
-                        <div class="info-value">{{ student.email|default:'Не указан' }}</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Телефон</div>
-                        <div class="info-value">{{ student.phone_number|default:'Не указан' }}</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-signature"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Имя</div>
-                        <div class="info-value">{{ student.first_name|default:'Не указано' }}</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-user-tag"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Фамилия</div>
-                        <div class="info-value">{{ student.last_name|default:'Не указано' }}</div>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-level-up-alt"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Уровень</div>
-                        <div class="info-value">{{ student.level_name }}</div>
-                    </div>
-                </div>
-                
-                {% if student.is_school_student and student.grade %}
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Класс</div>
-                        <div class="info-value">{{ student.grade }} класс</div>
-                    </div>
-                </div>
                 {% endif %}
-                
-                {% if student.age %}
-                <div class="info-item">
-                    <div class="info-item-icon">
-                        <i class="fas fa-birthday-cake"></i>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-label">Возраст</div>
-                        <div class="info-value">{{ student.age }} лет</div>
-                    </div>
-                </div>
-                {% endif %}
+                <h1 class="profile-name">{{ student.user.get_full_name|default:student.user.username }}</h1>
+                <p class="profile-email">{{ student.user.email }}</p>
             </div>
-        </div>
 
-        <!-- Действия -->
-        <div class="action-section">
-            {% if admin_status %}
-                <div class="alert alert-{{ admin_status }}">
-                    <i class="fas fa-{% if admin_status == 'success' %}check-circle{% elif admin_status == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
-                    {{ admin_response }}
+            <div class="profile-body">
+                <!-- Информация о студенте -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Информация о студенте
+                    </h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Группа</div>
+                            <div class="info-value">{{ student.group.name|default:"Не указана" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Звёзды</div>
+                            <div class="info-value">{{ student.stars|default:0 }} ⭐</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Уровень</div>
+                            <div class="info-value">{{ student.level_number|default:1 }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Телефон</div>
+                            <div class="info-value">{{ student.phone_number|default:"Не указан" }}</div>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
 
-            {% if not student.profile_edited_once %}
-                <button id="edit-button" class="edit-btn">
-                    <i class="fas fa-edit"></i>
-                    Редактировать профиль
-                </button>
-                
-                <form method="post" class="form-modern hidden" id="profile-edit">
+                <!-- Форма редактирования -->
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
-                    <!-- Отображение ошибок формы -->
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                            <h6>Ошибки в форме:</h6>
-                            <ul>
-                                {% for field, errors in form.errors.items %}
-                                    {% for error in errors %}
-                                        <li>{{ field }}: {{ error }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                            </ul>
+                    <div class="profile-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-edit"></i>
+                            Редактирование профиля
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Имя</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ student.user.first_name }}" required>
                         </div>
-                    {% endif %}
-                    <div class="form-group-modern">
-                        <label for="{{ form.first_name.id_for_label }}" class="form-label">Имя</label>
-                        {{ form.first_name }}
-                        {% if form.first_name.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.first_name.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ student.user.last_name }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ student.user.email }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" name="phone_number" class="form-control" value="{{ student.phone_number }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Аватар</label>
+                            <input type="file" name="avatar" class="form-control" accept="image/*">
+                        </div>
                     </div>
-                    
-                    <div class="form-group-modern">
-                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Фамилия</label>
-                        {{ form.last_name }}
-                        {% if form.last_name.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.last_name.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group-modern">
-                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">Номер телефона</label>
-                        {{ form.phone_number }}
-                        {% if form.phone_number.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.phone_number.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group-modern">
-                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.email.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group-modern">
-                        <label for="{{ form.age.id_for_label }}" class="form-label">Возраст</label>
-                        {{ form.age }}
-                        {% if form.age.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.age.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    {% if student.is_school_student %}
-                    <div class="form-group-modern">
-                        <label for="{{ form.grade.id_for_label }}" class="form-label">Класс</label>
-                        {{ form.grade }}
-                        {% if form.grade.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.grade.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn-save">
+
+                    <div class="profile-section">
+                        <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i>
                             Сохранить изменения
                         </button>
-                        <button type="button" id="cancel-button" class="btn-cancel">
-                            <i class="fas fa-times"></i>
-                            Отменить
-                        </button>
+                        <a href="{% url 'student_page' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Вернуться на главную
+                        </a>
                     </div>
                 </form>
-            {% else %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i>
-                    Профиль уже был отредактирован. Для внесения изменений обратитесь к администратору.
-                </div>
-                
-                {% if not active_request %}
-                    <form method="post" style="margin-top: 1rem;">
-                        {% csrf_token %}
-                        <button type="submit" name="request_edit" class="btn-request" style="
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            border: none;
-                            padding: 12px 24px;
-                            border-radius: 8px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            font-size: 14px;
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                            <i class="fas fa-paper-plane"></i>
-                            Запросить редактирование профиля
-                        </button>
-                    </form>
-                {% else %}
-                    <div class="alert alert-warning" style="margin-top: 1rem;">
-                        <i class="fas fa-clock"></i>
-                        Ваш запрос на редактирование профиля находится на рассмотрении.
-                    </div>
-                {% endif %}
-            {% endif %}
+            </div>
         </div>
-
     </div>
 
     <script>
-        // Добавляем классы к полям формы
-        document.addEventListener('DOMContentLoaded', function() {
-            const formFields = document.querySelectorAll('#profile-edit input');
-            formFields.forEach(field => {
-                field.classList.add('form-control-modern');
-            });
+        // Мобильное меню
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
         });
 
-        const editButton = document.getElementById('edit-button');
-        const profileEdit = document.getElementById('profile-edit');
-        const cancelButton = document.getElementById('cancel-button');
+        closeMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
 
-        if (editButton) {
-            editButton.addEventListener('click', function() {
-                editButton.style.display = 'none';
-                profileEdit.classList.remove('hidden');
-            });
-        }
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
 
-        if (cancelButton) {
-            cancelButton.addEventListener('click', function() {
-                profileEdit.classList.add('hidden');
-                if (editButton) {
-                    editButton.style.display = 'flex';
-                }
-            });
-        }
-
-        // Добавляем классы к полям формы
-        document.addEventListener('DOMContentLoaded', function() {
-            const formFields = document.querySelectorAll('#profile-edit input, #profile-edit select');
-            formFields.forEach(field => {
-                field.classList.add('form-control-modern');
+        // Закрытие меню при клике на пункт меню
+        document.querySelectorAll('.mobile-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
             });
         });
     </script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
