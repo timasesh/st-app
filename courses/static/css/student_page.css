@@ -2376,7 +2376,8 @@
   overflow-y: auto !important;
   overflow-x: hidden !important;
   transition: transform 0.3s ease !important;
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
   visibility: visible !important;
   transform: translateX(0) !important;
 }
@@ -5519,7 +5520,7 @@
   .student-sidebar {
     display: none !important; /* Скрываем сайдбар на мобильных */
   }
-  
+
   .modern-student-main {
     margin-left: 0 !important;
     width: 100% !important;
@@ -5598,7 +5599,7 @@
     visibility: visible !important;
     top: 0 !important;
   }
-  
+
   .modern-student-main {
     margin-left: 280px !important;
     width: calc(100% - 280px) !important;
