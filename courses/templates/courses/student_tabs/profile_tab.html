@@ -147,59 +147,6 @@
                 </div>
             </form>
         </div>
-
-        <!-- Статистика активности -->
-        <div class="profile-stats-section">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fas fa-chart-line"></i>
-                    Ваша активность
-                </h3>
-                <p class="section-subtitle">Статистика вашей активности на платформе</p>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-question-circle"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 class="stat-number">{{ quizzes_completed|default:0 }}</h4>
-                        <p class="stat-label">Пройдено квизов</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 class="stat-number">{{ homework_completed|default:0 }}</h4>
-                        <p class="stat-label">Выполнено ДЗ</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 class="stat-number">{{ streak_days|default:0 }}</h4>
-                        <p class="stat-label">Дней подряд</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h4 class="stat-number">{{ total_hours|default:0 }}</h4>
-                        <p class="stat-label">Часов обучения</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -618,10 +565,105 @@ document.getElementById('avatarInput').addEventListener('change', function(e) {
     if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Здесь можно добавить предпросмотр аватара
-            console.log('Avatar selected:', file.name);
+            // Обновляем аватар в заголовке профиля
+            const avatarImg = document.querySelector('.profile-avatar-img');
+            const avatarPlaceholder = document.querySelector('.profile-avatar-placeholder');
+            
+            if (avatarImg) {
+                avatarImg.src = e.target.result;
+            } else if (avatarPlaceholder) {
+                // Заменяем placeholder на img
+                const newImg = document.createElement('img');
+                newImg.src = e.target.result;
+                newImg.alt = 'Аватар';
+                newImg.className = 'profile-avatar-img';
+                avatarPlaceholder.parentNode.replaceChild(newImg, avatarPlaceholder);
+            }
         };
         reader.readAsDataURL(file);
     }
 });
+
+// Обработка отправки формы через AJAX для лучшего UX
+document.querySelector('.profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Показываем загрузку
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+    submitBtn.disabled = true;
+    
+    fetch('{% url "student_profile" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Показываем успешное сообщение
+            showNotification('Профиль успешно обновлен!', 'success');
+            
+            // Если есть сообщения от Django, показываем их
+            if (data.messages) {
+                data.messages.forEach(msg => {
+                    showNotification(msg.message, msg.tags);
+                });
+            }
+        } else {
+            // Показываем ошибку
+            showNotification('Ошибка при обновлении профиля', 'error');
+            
+            // Если есть сообщения от Django, показываем их
+            if (data.messages) {
+                data.messages.forEach(msg => {
+                    showNotification(msg.message, msg.tags);
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Fallback - обычная отправка формы
+        this.submit();
+    })
+    .finally(() => {
+        // Возвращаем кнопку в исходное состояние
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type) {
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Автоматически удаляем через 5 секунд
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
 </script>

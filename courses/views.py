@@ -1113,20 +1113,60 @@ def student_profile(request):
                     message='Ваш запрос на редактирование профиля отправлен администратору.'
                 )
                 messages.success(request, 'Запрос на редактирование отправлен администратору.')
+            
+            # Возвращаем JSON для AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'messages': [{'message': 'Запрос на редактирование отправлен администратору.', 'tags': 'success'}]
+                })
             return redirect('student_profile')
         else:
-            form = StudentProfileForm(request.POST, request.FILES, instance=student)
-            if form.is_valid():
-                form.save()
-                student.profile_edited_once = True
+            # Обработка данных из вкладки профиля или из формы
+            try:
+                # Обновляем данные пользователя
+                user = student.user
+                if 'first_name' in request.POST:
+                    user.first_name = request.POST.get('first_name', '').strip()
+                if 'last_name' in request.POST:
+                    user.last_name = request.POST.get('last_name', '').strip()
+                if 'email' in request.POST:
+                    user.email = request.POST.get('email', '').strip()
+                user.save()
+                
+                # Обновляем данные студента
+                if 'phone_number' in request.POST:
+                    student.phone_number = request.POST.get('phone_number', '').strip()
+                
+                # Обрабатываем аватар
+                if 'avatar' in request.FILES and request.FILES['avatar']:
+                    student.avatar = request.FILES['avatar']
+                
                 student.save()
+                
                 messages.success(request, 'Профиль успешно обновлен!')
+                
+                # Возвращаем JSON для AJAX
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'messages': [{'message': 'Профиль успешно обновлен!', 'tags': 'success'}]
+                    })
                 return redirect('student_profile')
-            else:
-                # Добавляем отладочную информацию
-                messages.error(request, f'Ошибка при обновлении профиля: {form.errors}')
-    else:
-        form = StudentProfileForm(instance=student)
+                
+            except Exception as e:
+                messages.error(request, f'Ошибка при обновлении профиля: {str(e)}')
+                
+                # Возвращаем JSON для AJAX
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'messages': [{'message': f'Ошибка при обновлении профиля: {str(e)}', 'tags': 'error'}]
+                    })
+                return redirect('student_profile')
+
+    # Для GET запроса используем форму для совместимости
+    form = StudentProfileForm(instance=student)
 
     return render(request, 'courses/student_profile.html', {
         'form': form,
