@@ -493,8 +493,8 @@
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 80px;
-    height: 80px;
+    width: 120px;  /* было 80px, увеличиваем и на мобильных */
+    height: 120px;
     z-index: 2;
   }
 
@@ -503,8 +503,9 @@
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* убираем рамку вокруг медали уровня */
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 
   .current-level-info {
