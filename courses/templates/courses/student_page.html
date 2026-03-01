@@ -743,25 +743,20 @@
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-top: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 0.3rem 0;
+        padding: 0.5rem 0;
         z-index: 1000;
         display: none;
-        justify-content: space-around;
-        align-items: center;
       }
 
       .mobile-nav-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 0.3rem 0.5rem;
+        padding: 0.5rem 1rem;
         color: #667eea;
         text-decoration: none;
         transition: all 0.3s ease;
-        font-size: 0.7rem;
-        min-width: 0;
-        flex: 1;
-        text-align: center;
+        font-size: 0.8rem;
       }
 
       .mobile-nav-item:hover {
@@ -770,8 +765,8 @@
       }
 
       .mobile-nav-item i {
-        font-size: 1rem;
-        margin-bottom: 0.2rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
       }
 
       .mobile-notification-badge {
@@ -823,53 +818,6 @@
           padding: 0.5rem;
           color: #667eea;
         }
-      }
-    </style>
-    
-    <style>
-      /* Стили для кнопок профиля и выхода в сайдбаре */
-      .sidebar-nav {
-        flex: 1;
-        overflow-y: auto;
-      }
-      
-      .sidebar-actions {
-        margin-top: auto;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(74, 144, 226, 0.2);
-      }
-      
-      .profile-btn {
-        background: linear-gradient(135deg, #4A90E2, #357ABD) !important;
-        color: white !important;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s ease;
-      }
-      
-      .profile-btn:hover {
-        background: linear-gradient(135deg, #357ABD, #2968A8) !important;
-        transform: translateX(5px);
-        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-      }
-      
-      .logout-btn {
-        background: linear-gradient(135deg, #dc3545, #c82333) !important;
-        color: white !important;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-      }
-      
-      .logout-btn:hover {
-        background: linear-gradient(135deg, #c82333, #bd2130) !important;
-        transform: translateX(5px);
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-      }
-      
-      .profile-btn i,
-      .logout-btn i {
-        width: 20px;
-        text-align: center;
       }
     </style>
   </head>
@@ -933,26 +881,6 @@
             {% endif %}
           </a>
         </div>
-        <div class="nav-item">
-          <a
-            href="#profile"
-            class="nav-link sidebar-nav-link"
-            data-tab="profile"
-          >
-            <i class="fas fa-user"></i>
-            <span>Профиль</span>
-          </a>
-        </div>
-        
-        <!-- Кнопка выхода -->
-        <div class="sidebar-actions">
-          <div class="nav-item">
-            <a href="{% url 'logout' %}" class="nav-link sidebar-nav-link logout-btn">
-              <i class="fas fa-sign-out-alt"></i>
-              <span>Выйти</span>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
     <!-- Оверлей для сайдбара -->
@@ -967,7 +895,6 @@
           {% include 'courses/student_tabs/levels_tab.html' %}
           {% include 'courses/student_tabs/quizzes_tab.html' %}
           {% include 'courses/student_tabs/notifications_tab.html' %}
-          {% include 'courses/student_tabs/profile_tab.html' %}
         </div>
       </div>
     </main>
@@ -981,8 +908,6 @@
         @media (max-width: 768px) {
             .mobile-bottom-nav {
                 display: flex !important;
-                justify-content: space-around !important;
-                align-items: center !important;
                 position: fixed;
                 bottom: 0;
                 left: 0;
@@ -1008,7 +933,6 @@
             .mobile-nav-item.active {
                 color: #667eea;
                 background-color: #f8f9fa;
-                text-decoration: none !important;
             }
             
             .mobile-nav-item i {
@@ -1057,10 +981,6 @@
             {% if unread_notifications_count > 0 %}
             <span class="mobile-notification-badge">{{ unread_notifications_count }}</span>
             {% endif %}
-        </a>
-        <a href="#profile" class="mobile-nav-item" data-tab="profile">
-            <i class="fas fa-user"></i>
-            <span>Профиль</span>
         </a>
     </nav>
 
