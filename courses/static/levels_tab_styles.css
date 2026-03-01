@@ -50,8 +50,8 @@
   right: 15px !important;
   z-index: 3 !important;
   pointer-events: none !important;
-  width: 120px !important; /* Увеличено с 80px до 120px (1.5x) */
-  height: 120px !important; /* Увеличено с 80px до 120px (1.5x) */
+  width: 180px !important; /* ещё в 1.5 раза больше */
+  height: 180px !important;
   overflow: hidden !important;
   border-radius: 50% !important;
 }
@@ -94,7 +94,7 @@
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
-  padding-right: 110px; /* Место для картинки */
+  padding-right: 170px; /* Место для большей картинки */
 }
 
 .current-level-badge {

@@ -50,8 +50,8 @@
     right: 15px;
     z-index: 3;
     pointer-events: none;
-    width: 120px;  /* было 80px, увеличено примерно в 1.5 раза */
-    height: 120px;
+    width: 180px;  /* ещё в 1.5 раза больше, чем 120px */
+    height: 180px;
     overflow: hidden;
     border-radius: 50%;
 }
@@ -87,7 +87,7 @@
     gap: 2rem;
     margin-bottom: 2rem;
     /* Чтобы увеличенная картинка справа не наезжала на текст */
-    padding-right: 110px;
+    padding-right: 170px;
 }
 
 .current-level-badge {
