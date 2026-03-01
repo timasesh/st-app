@@ -43,6 +43,33 @@
     overflow: hidden;
 }
 
+/* Картинка уровня в правом верхнем углу (сторона студента) */
+.current-level-image {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 3;
+    pointer-events: none;
+    width: 120px;  /* было 80px, увеличено примерно в 1.5 раза */
+    height: 120px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.level-image-top-right {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    /* рамку убираем, оставляем только лёгкую тень */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    max-width: 100%;
+    max-height: 100%;
+    cursor: default;
+    user-select: none;
+}
+
 .current-level-card::before {
     content: '';
     position: absolute;
@@ -59,6 +86,8 @@
     align-items: center;
     gap: 2rem;
     margin-bottom: 2rem;
+    /* Чтобы увеличенная картинка справа не наезжала на текст */
+    padding-right: 110px;
 }
 
 .current-level-badge {
@@ -205,12 +234,12 @@
 }
 
 .level-image {
-    width: 80px;
-    height: 80px;
+    width: 120px;  /* было 80px, увеличили ~в 1.5 раза */
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: none; /* убрали рамку вокруг картинки уровня */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .level-image-placeholder {
