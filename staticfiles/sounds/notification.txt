@@ -1,0 +1,3 @@
+# This is a placeholder for notification sound file
+# In production, replace this with an actual MP3 file
+# File should be: notification.mp3
